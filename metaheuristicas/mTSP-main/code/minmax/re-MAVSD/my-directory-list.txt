@@ -1,0 +1,2647 @@
+The file basic.h contains:
+/*
+ * basic.h
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef BASIC_H_
+#define BASIC_H_
+#include<algorithm>
+#include <vector>
+#include<math.h>
+#include <iostream>
+#include <time.h>
+#include <string.h>
+#include <fstream>
+using namespace std;
+
+
+#define Max 1000000000
+#define num_pop 100// fixed number of population
+#define P_max 0.9
+#define P_min 0.15
+#define iter_Max 5000
+#define P_better 800
+#define P_c 300
+#define L_max 4
+
+
+
+#endif /* BASIC_H_ */
+
+The file cross_ctsp.cpp contains:
+/*
+ * perturbationfun.cpp
+ *
+ *  Created on: 19 Apr 2020
+ *      Author: Peng
+ */
+#include "basic.h"
+#include <math.h>
+#include <iostream>
+#include <vector>
+#include<algorithm>
+#include<stdlib.h>
+
+#include "cross_ctsp.h"
+using namespace std;
+cross_ctsp::cross_ctsp(read_data * data) {
+	num_v=data->num_v;
+//	num_s=data->num_s;
+	v_num=data->v_num;
+	I_data=data;
+	s_t_fa=new int [num_v+1];
+	s_t_ma=new int [num_v+1];
+	s_t_off=new int [num_v+1];
+	father=new int *[v_num];
+	mother=new int *[v_num];
+	father_r=new int *[v_num];
+	mother_r=new int *[v_num];
+	for (int i=0;i<=v_num-1;i++){
+		father[i]=new int [num_v+1];
+		mother[i]=new int [num_v+1];
+		father_r[i]=new int [num_v+1];
+		mother_r[i]=new int [num_v+1];
+	}
+}
+cross_ctsp::~cross_ctsp() {
+	delete [] s_t_fa;
+	delete [] s_t_ma;
+	delete [] s_t_off;
+	for (int i=0;i<=v_num-1;i++){
+		delete [] father[i];
+		delete [] mother[i];
+		delete [] father_r[i];
+		delete [] mother_r[i];
+	}
+	delete [] father;
+	delete [] mother;
+	delete [] father_r;
+	delete [] mother_r;
+}
+
+void cross_ctsp::mTour(){// the new crossover
+	int check_in[num_v+1];
+	int pointer;
+	for (int i=0;i<=v_num-1;i++){
+		for (int j=0;j<=num_v;j++){
+			father[i][j]=fa->sol[i][j];
+			mother[i][j]=ma->sol[i][j];
+			father_r[i][j]=fa->sol_r[i][j];
+			mother_r[i][j]=ma->sol_r[i][j];
+			off->sol[i][j]=-1;
+		}
+		off->sol[i][0]=0;
+	}
+	for (int i=0;i<=num_v;i++){
+		s_t_fa[i]=-1;
+		s_t_ma[i]=-1;
+	}
+	for (int i=0;i<=v_num-1;i++){
+		pointer=father[i][0];
+		while (pointer!=0){
+			s_t_fa[pointer]=i;
+			pointer=father[i][pointer];
+		}
+	}
+	for (int i=0;i<=v_num-1;i++){
+		pointer=mother[i][0];
+		while (pointer!=0){
+			s_t_ma[pointer]=i;
+			pointer=mother[i][pointer];
+		}
+	}
+	vector<vector<double> >orderF(v_num);
+	vector<vector<double> >orderM(v_num);
+	for (int i=0;i<=v_num-1;i++){
+		orderF[i].push_back(fa->fit_tour[i]);
+		orderF[i].push_back(i);
+		orderM[i].push_back(ma->fit_tour[i]);
+		orderM[i].push_back(i);
+	}
+	sort(orderF.begin(),orderF.end());
+	sort(orderM.begin(),orderM.end());
+	int p_next;int p_previous;
+	for (int i=0;i<=v_num-1;i++){
+		if (rand()%2==1){// father
+			for (int j=0;j<=num_v;j++)
+				off->sol[i][j]=father[i][j];
+			pointer=father[i][0];if (pointer==0)continue;
+			while (1){
+				if (s_t_ma[pointer]!=i){// the city "pointer" should be deleted from route s_t_ma[pointer] of ma
+					p_next=mother[s_t_ma[pointer]][pointer];
+					p_previous=mother_r[s_t_ma[pointer]][pointer];
+					mother[s_t_ma[pointer]][p_previous]=p_next;
+					mother_r[s_t_ma[pointer]][p_next]=p_previous;
+					mother[s_t_ma[pointer]][pointer]=-1;
+					mother_r[s_t_ma[pointer]][pointer]=-1;
+				}
+				pointer=father[i][pointer];
+				if (pointer==0)break;
+			}
+		}
+		else{// mother
+			for (int j=0;j<=num_v;j++)
+				off->sol[i][j]=mother[i][j];
+			pointer=mother[i][0];if (pointer==0)continue;
+			while (1){
+				if (s_t_fa[pointer]!=i){// the city "pointer" should be deleted from route s_t_ma[pointer] of ma
+					p_next=father[s_t_fa[pointer]][pointer];
+					p_previous=father_r[s_t_fa[pointer]][pointer];
+					father[s_t_fa[pointer]][p_previous]=p_next;
+					father_r[s_t_fa[pointer]][p_next]=p_previous;
+					father[s_t_fa[pointer]][pointer]=-1;
+					father_r[s_t_fa[pointer]][pointer]=-1;
+				}
+				pointer=mother[i][pointer];
+				if (pointer==0)
+					break;
+			}
+
+		}
+	}
+	// enters the stage two. inserting all unassigning cities
+	for (int i=0;i<=num_v;i++)
+		check_in[i]=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=off->sol[i][0];
+		while(pointer!=0){
+			check_in[pointer]=1;
+			pointer=off->sol[i][pointer];
+		}
+	}
+	for (int i=0;i<=v_num-1;i++){
+		off->fit_tour[i]=0;
+		pointer=0;
+		while (1){
+			off->fit_tour[i]+=I_data->Distance[pointer][off->sol[i][pointer]];
+			pointer=off->sol[i][pointer];
+			if (pointer==0)break;
+		}
+	}
+	off->fitness=0;
+	int best_index;
+	for (int i=0;i<=v_num-1;i++)
+		if (off->fitness<off->fit_tour[i]){
+			off->fitness=off->fit_tour[i];
+			best_index=i;
+		}
+	double delta_l,delta_b;double delta;int row_l,pos_l,row_b,pos_b,tem;
+	for (int i=1;i<=num_v;i++){
+		if (check_in[i]==0){
+			delta_l=Max;delta_b=Max;
+			for (int j=0;j<=v_num-1;j++){
+				pointer=0;
+				while (1){
+					p_next=off->sol[j][pointer];
+					delta=I_data->Distance[pointer][i]+I_data->Distance[i][p_next]-I_data->Distance[pointer][p_next];
+					if (j!=best_index){
+						if (delta<delta_l){
+							delta_l=delta;
+							row_l=j;
+							pos_l=pointer;
+						}
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					else{
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					pointer=p_next;
+					if(pointer==0)
+						break;
+				}
+			}
+			if (row_b==best_index && off->fit_tour[row_l]+delta_l > off->fitness){
+				tem=off->sol[row_b][pos_b];
+				off->sol[row_b][pos_b]=i;
+				off->sol[row_b][i]=tem;
+				off->fit_tour[row_b]+=delta_b;
+				off->fitness=off->fit_tour[row_b];
+			}
+			else{
+				tem=off->sol[row_l][pos_l];
+				off->sol[row_l][pos_l]=i;
+				off->sol[row_l][i]=tem;
+				off->fit_tour[row_l]+=delta_l;
+				if (off->fit_tour[row_l]>off->fitness){
+					off->fitness=off->fit_tour[row_l];
+					best_index=row_l;
+				}
+			}
+		}
+	}
+	repair();
+}
+double cross_ctsp::determine_prob(int iter){
+	double prob=(P_max-P_min)*iter/iter_Max + P_min;
+	return prob;
+}
+void cross_ctsp::mutation(int iter){
+			for (int i=0;i<=v_num-1;i++)
+				for (int j=0;j<=num_v;j++){
+					father[i][j]=fa->sol[i][j];
+					father_r[i][j]=fa->sol_r[i][j];
+				}
+
+
+
+	int check_in[num_v+1];
+	for (int i=0;i<=num_v;i++)
+		check_in[i]=1;
+	double P_copy=determine_prob(iter);
+	int pointer;int rand_num;int off_pointer;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=father[i][0];
+		off_pointer=0;
+		while (1){
+			rand_num=rand()%1000;
+			if (rand_num<P_copy*1000){
+				off->sol[i][off_pointer]=pointer;
+				off_pointer=off->sol[i][off_pointer];
+			}
+			else{
+				check_in[pointer]=0;
+			}
+			pointer=father[i][pointer];
+			if (pointer==0)break;
+		}
+		off->sol[i][off_pointer]=0;
+	}
+	off->fitness=0;
+	int best_index;
+	for (int i=0;i<=v_num-1;i++)
+		if (off->fitness<off->fit_tour[i]){
+			off->fitness=off->fit_tour[i];
+			best_index=i;
+		}
+
+	double delta_l,delta_b;double delta;int row_l,pos_l,row_b,pos_b,tem;int p_next;
+	for (int i=1;i<=num_v;i++){
+		if (check_in[i]==0){
+			delta_l=Max;delta_b=Max;
+			for (int j=0;j<=v_num-1;j++){
+				pointer=0;
+				while (1){
+					p_next=off->sol[j][pointer];
+					delta=I_data->Distance[pointer][i]+I_data->Distance[i][p_next]-I_data->Distance[pointer][p_next];
+					if (j!=best_index){
+						if (delta<delta_l){
+							delta_l=delta;
+							row_l=j;
+							pos_l=pointer;
+						}
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					else{
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					pointer=p_next;
+					if(pointer==0)
+						break;
+				}
+			}
+			if (row_b==best_index && off->fit_tour[row_l]+delta_l > off->fitness){
+				tem=off->sol[row_b][pos_b];
+				off->sol[row_b][pos_b]=i;
+				off->sol[row_b][i]=tem;
+				off->fit_tour[row_b]+=delta_b;
+				off->fitness=off->fit_tour[row_b];
+			}
+			else{
+				tem=off->sol[row_l][pos_l];
+				off->sol[row_l][pos_l]=i;
+				off->sol[row_l][i]=tem;
+				off->fit_tour[row_l]+=delta_l;
+				if (off->fit_tour[row_l]>off->fitness){
+					off->fitness=off->fit_tour[row_l];
+					best_index=row_l;
+				}
+			}
+		}
+	}
+	repair();
+}
+
+void cross_ctsp::repair(){
+	int row,pointer;int p_next;
+	int count=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=0;
+		while (1){
+			pointer=off->sol[i][pointer];
+			if (pointer>0)
+				count++;
+			if (pointer==0)break;
+		}
+	}
+	if (count!=num_v){
+		cout<<"Here is a problem "<<endl;
+		exit(0);
+	}
+	for (int i=0;i<=v_num-1;i++){
+		if (off->sol[i][0]<0 || off->sol[i][0]>num_v ){
+			cout<<"Here is a abnormal operation"<<endl;
+			exit(0);
+		}
+		if (off->sol[i][0]==0){// select a city from other route to insert into this route.
+			while (1){
+				row=rand()%v_num;
+				if (row==i)continue;
+				pointer=off->sol[row][0];
+				if (off->sol[row][pointer]!=0 && row!=i)
+					break;
+			}
+			pointer=off->sol[row][0];
+			p_next=off->sol[row][pointer];
+			off->sol[i][0]=pointer;
+			off->sol[i][pointer]=0;
+			off->sol[row][0]=p_next;
+			off->sol[row][pointer]=-1;
+		}
+	}
+	off->fitness=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=0;off->fit_tour[i]=0;
+		while (1){
+			off->fit_tour[i]+=I_data->Distance[pointer][off->sol[i][pointer]];
+			pointer=off->sol[i][pointer];
+			if (pointer==0)break;
+		}
+		if (off->fit_tour[i] > off->fitness){
+			off->fitness=off->fit_tour[i];
+		}
+	}
+}
+
+
+
+
+The file cross_ctsp.h contains:
+/*
+ * perturbationfun.h
+ *
+ *  Created on: 19 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef CROSS_CTSP_H_
+#define CROSS_CTSP_H_
+#include "Individual.h"
+#include "read_data.h"
+#include <vector>
+class cross_ctsp {
+public:
+	cross_ctsp(read_data * data);
+	virtual ~cross_ctsp();
+	void mTour();
+	void mutation(int iter);
+	read_data * I_data;
+	Individual * fa;
+	Individual * ma;
+	Individual * off;
+private:
+	// these methods are used by Edge_nn();
+	double get_delta(int left,int insert,int right);
+	double determine_prob(int iter);
+	void repair();
+	int *s_t_fa;// to record the cities are included in which route
+	int *s_t_ma;
+	int *s_t_off;
+	int **father;
+	int **mother;
+	int **father_r;
+	int **mother_r;
+	int num_v;
+	int v_num;
+};
+
+#endif /* CROSS_CTSP_H_ */
+
+The file Individual.cpp contains:
+/*
+ * Indi.cpp
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#include "Individual.h"
+
+Individual::Individual() {
+
+}
+Individual::~Individual() {
+	for (int i=0;i<=v_num-1;i++)
+	{
+		delete [] sol[i];
+		delete [] sol_r[i];
+	}
+	delete [] sol;
+	delete [] sol_r;
+	delete [] fit_tour;
+}
+void Individual::define(int number_nodes,int number_vehicles){
+	num_v=number_nodes;
+	v_num=number_vehicles;
+	sol=new int *[v_num];
+	sol_r=new int *[v_num];
+	fit_tour=new double [v_num];
+	for (int i=0;i<=v_num-1;i++)
+	{
+		sol[i]=new int [num_v+1];
+		sol_r[i]=new int [num_v+1];
+	}
+}
+
+The file Individual.h contains:
+/*
+ * Indi.h
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef INDIVIDUAL_H_
+#define INDIVIDUAL_H_
+
+class Individual {
+public:
+	Individual();
+	virtual ~Individual();
+	void define(int number_nodes,int number_vehicles);
+	int ** sol;
+	int ** sol_r;
+	int num_v;
+	int v_num;
+	double *fit_tour;
+	double fitness;
+};
+
+#endif /* INDI_H_ */
+
+The file initialsol.cpp contains:
+/*
+ * initialsol.cpp
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+#include "basic.h"
+#include "initialsol.h"
+#include <vector>
+#include<math.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+initial_sol::initial_sol() {
+}
+
+initial_sol::~initial_sol() {
+	// TODO Auto-generated destructor stub
+}
+void initial_sol::random_fun()// to construct the greedy solution
+{
+	for (int i=0;i<=I_data->v_num-1;i++){
+		for (int j=1;j<=I_data->num_v;j++)
+			s->sol[i][j]=-1;
+		s->sol[i][0]=0;
+		s->fit_tour[i]=0;
+	}
+	vector <  int > node;
+	for (int i=1;i<=I_data->num_v;i++)
+		node.push_back(i);
+	random_shuffle(node.begin(), node.end());
+	int last[I_data->v_num];// this array is used to save the last city for each routes
+	for (int i=0;i<=I_data->v_num-1;i++){// determine that each route includes one city at least.
+		s->sol[i][0]=node[i];
+		s->sol[i][node[i]]=0;
+		last[i]=node[i];
+	}
+	int row;
+	int size_node1=node.size();
+	for (int i=I_data->v_num;i<=size_node1-1;i++){// select randomly a route to insert the city i
+		row=rand()%I_data->v_num;
+		s->sol[row][last[row]]=node[i];
+		s->sol[row][node[i]]=0;
+		last[row]=node[i];
+	}
+	int pointer;
+	for (int i=0;i<=I_data->v_num-1;i++){
+		pointer=0;
+		while(1){
+			s->fit_tour[i]+=I_data->Distance[pointer][s->sol[i][pointer]];
+			pointer=s->sol[i][pointer];
+			if (pointer==0)
+				break;
+		}
+	}
+	s->fitness=0;
+	for (int i=0;i<=I_data->v_num-1;i++)
+		if (s->fitness<s->fit_tour[i])
+			s->fitness=s->fit_tour[i];
+}
+
+The file initialsol.h contains:
+/*
+ * initialsol.h
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef INITIALSOL_H_
+#define INITIALSOL_H_
+#include "read_data.h"
+#include "Individual.h"
+class initial_sol {
+public:
+	initial_sol();
+	virtual ~initial_sol();
+	void random_fun();
+	Individual * s;
+	read_data * I_data;
+};
+
+#endif /* INITIALSOL_H_ */
+
+The file LS.cpp contains:
+/*
+ * LS.cpp
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#include "LS.h"
+#include "basic.h"
+#include "Tstwoopt.h"
+//#include "EAX.h"
+#include <iostream>
+#include <vector>
+#include "Individual.h"
+using namespace std;
+LS::LS(read_data * data) {
+	num_v=data->num_v;
+	v_num=data->v_num;
+//	num_s=data->num_s;
+	tem=new Individual();
+	tem->define(num_v,v_num);
+	each_route=new Tstwoopt (data);
+	each_route->I_data=data;
+	record_table=new int [v_num];
+	s_t=new int [num_v+1];
+
+}
+LS::~LS() {
+	delete tem;
+	delete each_route;
+	delete [] record_table;
+	delete [] s_t;
+}
+void LS::update_best_solution(){
+	if (s->fitness < b_s->fitness){
+		for (int i=0;i<=v_num-1;i++){
+			for (int j=0;j<=num_v;j++){
+				b_s->sol[i][j]=s->sol[i][j];
+				b_s->sol_r[i][j]=s->sol_r[i][j];
+			}
+			b_s->fit_tour[i]=s->fit_tour[i];
+		}
+		b_s->fitness=s->fitness;
+	}
+}
+void LS::reverse_fun(){// get value for sol_r;
+	int pointer;
+	vector<int >tour;
+	for (int i=0;i<=v_num-1;i++)	{
+		pointer=s->sol[i][0];
+		while (pointer!=0)		{
+			tour.push_back(pointer);
+			pointer=s->sol[i][pointer];
+		}
+		s->sol_r[i][0]=tour.back();
+		tour.pop_back();
+		pointer=s->sol_r[i][0];
+		while (tour.size())		{
+			s->sol_r[i][pointer]=tour.back();
+			pointer=s->sol_r[i][pointer];
+			tour.pop_back();
+		}
+		s->sol_r[i][pointer]=0;
+	}
+}
+void LS::intra_route_optimization(){// this method will include many methods to optimize each route, such as 2-opt, Lk and EAX.
+	tem->fitness=s->fitness;
+	int pointer;
+	for (int i=0;i<=v_num-1;i++)
+		for (int j=0;j<=num_v;j++){
+			tem->sol[i][j]=s->sol[i][j];
+			tem->sol_r[i][j]=s->sol_r[i][j];
+		}
+	int number_routes[v_num];
+	int route[num_v+1];
+	for (int i=0;i<=v_num-1;i++){
+		if (record_table[i]==1){
+			record_table[i]=0;
+			pointer=s->sol[i][0];number_routes[i]=0;
+			route[number_routes[i]]=0;number_routes[i]++;
+			while (1){
+				if (pointer==0)
+					break;
+				else{
+					route[number_routes[i]]=pointer;
+					number_routes[i]++;
+					pointer=s->sol[i][pointer];
+				}
+			}
+			int sub_route[number_routes[i]];
+			for (int j=0;j<=number_routes[i]-1;j++)
+				sub_route[j]=route[j];
+			if (number_routes[i]<=4)continue;
+			if (opt_2==1)
+				each_route->twoopt(sub_route,number_routes[i]);
+			pointer=0;
+
+
+			for (int j=1;j<=number_routes[i]-1;j++){
+				tem->sol[i][pointer]=sub_route[j];
+				pointer=tem->sol[i][pointer];
+			}
+			tem->sol[i][pointer]=0;
+			pointer=0;
+			for (int j=number_routes[i]-1;j>=1;j--){
+				tem->sol_r[i][pointer]=sub_route[j];
+				pointer=tem->sol_r[i][pointer];
+			}
+			tem->sol_r[i][pointer]=0;
+		}
+		else
+			continue;
+	}
+	double current_cost=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=0;tem->fit_tour[i]=0;
+		while (1){
+			tem->fit_tour[i]+=I_data->Distance[pointer][tem->sol[i][pointer]];
+			if (tem->sol[i][pointer]==0)
+				break;
+			else
+				pointer=tem->sol[i][pointer];
+		}
+	}
+	for (int i=0;i<=v_num-1;i++){
+		if (tem->fit_tour[i]>current_cost)
+			current_cost=tem->fit_tour[i];
+	}
+	if (current_cost<s->fitness){
+		s->fitness=current_cost;
+		for (int i=0;i<=v_num-1;i++){
+			for (int j=0;j<=num_v;j++){
+				s->sol[i][j]=tem->sol[i][j];
+				s->sol_r[i][j]=tem->sol_r[i][j];
+			}
+			s->fit_tour[i]=tem->fit_tour[i];
+		}
+	}
+	update_best_solution();
+}
+void LS::get_s_t(){
+	int pointer=0;
+	for (int i=0;i<=num_v;i++)
+		s_t[i]=-1;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=s->sol[i][pointer];
+		while(1){
+			s_t[pointer]=i;
+			pointer=s->sol[i][pointer];
+			if (pointer==0)
+				break;
+		}
+	}
+}
+double LS::calculate_data(int long_tour,int pointer,int p_end,int tour,int pos_l){
+	double delta,delta1,delta2;
+	delta1=I_data->Distance[s->sol_r[long_tour][pointer]][s->sol[long_tour][p_end]]-
+			I_data->Distance[s->sol_r[long_tour][pointer]][pointer]-
+			I_data->Distance[s->sol[long_tour][p_end]][p_end];
+	delta2=	I_data->Distance[pos_l][pointer]+I_data->Distance[s->sol[tour][pos_l]][p_end]-
+			I_data->Distance[pos_l][s->sol[tour][pos_l]];
+	double reduce=delta1+s->fit_tour[long_tour];
+	double reduce2=delta2+s->fit_tour[tour];
+	if (reduce>reduce2)
+		delta=reduce;
+	else
+		delta=reduce2;
+	delta=delta-s->fitness;
+	return delta;
+}
+void LS::replace(int long_tour,int pointer,int p_end,int tour,int pos_l,int iden){
+	int p_pre,p_next;
+	if (iden==1){
+		p_pre=s->sol_r[long_tour][pointer];
+		p_next=s->sol[long_tour][pointer];
+		s->sol[long_tour][p_pre]=p_next;
+		s->sol[long_tour][pointer]=-1;
+		s->sol_r[long_tour][p_next]=p_pre;
+		s->sol_r[long_tour][pointer]=-1;
+		//
+		p_next=s->sol[tour][pos_l];
+//		p_pre=s->sol_r[tour][pos_l];
+		s->sol[tour][pos_l]=pointer;
+		s->sol[tour][pointer]=p_next;
+		s->sol_r[tour][p_next]=pointer;
+		s->sol_r[tour][pointer]=pos_l;
+	}
+	if (iden>1){
+		vector <int >substring;
+		int p=pointer;substring.push_back(p);
+		while (1){
+			p=s->sol[long_tour][p];
+			substring.push_back(p);
+			if (p==p_end)
+				break;
+		}
+		p_pre=s->sol_r[long_tour][pointer];
+		p_next=s->sol[long_tour][p_end];
+		s->sol[long_tour][p_pre]=p_next;
+		s->sol_r[long_tour][p_next]=p_pre;
+		int size_node=substring.size();
+		for (int i=0;i<=size_node-1;i++){
+			s->sol[long_tour][substring[i]]=-1;
+			s->sol_r[long_tour][substring[i]]=-1;
+		}
+		//
+//		for (int i=0;i<=size_node-1;i++)
+//			cout<<substring[i]<<"  ";
+//		cout<<endl;
+		p_next=s->sol[tour][pos_l];
+		s->sol[tour][pos_l]=substring[0];
+		for ( int i=1;i<=size_node-1;i++){
+			s->sol[tour][substring[i-1]]=substring[i];
+		}
+		s->sol[tour][substring[size_node-1]]=p_next;
+
+		s->sol_r[tour][p_next]=substring[size_node-1];
+		for (int j=size_node-1;j>=1;j--){
+			s->sol_r[tour][substring[j]]=substring[j-1];
+		}
+		s->sol_r[tour][substring[0]]=pos_l;
+	}
+
+
+	int p;
+	for (int i=0;i<=v_num-1;i++){
+		if (i==long_tour ||i==tour){
+			p=0;s->fit_tour[i]=0;
+			while(1){
+				s->fit_tour[i]+=I_data->Distance[p][s->sol[i][p]];
+				p=s->sol[i][p];
+				if (p==0)break;
+			}
+		}
+	}
+	s->fitness=0;
+	for (int i=0;i<=v_num-1;i++){
+		if (s->fitness<s->fit_tour[i])
+			s->fitness=s->fit_tour[i];
+	}
+}
+void LS::one_point(){
+	get_s_t();// get each node's information
+	int pointer,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,pointer,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		if (pointer==0)break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,pointer,tour,pos_l,1);
+}
+void LS::or_opt2(){
+	int pointer,p_end,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	p_end=s->sol[long_tour][pointer];if (p_end==0)return;
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,p_end,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		p_end=s->sol[long_tour][p_end];
+		if (p_end==0 )break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,p_end,tour,pos_l,2);
+}
+void LS::or_opt3(){
+	int pointer,p_end,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	p_end=s->sol[long_tour][pointer];if (p_end==0)return;
+	p_end=s->sol[long_tour][p_end];
+	if (p_end==0)return;
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,p_end,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		p_end=s->sol[long_tour][p_end];
+		if (p_end==0)break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,p_end,tour,pos_l,3);
+}
+void LS::or_opt4(){
+	int pointer,p_end,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	p_end=s->sol[long_tour][pointer];if (p_end==0)return;
+	p_end=s->sol[long_tour][p_end];if (p_end==0)return;
+	p_end=s->sol[long_tour][p_end];
+	if (p_end==0)return;
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,p_end,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		p_end=s->sol[long_tour][p_end];
+		if (p_end==0 )break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,p_end,tour,pos_l,3);
+}
+void LS::local_search(int algorithm){
+	for (int i=0;i<=v_num-1;i++)
+		record_table[i]=1;
+	if (algorithm==1){// go to 2-opt
+		opt_2=1;
+		intra_route_optimization();
+		reverse_fun();
+		return;
+	}
+	else
+		opt_2=0;
+
+	reverse_fun();// get value for sol_r;
+	opt_2=1;
+	one_point();
+	or_opt2();
+	or_opt3();
+	or_opt4();
+	intra_route_optimization();
+	//cout<<ceil((clock() - I_data->start)/static_cast<double>(CLOCKS_PER_SEC))<<endl;
+}
+
+
+The file LS.h contains:
+/*
+ * LS.h
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef LS_H_
+#define LS_H_
+#include "Individual.h"
+#include "read_data.h"
+#include "Tstwoopt.h"
+class LS {
+public:
+	// methods
+	LS(read_data * data);
+	virtual ~LS();
+	void local_search(int algorithm);
+	// variables
+	Individual* s;
+	Individual*b_s;
+	Individual * tem;
+	read_data * I_data;
+	Tstwoopt * each_route;
+	int time_length;
+
+private:
+	void one_point();
+	void or_opt2();
+	void or_opt3();
+	void or_opt4();
+	void get_s_t();
+	void update_best_solution();
+	void reverse_fun();
+	void intra_route_optimization();
+	void replace(int long_tour,int pointer,int p_end,int tour,int pos_l,int iden);
+	double calculate_data(int long_tour,int pointer,int p_end,int tour,int pos_l);
+	// general variables
+	int num_v;
+	int v_num;
+	int* record_table;
+	int * s_t;// this variable is used to record cities are belonged to which routes during in searching
+	int opt_2;
+};
+#endif /* LS_H_ */
+
+The file main.cpp contains:
+/*
+ * main.cpp
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+#include"solution.h"
+#include<iostream>
+using namespace std;
+int main(int argc, char*argv[]){
+	if (argc!=5){
+		cout << "the input parameters in configuration are wrong" << endl;
+		return 0;
+	}
+	int rand_num;
+	int time_length;
+	int number;
+	sscanf(argv[2],"%d",&number);
+	sscanf(argv[3],"%d",&time_length);
+	sscanf(argv[4],"%d",&rand_num);
+	solution* sol=new solution();// assign a new object for class solution.
+	sol->define(argv[1],time_length,number);// initialization all data and assigning memory
+	srand(rand_num);
+	sol->main_loop(rand_num);// in this place the running time could be input
+	delete sol;
+	return 0;
+}
+
+The file Makefile contains:
+# test.cpp tabu_search.cpp basic.h
+tar = mavsd
+obj = cross_ctsp.o   Individual.o  LS.o read_data.o Tstwoopt.o initialsol.o solution.o main.o
+deps = cross_ctsp.h   Individual.h  LS.h  read_data.h Tstwoopt.h initialsol.h solution.h basic.h
+cc = g++
+RMRF :=rm -rf
+
+$(tar): $(obj)      # transfer to exe files
+	$(cc) $^ -o $@
+#test: tabu_search.o test.o
+#	g++ tabu_search.o test.o -o test
+%.o: %.c $(deps)    # head files
+	$(cc) -c %.c -o %.o   # transfer a file
+#test.o: test.cpp
+#	g++ -c test.cpp -o test.o
+#tabu_search.o: tabu_search.cpp
+#	g++ -c tabu_search.cpp -o tabu_search.o
+
+.PHONY:
+clearall:
+	$(RMRF) $(obj) $(tar)
+clear:
+	$(RMRF) $(obj) 
+The file my-directory-list.txt contains:
+The file basic.h contains:
+/*
+ * basic.h
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef BASIC_H_
+#define BASIC_H_
+#include<algorithm>
+#include <vector>
+#include<math.h>
+#include <iostream>
+#include <time.h>
+#include <string.h>
+#include <fstream>
+using namespace std;
+
+
+#define Max 1000000000
+#define num_pop 100// fixed number of population
+#define P_max 0.9
+#define P_min 0.15
+#define iter_Max 5000
+#define P_better 800
+#define P_c 300
+#define L_max 4
+
+
+
+#endif /* BASIC_H_ */
+
+The file cross_ctsp.cpp contains:
+/*
+ * perturbationfun.cpp
+ *
+ *  Created on: 19 Apr 2020
+ *      Author: Peng
+ */
+#include "basic.h"
+#include <math.h>
+#include <iostream>
+#include <vector>
+#include<algorithm>
+#include<stdlib.h>
+
+#include "cross_ctsp.h"
+using namespace std;
+cross_ctsp::cross_ctsp(read_data * data) {
+	num_v=data->num_v;
+//	num_s=data->num_s;
+	v_num=data->v_num;
+	I_data=data;
+	s_t_fa=new int [num_v+1];
+	s_t_ma=new int [num_v+1];
+	s_t_off=new int [num_v+1];
+	father=new int *[v_num];
+	mother=new int *[v_num];
+	father_r=new int *[v_num];
+	mother_r=new int *[v_num];
+	for (int i=0;i<=v_num-1;i++){
+		father[i]=new int [num_v+1];
+		mother[i]=new int [num_v+1];
+		father_r[i]=new int [num_v+1];
+		mother_r[i]=new int [num_v+1];
+	}
+}
+cross_ctsp::~cross_ctsp() {
+	delete [] s_t_fa;
+	delete [] s_t_ma;
+	delete [] s_t_off;
+	for (int i=0;i<=v_num-1;i++){
+		delete [] father[i];
+		delete [] mother[i];
+		delete [] father_r[i];
+		delete [] mother_r[i];
+	}
+	delete [] father;
+	delete [] mother;
+	delete [] father_r;
+	delete [] mother_r;
+}
+
+void cross_ctsp::mTour(){// the new crossover
+	int check_in[num_v+1];
+	int pointer;
+	for (int i=0;i<=v_num-1;i++){
+		for (int j=0;j<=num_v;j++){
+			father[i][j]=fa->sol[i][j];
+			mother[i][j]=ma->sol[i][j];
+			father_r[i][j]=fa->sol_r[i][j];
+			mother_r[i][j]=ma->sol_r[i][j];
+			off->sol[i][j]=-1;
+		}
+		off->sol[i][0]=0;
+	}
+	for (int i=0;i<=num_v;i++){
+		s_t_fa[i]=-1;
+		s_t_ma[i]=-1;
+	}
+	for (int i=0;i<=v_num-1;i++){
+		pointer=father[i][0];
+		while (pointer!=0){
+			s_t_fa[pointer]=i;
+			pointer=father[i][pointer];
+		}
+	}
+	for (int i=0;i<=v_num-1;i++){
+		pointer=mother[i][0];
+		while (pointer!=0){
+			s_t_ma[pointer]=i;
+			pointer=mother[i][pointer];
+		}
+	}
+	vector<vector<double> >orderF(v_num);
+	vector<vector<double> >orderM(v_num);
+	for (int i=0;i<=v_num-1;i++){
+		orderF[i].push_back(fa->fit_tour[i]);
+		orderF[i].push_back(i);
+		orderM[i].push_back(ma->fit_tour[i]);
+		orderM[i].push_back(i);
+	}
+	sort(orderF.begin(),orderF.end());
+	sort(orderM.begin(),orderM.end());
+	int p_next;int p_previous;
+	for (int i=0;i<=v_num-1;i++){
+		if (rand()%2==1){// father
+			for (int j=0;j<=num_v;j++)
+				off->sol[i][j]=father[i][j];
+			pointer=father[i][0];if (pointer==0)continue;
+			while (1){
+				if (s_t_ma[pointer]!=i){// the city "pointer" should be deleted from route s_t_ma[pointer] of ma
+					p_next=mother[s_t_ma[pointer]][pointer];
+					p_previous=mother_r[s_t_ma[pointer]][pointer];
+					mother[s_t_ma[pointer]][p_previous]=p_next;
+					mother_r[s_t_ma[pointer]][p_next]=p_previous;
+					mother[s_t_ma[pointer]][pointer]=-1;
+					mother_r[s_t_ma[pointer]][pointer]=-1;
+				}
+				pointer=father[i][pointer];
+				if (pointer==0)break;
+			}
+		}
+		else{// mother
+			for (int j=0;j<=num_v;j++)
+				off->sol[i][j]=mother[i][j];
+			pointer=mother[i][0];if (pointer==0)continue;
+			while (1){
+				if (s_t_fa[pointer]!=i){// the city "pointer" should be deleted from route s_t_ma[pointer] of ma
+					p_next=father[s_t_fa[pointer]][pointer];
+					p_previous=father_r[s_t_fa[pointer]][pointer];
+					father[s_t_fa[pointer]][p_previous]=p_next;
+					father_r[s_t_fa[pointer]][p_next]=p_previous;
+					father[s_t_fa[pointer]][pointer]=-1;
+					father_r[s_t_fa[pointer]][pointer]=-1;
+				}
+				pointer=mother[i][pointer];
+				if (pointer==0)
+					break;
+			}
+
+		}
+	}
+	// enters the stage two. inserting all unassigning cities
+	for (int i=0;i<=num_v;i++)
+		check_in[i]=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=off->sol[i][0];
+		while(pointer!=0){
+			check_in[pointer]=1;
+			pointer=off->sol[i][pointer];
+		}
+	}
+	for (int i=0;i<=v_num-1;i++){
+		off->fit_tour[i]=0;
+		pointer=0;
+		while (1){
+			off->fit_tour[i]+=I_data->Distance[pointer][off->sol[i][pointer]];
+			pointer=off->sol[i][pointer];
+			if (pointer==0)break;
+		}
+	}
+	off->fitness=0;
+	int best_index;
+	for (int i=0;i<=v_num-1;i++)
+		if (off->fitness<off->fit_tour[i]){
+			off->fitness=off->fit_tour[i];
+			best_index=i;
+		}
+	double delta_l,delta_b;double delta;int row_l,pos_l,row_b,pos_b,tem;
+	for (int i=1;i<=num_v;i++){
+		if (check_in[i]==0){
+			delta_l=Max;delta_b=Max;
+			for (int j=0;j<=v_num-1;j++){
+				pointer=0;
+				while (1){
+					p_next=off->sol[j][pointer];
+					delta=I_data->Distance[pointer][i]+I_data->Distance[i][p_next]-I_data->Distance[pointer][p_next];
+					if (j!=best_index){
+						if (delta<delta_l){
+							delta_l=delta;
+							row_l=j;
+							pos_l=pointer;
+						}
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					else{
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					pointer=p_next;
+					if(pointer==0)
+						break;
+				}
+			}
+			if (row_b==best_index && off->fit_tour[row_l]+delta_l > off->fitness){
+				tem=off->sol[row_b][pos_b];
+				off->sol[row_b][pos_b]=i;
+				off->sol[row_b][i]=tem;
+				off->fit_tour[row_b]+=delta_b;
+				off->fitness=off->fit_tour[row_b];
+			}
+			else{
+				tem=off->sol[row_l][pos_l];
+				off->sol[row_l][pos_l]=i;
+				off->sol[row_l][i]=tem;
+				off->fit_tour[row_l]+=delta_l;
+				if (off->fit_tour[row_l]>off->fitness){
+					off->fitness=off->fit_tour[row_l];
+					best_index=row_l;
+				}
+			}
+		}
+	}
+	repair();
+}
+double cross_ctsp::determine_prob(int iter){
+	double prob=(P_max-P_min)*iter/iter_Max + P_min;
+	return prob;
+}
+void cross_ctsp::mutation(int iter){
+			for (int i=0;i<=v_num-1;i++)
+				for (int j=0;j<=num_v;j++){
+					father[i][j]=fa->sol[i][j];
+					father_r[i][j]=fa->sol_r[i][j];
+				}
+
+
+
+	int check_in[num_v+1];
+	for (int i=0;i<=num_v;i++)
+		check_in[i]=1;
+	double P_copy=determine_prob(iter);
+	int pointer;int rand_num;int off_pointer;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=father[i][0];
+		off_pointer=0;
+		while (1){
+			rand_num=rand()%1000;
+			if (rand_num<P_copy*1000){
+				off->sol[i][off_pointer]=pointer;
+				off_pointer=off->sol[i][off_pointer];
+			}
+			else{
+				check_in[pointer]=0;
+			}
+			pointer=father[i][pointer];
+			if (pointer==0)break;
+		}
+		off->sol[i][off_pointer]=0;
+	}
+	off->fitness=0;
+	int best_index;
+	for (int i=0;i<=v_num-1;i++)
+		if (off->fitness<off->fit_tour[i]){
+			off->fitness=off->fit_tour[i];
+			best_index=i;
+		}
+
+	double delta_l,delta_b;double delta;int row_l,pos_l,row_b,pos_b,tem;int p_next;
+	for (int i=1;i<=num_v;i++){
+		if (check_in[i]==0){
+			delta_l=Max;delta_b=Max;
+			for (int j=0;j<=v_num-1;j++){
+				pointer=0;
+				while (1){
+					p_next=off->sol[j][pointer];
+					delta=I_data->Distance[pointer][i]+I_data->Distance[i][p_next]-I_data->Distance[pointer][p_next];
+					if (j!=best_index){
+						if (delta<delta_l){
+							delta_l=delta;
+							row_l=j;
+							pos_l=pointer;
+						}
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					else{
+						if (delta_b>delta){
+							delta_b=delta;
+							row_b=j;
+							pos_b=pointer;
+						}
+					}
+					pointer=p_next;
+					if(pointer==0)
+						break;
+				}
+			}
+			if (row_b==best_index && off->fit_tour[row_l]+delta_l > off->fitness){
+				tem=off->sol[row_b][pos_b];
+				off->sol[row_b][pos_b]=i;
+				off->sol[row_b][i]=tem;
+				off->fit_tour[row_b]+=delta_b;
+				off->fitness=off->fit_tour[row_b];
+			}
+			else{
+				tem=off->sol[row_l][pos_l];
+				off->sol[row_l][pos_l]=i;
+				off->sol[row_l][i]=tem;
+				off->fit_tour[row_l]+=delta_l;
+				if (off->fit_tour[row_l]>off->fitness){
+					off->fitness=off->fit_tour[row_l];
+					best_index=row_l;
+				}
+			}
+		}
+	}
+	repair();
+}
+
+void cross_ctsp::repair(){
+	int row,pointer;int p_next;
+	int count=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=0;
+		while (1){
+			pointer=off->sol[i][pointer];
+			if (pointer>0)
+				count++;
+			if (pointer==0)break;
+		}
+	}
+	if (count!=num_v){
+		cout<<"Here is a problem "<<endl;
+		exit(0);
+	}
+	for (int i=0;i<=v_num-1;i++){
+		if (off->sol[i][0]<0 || off->sol[i][0]>num_v ){
+			cout<<"Here is a abnormal operation"<<endl;
+			exit(0);
+		}
+		if (off->sol[i][0]==0){// select a city from other route to insert into this route.
+			while (1){
+				row=rand()%v_num;
+				if (row==i)continue;
+				pointer=off->sol[row][0];
+				if (off->sol[row][pointer]!=0 && row!=i)
+					break;
+			}
+			pointer=off->sol[row][0];
+			p_next=off->sol[row][pointer];
+			off->sol[i][0]=pointer;
+			off->sol[i][pointer]=0;
+			off->sol[row][0]=p_next;
+			off->sol[row][pointer]=-1;
+		}
+	}
+	off->fitness=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=0;off->fit_tour[i]=0;
+		while (1){
+			off->fit_tour[i]+=I_data->Distance[pointer][off->sol[i][pointer]];
+			pointer=off->sol[i][pointer];
+			if (pointer==0)break;
+		}
+		if (off->fit_tour[i] > off->fitness){
+			off->fitness=off->fit_tour[i];
+		}
+	}
+}
+
+
+
+
+The file cross_ctsp.h contains:
+/*
+ * perturbationfun.h
+ *
+ *  Created on: 19 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef CROSS_CTSP_H_
+#define CROSS_CTSP_H_
+#include "Individual.h"
+#include "read_data.h"
+#include <vector>
+class cross_ctsp {
+public:
+	cross_ctsp(read_data * data);
+	virtual ~cross_ctsp();
+	void mTour();
+	void mutation(int iter);
+	read_data * I_data;
+	Individual * fa;
+	Individual * ma;
+	Individual * off;
+private:
+	// these methods are used by Edge_nn();
+	double get_delta(int left,int insert,int right);
+	double determine_prob(int iter);
+	void repair();
+	int *s_t_fa;// to record the cities are included in which route
+	int *s_t_ma;
+	int *s_t_off;
+	int **father;
+	int **mother;
+	int **father_r;
+	int **mother_r;
+	int num_v;
+	int v_num;
+};
+
+#endif /* CROSS_CTSP_H_ */
+
+The file Individual.cpp contains:
+/*
+ * Indi.cpp
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#include "Individual.h"
+
+Individual::Individual() {
+
+}
+Individual::~Individual() {
+	for (int i=0;i<=v_num-1;i++)
+	{
+		delete [] sol[i];
+		delete [] sol_r[i];
+	}
+	delete [] sol;
+	delete [] sol_r;
+	delete [] fit_tour;
+}
+void Individual::define(int number_nodes,int number_vehicles){
+	num_v=number_nodes;
+	v_num=number_vehicles;
+	sol=new int *[v_num];
+	sol_r=new int *[v_num];
+	fit_tour=new double [v_num];
+	for (int i=0;i<=v_num-1;i++)
+	{
+		sol[i]=new int [num_v+1];
+		sol_r[i]=new int [num_v+1];
+	}
+}
+
+The file Individual.h contains:
+/*
+ * Indi.h
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef INDIVIDUAL_H_
+#define INDIVIDUAL_H_
+
+class Individual {
+public:
+	Individual();
+	virtual ~Individual();
+	void define(int number_nodes,int number_vehicles);
+	int ** sol;
+	int ** sol_r;
+	int num_v;
+	int v_num;
+	double *fit_tour;
+	double fitness;
+};
+
+#endif /* INDI_H_ */
+
+The file initialsol.cpp contains:
+/*
+ * initialsol.cpp
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+#include "basic.h"
+#include "initialsol.h"
+#include <vector>
+#include<math.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+initial_sol::initial_sol() {
+}
+
+initial_sol::~initial_sol() {
+	// TODO Auto-generated destructor stub
+}
+void initial_sol::random_fun()// to construct the greedy solution
+{
+	for (int i=0;i<=I_data->v_num-1;i++){
+		for (int j=1;j<=I_data->num_v;j++)
+			s->sol[i][j]=-1;
+		s->sol[i][0]=0;
+		s->fit_tour[i]=0;
+	}
+	vector <  int > node;
+	for (int i=1;i<=I_data->num_v;i++)
+		node.push_back(i);
+	random_shuffle(node.begin(), node.end());
+	int last[I_data->v_num];// this array is used to save the last city for each routes
+	for (int i=0;i<=I_data->v_num-1;i++){// determine that each route includes one city at least.
+		s->sol[i][0]=node[i];
+		s->sol[i][node[i]]=0;
+		last[i]=node[i];
+	}
+	int row;
+	int size_node1=node.size();
+	for (int i=I_data->v_num;i<=size_node1-1;i++){// select randomly a route to insert the city i
+		row=rand()%I_data->v_num;
+		s->sol[row][last[row]]=node[i];
+		s->sol[row][node[i]]=0;
+		last[row]=node[i];
+	}
+	int pointer;
+	for (int i=0;i<=I_data->v_num-1;i++){
+		pointer=0;
+		while(1){
+			s->fit_tour[i]+=I_data->Distance[pointer][s->sol[i][pointer]];
+			pointer=s->sol[i][pointer];
+			if (pointer==0)
+				break;
+		}
+	}
+	s->fitness=0;
+	for (int i=0;i<=I_data->v_num-1;i++)
+		if (s->fitness<s->fit_tour[i])
+			s->fitness=s->fit_tour[i];
+}
+
+The file initialsol.h contains:
+/*
+ * initialsol.h
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef INITIALSOL_H_
+#define INITIALSOL_H_
+#include "read_data.h"
+#include "Individual.h"
+class initial_sol {
+public:
+	initial_sol();
+	virtual ~initial_sol();
+	void random_fun();
+	Individual * s;
+	read_data * I_data;
+};
+
+#endif /* INITIALSOL_H_ */
+
+The file LS.cpp contains:
+/*
+ * LS.cpp
+ *
+ *  Created on: 18 Apr 2020
+ *      Author: Peng
+ */
+
+#include "LS.h"
+#include "basic.h"
+#include "Tstwoopt.h"
+//#include "EAX.h"
+#include <iostream>
+#include <vector>
+#include "Individual.h"
+using namespace std;
+LS::LS(read_data * data) {
+	num_v=data->num_v;
+	v_num=data->v_num;
+//	num_s=data->num_s;
+	tem=new Individual();
+	tem->define(num_v,v_num);
+	each_route=new Tstwoopt (data);
+	each_route->I_data=data;
+	record_table=new int [v_num];
+	s_t=new int [num_v+1];
+
+}
+LS::~LS() {
+	delete tem;
+	delete each_route;
+	delete [] record_table;
+	delete [] s_t;
+}
+void LS::update_best_solution(){
+	if (s->fitness < b_s->fitness){
+		for (int i=0;i<=v_num-1;i++){
+			for (int j=0;j<=num_v;j++){
+				b_s->sol[i][j]=s->sol[i][j];
+				b_s->sol_r[i][j]=s->sol_r[i][j];
+			}
+			b_s->fit_tour[i]=s->fit_tour[i];
+		}
+		b_s->fitness=s->fitness;
+	}
+}
+void LS::reverse_fun(){// get value for sol_r;
+	int pointer;
+	vector<int >tour;
+	for (int i=0;i<=v_num-1;i++)	{
+		pointer=s->sol[i][0];
+		while (pointer!=0)		{
+			tour.push_back(pointer);
+			pointer=s->sol[i][pointer];
+		}
+		s->sol_r[i][0]=tour.back();
+		tour.pop_back();
+		pointer=s->sol_r[i][0];
+		while (tour.size())		{
+			s->sol_r[i][pointer]=tour.back();
+			pointer=s->sol_r[i][pointer];
+			tour.pop_back();
+		}
+		s->sol_r[i][pointer]=0;
+	}
+}
+void LS::intra_route_optimization(){// this method will include many methods to optimize each route, such as 2-opt, Lk and EAX.
+	tem->fitness=s->fitness;
+	int pointer;
+	for (int i=0;i<=v_num-1;i++)
+		for (int j=0;j<=num_v;j++){
+			tem->sol[i][j]=s->sol[i][j];
+			tem->sol_r[i][j]=s->sol_r[i][j];
+		}
+	int number_routes[v_num];
+	int route[num_v+1];
+	for (int i=0;i<=v_num-1;i++){
+		if (record_table[i]==1){
+			record_table[i]=0;
+			pointer=s->sol[i][0];number_routes[i]=0;
+			route[number_routes[i]]=0;number_routes[i]++;
+			while (1){
+				if (pointer==0)
+					break;
+				else{
+					route[number_routes[i]]=pointer;
+					number_routes[i]++;
+					pointer=s->sol[i][pointer];
+				}
+			}
+			int sub_route[number_routes[i]];
+			for (int j=0;j<=number_routes[i]-1;j++)
+				sub_route[j]=route[j];
+			if (number_routes[i]<=4)continue;
+			if (opt_2==1)
+				each_route->twoopt(sub_route,number_routes[i]);
+			pointer=0;
+
+
+			for (int j=1;j<=number_routes[i]-1;j++){
+				tem->sol[i][pointer]=sub_route[j];
+				pointer=tem->sol[i][pointer];
+			}
+			tem->sol[i][pointer]=0;
+			pointer=0;
+			for (int j=number_routes[i]-1;j>=1;j--){
+				tem->sol_r[i][pointer]=sub_route[j];
+				pointer=tem->sol_r[i][pointer];
+			}
+			tem->sol_r[i][pointer]=0;
+		}
+		else
+			continue;
+	}
+	double current_cost=0;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=0;tem->fit_tour[i]=0;
+		while (1){
+			tem->fit_tour[i]+=I_data->Distance[pointer][tem->sol[i][pointer]];
+			if (tem->sol[i][pointer]==0)
+				break;
+			else
+				pointer=tem->sol[i][pointer];
+		}
+	}
+	for (int i=0;i<=v_num-1;i++){
+		if (tem->fit_tour[i]>current_cost)
+			current_cost=tem->fit_tour[i];
+	}
+	if (current_cost<s->fitness){
+		s->fitness=current_cost;
+		for (int i=0;i<=v_num-1;i++){
+			for (int j=0;j<=num_v;j++){
+				s->sol[i][j]=tem->sol[i][j];
+				s->sol_r[i][j]=tem->sol_r[i][j];
+			}
+			s->fit_tour[i]=tem->fit_tour[i];
+		}
+	}
+	update_best_solution();
+}
+void LS::get_s_t(){
+	int pointer=0;
+	for (int i=0;i<=num_v;i++)
+		s_t[i]=-1;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=s->sol[i][pointer];
+		while(1){
+			s_t[pointer]=i;
+			pointer=s->sol[i][pointer];
+			if (pointer==0)
+				break;
+		}
+	}
+}
+double LS::calculate_data(int long_tour,int pointer,int p_end,int tour,int pos_l){
+	double delta,delta1,delta2;
+	delta1=I_data->Distance[s->sol_r[long_tour][pointer]][s->sol[long_tour][p_end]]-
+			I_data->Distance[s->sol_r[long_tour][pointer]][pointer]-
+			I_data->Distance[s->sol[long_tour][p_end]][p_end];
+	delta2=	I_data->Distance[pos_l][pointer]+I_data->Distance[s->sol[tour][pos_l]][p_end]-
+			I_data->Distance[pos_l][s->sol[tour][pos_l]];
+	double reduce=delta1+s->fit_tour[long_tour];
+	double reduce2=delta2+s->fit_tour[tour];
+	if (reduce>reduce2)
+		delta=reduce;
+	else
+		delta=reduce2;
+	delta=delta-s->fitness;
+	return delta;
+}
+void LS::replace(int long_tour,int pointer,int p_end,int tour,int pos_l,int iden){
+	int p_pre,p_next;
+	if (iden==1){
+		p_pre=s->sol_r[long_tour][pointer];
+		p_next=s->sol[long_tour][pointer];
+		s->sol[long_tour][p_pre]=p_next;
+		s->sol[long_tour][pointer]=-1;
+		s->sol_r[long_tour][p_next]=p_pre;
+		s->sol_r[long_tour][pointer]=-1;
+		//
+		p_next=s->sol[tour][pos_l];
+//		p_pre=s->sol_r[tour][pos_l];
+		s->sol[tour][pos_l]=pointer;
+		s->sol[tour][pointer]=p_next;
+		s->sol_r[tour][p_next]=pointer;
+		s->sol_r[tour][pointer]=pos_l;
+	}
+	if (iden>1){
+		vector <int >substring;
+		int p=pointer;substring.push_back(p);
+		while (1){
+			p=s->sol[long_tour][p];
+			substring.push_back(p);
+			if (p==p_end)
+				break;
+		}
+		p_pre=s->sol_r[long_tour][pointer];
+		p_next=s->sol[long_tour][p_end];
+		s->sol[long_tour][p_pre]=p_next;
+		s->sol_r[long_tour][p_next]=p_pre;
+		int size_node=substring.size();
+		for (int i=0;i<=size_node-1;i++){
+			s->sol[long_tour][substring[i]]=-1;
+			s->sol_r[long_tour][substring[i]]=-1;
+		}
+		//
+//		for (int i=0;i<=size_node-1;i++)
+//			cout<<substring[i]<<"  ";
+//		cout<<endl;
+		p_next=s->sol[tour][pos_l];
+		s->sol[tour][pos_l]=substring[0];
+		for ( int i=1;i<=size_node-1;i++){
+			s->sol[tour][substring[i-1]]=substring[i];
+		}
+		s->sol[tour][substring[size_node-1]]=p_next;
+
+		s->sol_r[tour][p_next]=substring[size_node-1];
+		for (int j=size_node-1;j>=1;j--){
+			s->sol_r[tour][substring[j]]=substring[j-1];
+		}
+		s->sol_r[tour][substring[0]]=pos_l;
+	}
+
+
+	int p;
+	for (int i=0;i<=v_num-1;i++){
+		if (i==long_tour ||i==tour){
+			p=0;s->fit_tour[i]=0;
+			while(1){
+				s->fit_tour[i]+=I_data->Distance[p][s->sol[i][p]];
+				p=s->sol[i][p];
+				if (p==0)break;
+			}
+		}
+	}
+	s->fitness=0;
+	for (int i=0;i<=v_num-1;i++){
+		if (s->fitness<s->fit_tour[i])
+			s->fitness=s->fit_tour[i];
+	}
+}
+void LS::one_point(){
+	get_s_t();// get each node's information
+	int pointer,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,pointer,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		if (pointer==0)break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,pointer,tour,pos_l,1);
+}
+void LS::or_opt2(){
+	int pointer,p_end,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	p_end=s->sol[long_tour][pointer];if (p_end==0)return;
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,p_end,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		p_end=s->sol[long_tour][p_end];
+		if (p_end==0 )break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,p_end,tour,pos_l,2);
+}
+void LS::or_opt3(){
+	int pointer,p_end,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	p_end=s->sol[long_tour][pointer];if (p_end==0)return;
+	p_end=s->sol[long_tour][p_end];
+	if (p_end==0)return;
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,p_end,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		p_end=s->sol[long_tour][p_end];
+		if (p_end==0)break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,p_end,tour,pos_l,3);
+}
+void LS::or_opt4(){
+	int pointer,p_end,long_tour,tour,pos_l;
+	double delta;
+	long_tour=0;
+	for (int i=1;i<=v_num-1;i++){
+		if (s->fit_tour[long_tour]<s->fit_tour[i]){
+			long_tour=i;
+		}
+	}
+	int pointer_2;
+	pointer=s->sol[long_tour][0];
+	p_end=s->sol[long_tour][pointer];if (p_end==0)return;
+	p_end=s->sol[long_tour][p_end];if (p_end==0)return;
+	p_end=s->sol[long_tour][p_end];
+	if (p_end==0)return;
+	while (1){
+		for (int i=0;i<=v_num-1;i++){
+			if (i==long_tour)continue;
+			pointer_2=0;
+			while(1){
+				delta=calculate_data(long_tour,pointer,p_end,i,pointer_2);// pointer inserts into row i after city pointer_2
+				if (delta<0){
+					tour=i;pos_l=pointer_2;break;
+				}
+				pointer_2=s->sol[i][pointer_2];
+				if (pointer_2==0)break;
+			}
+			if (delta<0)
+				break;
+		}
+		if (delta<0)break;
+		pointer=s->sol[long_tour][pointer];
+		p_end=s->sol[long_tour][p_end];
+		if (p_end==0 )break;
+	}
+	if (delta<0)
+		replace(long_tour,pointer,p_end,tour,pos_l,3);
+}
+void LS::local_search(int algorithm){
+	for (int i=0;i<=v_num-1;i++)
+		record_table[i]=1;
+	if (algorithm==1){// go to 2-opt
+		opt_2=1;
+		intra_route_optimization();
+		reverse_fun();
+		return;
+	}
+	else
+		opt_2=0;
+
+	reverse_fun();// get value for sol_r;
+	opt_2=1;
+	one_point();
+	or_opt2();
+	or_opt3();
+	or_opt4();
+	intra_route_optimization();
+	//cout<<ceil((clock() - I_data->start)/static_cast<double>(CLOCKS_PER_SEC))<<endl;
+}
+
+
+The file read_data.cpp contains:
+/*
+ * readdata.cpp
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+
+#include "read_data.h"
+#include "basic.h"
+#include "Individual.h"
+#include <string.h>
+#include <fstream>
+#include<sstream>
+#include <cmath>
+#include<iostream>
+using namespace std;
+read_data::read_data() {
+
+}
+read_data::~read_data() {
+	for ( i=0;i<=num_v;i++)
+	{
+		delete [] Distance[i];
+	}
+	delete [] Distance;
+
+	delete [] x;
+	delete [] y;
+}
+void read_data::define(){
+	Distance=new double *[num_v+1];
+	for ( i=0;i<=num_v;i++){
+		Distance[i]=new double [num_v+1];
+	}
+	x=new double [num_v+1];
+	y=new double [num_v+1];
+
+}
+void read_data::read_fun(char* file_name,int number){
+	//	instance_n=file_name;
+		ifstream open_file(file_name);
+		num_v=number;
+	//	char aa[100];
+		char bb[1000];
+		open_file>>instance_n;open_file>>bb;
+		open_file>>v_num;
+		define();
+		int c;  //
+		for ( i=0;i<=num_v;i++) {
+			open_file>>c;open_file>>x[i];open_file>>y[i];//
+		}
+		open_file.close();
+		if ( strcmp( bb, "EUC_2D" ) == 0  ){
+			graph_type=1;
+			for ( i=0;i<=num_v;i++)
+				for ( j=0;j<=num_v;j++)
+						Distance[i][j]=sqrt((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j]));
+		}
+		if ( strcmp( bb, "ATT" ) == 0  ){
+			graph_type=2;
+			for( int i = 0; i <=num_v; ++i ){
+				for( int j = 0; j <=num_v; ++j ) {
+					double r = (sqrt(((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j]))/10.0));
+					int t = (int)r;
+					if( (double)t < r ) {
+						Distance[ i ][ j ] = t+1;
+					}
+					else {
+						Distance[ i ][ j ] = t;
+					}
+				}
+			}
+		}
+		if ( strcmp( bb, "CEIL_2D" ) == 0  ){
+			graph_type=3;
+			for ( i=0;i<=num_v;i++)
+				for ( j=0;j<=num_v;j++)
+					Distance[i][j]=ceil(sqrt((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])));
+		}
+}
+void read_data::output_fun(Individual *g_best_p ,int seed){// this function is used to
+	//void read_data::output_fun(Individual *g_best_p ,int seed,int ** s_node){// this function is used to
+	int pointer;
+	char name_instance[100]={0};
+	strcpy(name_instance, instance_n.c_str());
+	int size=strlen (name_instance);
+	name_instance[size]='_';
+	size=strlen( name_instance);
+	char num_vehcile[10];
+	sprintf(num_vehcile, "%d", v_num);
+	int size_1=strlen(num_vehcile);
+	for (int i=0;i<=size_1-1;i++)	{
+		name_instance[size]=num_vehcile[i];size++;
+	}
+	name_instance[size]='_';size++;
+	char seed_name[10];
+	sprintf(seed_name, "%d", seed);
+	size_1=strlen( seed_name);
+	for (int i=0;i<=size_1-1;i++)	{
+		name_instance[size]=seed_name[i];size++;
+	}
+	char tx[4]={'.','t','x','t'};
+	for (int i=0;i<=3;i++){
+		name_instance[size]=tx[i];size++;
+	}
+	cout<<name_instance<<endl;
+	ofstream out (name_instance);
+
+	out<<"the best solution's fitness is "<<endl<<g_best_p->fitness<<endl;
+
+	out<<"the time when getting the optimal solution is "<<endl<<optimal_time<<endl;
+
+	//out<< "the time get the best solution is "<<endl<<optimal_time<<endl;
+	out<<"the sequence of best solution is following"<<endl;
+	for (int i=0;i<=v_num-1;i++){
+		pointer=0;
+		while (1){
+			out<<pointer<<" ";
+			pointer=g_best_p->sol[i][pointer];
+			if (pointer==0)
+				break;
+		}
+		out<<endl;
+	}
+	out<<endl;
+		double cost=0;int p;double cost_tem;
+		for (int i=0;i<=v_num-1;i++){
+			p=0;cost_tem=0;
+			while (1){
+				cost_tem+=Distance[p][g_best_p->sol[i][p]];
+				if (g_best_p->sol[i][p]==0)
+					break;
+				p=g_best_p->sol[i][p];
+			}
+			if (cost<cost_tem)
+				cost=cost_tem;
+		}
+		out<<"the actuall costs is "<<cost<<endl;
+}
+
+
+
+The file read_data.h contains:
+/*
+ * readdata.h
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef READ_DATA_H_
+#define READ_DATA_H_
+#include "Individual.h"
+#include <time.h>
+#include"basic.h"
+class read_data {
+public:
+	read_data();
+	virtual ~read_data();
+	void define();
+	void read_fun(char* file_name,int number);
+	void output_fun(Individual *g_best_p ,int seed);// this function is employed to output the optimal results.
+	int num_v;
+	int v_num;
+	int ex;
+	double ** Distance;// distance between all cities
+	int ** near_ns;// the nearest nodes of each node.
+	double *x;
+	double *y;
+	clock_t start;// start computing time
+	int graph_type;
+	int optimal_time;// this variable is used to record the time when getting the best solution.
+private:
+	int i;
+	int j;
+	int k;
+	string instance_n;
+};
+
+#endif /* READ_DATA_H_ */
+
+The file solution.cpp contains:
+/*
+ * solution.cpp
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+#include <iostream>
+#include <time.h>
+#include "basic.h"
+#include "solution.h"
+#include "cross_ctsp.h"
+#include "initialsol.h"
+#include "LS.h"
+using namespace std;
+solution::solution() {
+	sol_data=new read_data();// initilization all starting date
+}
+solution::~solution(){
+	delete sol_data;
+	delete Init_sol;
+	delete can_pop;
+	delete off;
+	delete best_s;
+	delete global_s;
+	delete [] Pop;
+	delete ls;
+	delete crossover;
+
+}
+void solution::define(char* file_name,int time_l,int number){
+	sol_data->read_fun(file_name,number);
+//	cout<<sol_data<<endl;
+	Init_sol=new initial_sol ();// initial initial solution object;
+	Init_sol->I_data=sol_data;// probe is assigned to direct to previous data
+	off=new Individual();// initial two solutions
+	off->define(sol_data->num_v,sol_data->v_num);
+	can_pop=new Individual();
+	can_pop->define(sol_data->num_v,sol_data->v_num);
+	best_s=new Individual();
+	best_s->define(sol_data->num_v,sol_data->v_num);
+	global_s=new Individual();
+	global_s->define(sol_data->num_v,sol_data->v_num);
+	Pop=new Individual[num_pop];
+	for (int i=0;i<=num_pop-1;i++)Pop[i].define(sol_data->num_v,sol_data->v_num);
+	//Init_sol->s=off;// the probe direct the new off.
+	ls=new LS(sol_data);// local search phase
+//	ls->s=off;
+	ls->b_s=best_s;
+	ls->I_data=sol_data;
+	ls->time_length=time_l;
+	// crossover
+	crossover=new cross_ctsp (sol_data);// perturbation phase
+	// define array in heap used in this class.
+	time_length=time_l;
+}
+void solution::initial_pop(){// construct the initial population
+	int repeat;double cc;
+	for (int i=0;i<=num_pop-1;i++){
+		Pop[i].fitness=Max;
+	}
+	for (int i=0;i<=num_pop-1;){
+		repeat=0;
+		Init_sol->s=Pop+i;
+		Init_sol->random_fun();
+		ls->s=Pop+i;
+		cc=ls->s->fitness;
+		ls->local_search(1);// where the number 1 represents 2-opt
+		cout<<i<<"    "<<cc<<"    "<<ls->s->fitness<<endl;
+		for (int j=0;j<i;j++){
+			if (Pop[i].fitness+1.0e-7>Pop[j].fitness && Pop[i].fitness-1.0e-7<Pop[j].fitness){
+				repeat=1;
+				break;
+			}
+		}
+		if (repeat==0)
+			i++;
+		if(ceil((clock() - sol_data->start)/static_cast<double>(CLOCKS_PER_SEC))>=time_length)
+			break;
+	}
+}
+void solution::update_best_solution(int index){
+	for (int i=0;i<=sol_data->v_num-1;i++)
+		for (int j=0;j<=sol_data->num_v;j++)
+			global_s->sol[i][j]=Pop[index].sol[i][j];
+	global_s->fitness=Pop[index].fitness;
+	sol_data->optimal_time=ceil((clock() - sol_data->start)/static_cast<double>(CLOCKS_PER_SEC));
+}
+void solution::replace_fun(){
+		for (int i=0;i<=num_pop-1;i++){
+			if ((off->fitness+1.0e-7>Pop[i].fitness) && (off->fitness-1.0e-7<Pop[i].fitness)){// the same with offspring
+				return;
+			}
+		}
+	// replace a individual by the off.
+		double min_fit=0; int index;
+		for (int i=0;i<=num_pop-1;i++){
+			if (min_fit<Pop[i].fitness){
+				min_fit=Pop[i].fitness;
+				index=i;
+			}
+		}
+		if (min_fit>off->fitness){
+			for (int i=0;i<=sol_data->v_num-1;i++){
+				for (int j=0;j<=sol_data->num_v;j++){
+					Pop[index].sol[i][j]=off->sol[i][j];
+					Pop[index].sol_r[i][j]=off->sol_r[i][j];
+				}
+			}
+			Pop[index].fitness=off->fitness;
+		}
+		if (global_s->fitness>off->fitness)
+			update_best_solution(index);
+}
+void solution::main_loop(int seed){
+	best_s->fitness=Max;
+	global_s->fitness=Max;
+	sol_data->start = clock();// start running time
+	initial_pop();// define the initial solution
+	num_ind=num_pop;// update the initial number of individuals
+	// update the best solution
+	double delta=Max;int best_index;
+	for (int i=0;i<=num_pop-1;i++){
+		if (delta>Pop[i].fitness){
+			delta=Pop[i].fitness;
+			best_index=i;
+		}
+	}
+	update_best_solution(best_index);// update the global best solution
+	step=0;int father, mother,other;// which is used to determine the parent for producing offspring
+	while (1){
+		if(ceil((clock() - sol_data->start)/static_cast<double>(CLOCKS_PER_SEC))>=time_length)
+			break;
+		can_pop->fitness=Max;
+		for (int iter=0;iter<num_pop;iter++){
+			if (rand()%1000 <P_c){
+				father=rand()%num_pop;
+				mother=rand()%num_pop;
+				while(father==mother){
+					mother=rand()%num_pop;
+				}
+				if (Pop[father].fitness<Pop[mother].fitness){
+					if (rand()%1000 >P_better){
+						father=mother;
+					}
+				}
+				else{
+					if (rand()%1000 <P_better)
+						father=mother;
+				}
+				mother=rand()%num_pop;
+				other=rand()%num_pop;
+				while(mother==other){
+					other=rand()%num_pop;
+				}
+				if (Pop[mother].fitness<Pop[other].fitness){
+					if (rand()%1000 >P_better){
+						mother=other;
+					}
+				}
+				else{
+					if (rand()%1000 <P_better)
+						mother=other;
+				}
+				crossover->off=off;
+				crossover->fa=Pop+father;
+				crossover->ma=Pop+mother;
+				crossover->mTour();
+			}
+			else{
+				father=rand()%num_pop;
+				mother=rand()%num_pop;
+				while(father==mother){
+					mother=rand()%num_pop;
+				}
+				other=rand()%num_pop;
+				while ((other==father) || other==mother){
+					other=rand()%num_pop;
+				}
+				if (Pop[father].fitness>Pop[mother].fitness)
+					father=mother;
+				if (Pop[father].fitness>Pop[other].fitness)
+					father=other;
+				crossover->off=off;
+				crossover->fa=Pop+father;
+				crossover->mutation(step);
+			}
+			if (off->fitness<can_pop->fitness){// record this individual
+				for (int i=0;i<=sol_data->v_num-1;i++){
+					for (int j=0;j<=sol_data->num_v;j++){
+						can_pop->sol[i][j]=off->sol[i][j];
+						can_pop->sol_r[i][j]=off->sol_r[i][j];
+					}
+					can_pop->fit_tour[i]=off->fit_tour[i];
+				}
+				can_pop->fitness=off->fitness;
+			}
+		}
+		ls->s=can_pop;
+
+		ls->local_search(0);
+		step++;
+		for (int i=0;i<=sol_data->v_num-1;i++){
+			for (int j=0;j<=sol_data->num_v;j++){
+				off->sol[i][j]=can_pop->sol[i][j];
+				off->sol_r[i][j]=can_pop->sol_r[i][j];
+			}
+			off->fit_tour[i]=can_pop->fit_tour[i];
+		}
+		off->fitness=can_pop->fitness;
+		//off=can_pop;
+		replace_fun();
+		cout<<step<<"    "<<global_s->fitness<<endl;
+	}
+ 	sol_data->output_fun(global_s,seed);
+}
+
+The file solution.h contains:
+/*
+ * solution.h
+ *
+ *  Created on: 17 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef SOLUTION_H_
+#define SOLUTION_H_
+#include "cross_ctsp.h"
+#include"initialsol.h"
+#include "read_data.h"
+#include "Individual.h"
+#include "LS.h"
+class solution {
+public:
+	solution();
+	virtual ~solution();
+	void define(char* file_name,int time_l,int number);
+	void main_loop(int seed);
+	read_data * sol_data;
+	initial_sol * Init_sol;
+	Individual * off;
+	Individual * best_s;
+	Individual * global_s;
+	Individual * Pop;
+	Individual *can_pop;
+	LS * ls;
+	cross_ctsp * crossover;
+
+private:
+	void update_best_solution(int index);
+	void initial_pop();
+	void replace_fun();
+	void pop_diversity(int replace);
+	void pop_distance();
+	int dis_calculate(int a, int b);
+
+	// variables
+	int num_ind;// is used to record the number of individuals in iterative process
+	int step;
+	int time_length;
+	int pointer;
+};
+
+#endif /* SOLUTION_H_ */
+
+
+
+The file Tstwoopt.cpp contains:
+/*
+ * Tstwoopt.cpp
+ *
+ *  Created on: 19 Apr 2020
+ *      Author: Peng
+ */
+
+#include "Tstwoopt.h"
+#include "basic.h"
+#include <iostream>
+#include <math.h>
+#include "read_data.h"
+using namespace std;
+Tstwoopt::Tstwoopt(read_data * data) {
+	num_v=data->num_v;
+}
+Tstwoopt::~Tstwoopt() {
+
+}
+double Tstwoopt::calculat_delta(int u1,int v1,int u2,int v2){
+	return(I_data->Distance[u1][u2]+I_data->Distance[v1][v2]-I_data->Distance[u1][v1]-I_data->Distance[u2][v2]);
+}
+void Tstwoopt::reverse(int * s, int reverse_1,int reverse_2,int n_v){
+	int temp;
+	while (reverse_2 - reverse_1>0){
+		temp=s[reverse_1%n_v];
+		s[reverse_1%n_v]=s[reverse_2%n_v];
+		s[reverse_2%n_v]=temp;
+		reverse_1++;
+		reverse_2--;
+	}
+}
+void Tstwoopt::twoopt(int *s, int n_v){// the n is the number of cities in route s.
+	int best_s[n_v];
+	for (int i=0;i<=n_v-1;i++)
+		best_s[i]=s[i];
+	int reverse_1,reverse_2;
+	double delta_1;
+	int v1,v2,u1,u2;
+	double min_delta;
+	while (1){
+		min_delta=Max;min_delta--;
+		for (int i=0;i<=n_v-1;i++){
+			u1=i;
+			v1=(i+1)%n_v;
+			for (int j=i+2;(j+1)%n_v!=i;j++){
+				u2=j%n_v;
+				v2=(j+1)%n_v;
+				delta_1=calculat_delta(s[u1],s[v1],s[u2],s[v2]);
+				if (min_delta>delta_1){
+					min_delta=delta_1;
+					reverse_1=i+1;
+					reverse_2=j;
+				}
+			}
+		}
+		if (min_delta<-1.0e-7)
+			reverse(s, reverse_1,reverse_2,n_v);
+		else
+			break;
+	}
+	int k;
+	for (int i=0;i<=n_v-1;i++)
+		best_s[i]=s[i];
+	for (int i=0;i<=n_v-1;i++)
+		if (best_s[i]==0){
+			k=i;break;
+			}
+	s[0]=0;int c=1;
+	for (int j=k+1;best_s[j%n_v]!=0;j++){
+		s[c]=best_s[j%n_v];c++;
+	}
+}
+double Tstwoopt::calculate_length_tour(int *s, int n_v){
+	double path_length=0;
+	for (int i=0;i<=n_v-2;i++)
+		path_length+=I_data->Distance[s[i]][s[i+1]];
+	path_length+=I_data->Distance[s[n_v-1]][s[0]];
+	return path_length;
+}
+
+
+The file Tstwoopt.h contains:
+/*
+ * Tstwoopt.h
+ *
+ *  Created on: 19 Apr 2020
+ *      Author: Peng
+ */
+
+#ifndef TSTWOOPT_H_
+#define TSTWOOPT_H_
+#include "read_data.h"
+class Tstwoopt {
+public:
+	Tstwoopt(read_data * data);
+	virtual ~Tstwoopt();
+	void twoopt(int *s, int n);
+	void tabu_search(int *s, int n_v);
+	read_data * I_data;
+
+private:
+	double calculate_length_tour(int* s,int n_v);
+	double calculat_delta(int u1,int v1,int u2,int v2);
+	void reverse(int * s, int reverse_1,int reverse_2,int n_v);
+	int num_v;
+};
+
+#endif /* TSTWOOPT_H_ */
+
