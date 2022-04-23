@@ -1,13 +1,14 @@
 import os
 import math
 
-class Instance:
-    
+class Instance:    
     def __init__(self, name, points, vehicles_quantity):
         self.name = name
         self.points = points
         self.vehicles_quantity = vehicles_quantity
         self.matrix = generate_matrix(points)
+        self.fo = 0   
+        self.greedy_function = [0 for item in range(vehicles_quantity)]     
 
 def generate_matrix(points):
     matrix = []
@@ -22,7 +23,7 @@ def generate_matrix(points):
 def print_instance(list_of_instance):
     for index in range(len(list_of_instance)):        
         with open(os.path.dirname(os.path.abspath(__file__)) + '\\results_' + list_of_instance[index].name +'.txt', 'w+') as list_file:
-            list_file.write('vehicles_quantity: ' + list_of_instance[index].vehicles_quantity + '\n')
+            list_file.write('vehicles_quantity: ' + str(list_of_instance[index].vehicles_quantity) + '\n')
             
             for i in range(len(list_of_instance[index].points)): 
                 list_file.write(str(i+1) + ' ' + str(list_of_instance[index].points[i]) + '\n')
@@ -30,16 +31,6 @@ def print_instance(list_of_instance):
             for row in list_of_instance[index].matrix:                
                 list_file.write(str(row))
                 list_file.write('\n')
-
-def create_routes(list_of_instance):
-    for index in range(len(list_of_instance)):   
-        routes = []     
-        for i in range(int(list_of_instance[index].vehicles_quantity)):
-            route = [1, 2, 3]
-            routes.append(route)
-
-
-    print(routes)
 
 def treat_character(line):
     line = line.replace('\n', '').replace('	', ' ').replace('  ', ' ').split(' ')
@@ -58,8 +49,8 @@ def import_instances():
                 xy = []  
                 validation, line = treat_character(line)
                 if i == 0:
-                    vehicles_quantity = line[2]
-                    name = line[0] + '_' + vehicles_quantity
+                    vehicles_quantity = int(line[2])
+                    name = line[0] + '_' + str(vehicles_quantity)
                     i+=1
                 else:                    
                     if validation == True:
@@ -70,6 +61,3 @@ def import_instances():
             list_of_instance.append(Instance(name, points, vehicles_quantity))
     return list_of_instance
      
-list_of_instance = import_instances()
-print_instance(list_of_instance)
-create_routes(list_of_instance)
