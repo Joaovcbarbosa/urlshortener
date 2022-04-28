@@ -8,7 +8,8 @@ class Instance:
         self.vehicles_quantity = vehicles_quantity
         self.matrix = generate_matrix(points)
         self.fo = 0   
-        self.greedy_function = [0 for item in range(vehicles_quantity)]     
+        self.fo_per_route = [0 for item in range(vehicles_quantity)]   
+        self.solution = []  
 
 def generate_matrix(points):
     matrix = []
