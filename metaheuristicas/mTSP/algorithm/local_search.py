@@ -138,3 +138,4 @@ def local_search(instance, routes):
     inter_route_shift(instance, routes)
     intra_route_swap(instance, routes)
     intra_route_shift(instance, routes)
+    return routes

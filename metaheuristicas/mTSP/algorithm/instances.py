@@ -40,12 +40,12 @@ class Instance:
         return self.best_solutions
 
     def print_solutions(self):
-        print('BEST SOLUTIONS:')
-        for index in range(len(self.best_solutions)):
-            print(str(index + 1) + ' -> ', end = '')
-            print(self.best_solutions[index])
+        # print('BEST SOLUTIONS:')
+        # for index in range(len(self.best_solutions)):
+        #     print(str(index + 1) + ' -> ', end = '')
+        #     print(self.best_solutions[index])
 
-        print('================================================================================')
+        # print('================================================================================')
 
         fo, route = self.best_solution()
         print('WINNER:')                    
