@@ -97,6 +97,7 @@ def SA(instance, S, T0, SAMax, alpha):
                 if fo_neighbor < fo_best:
                     S_best = copy.deepcopy(S_neighbor)
                     fo_best = fo_neighbor
+                    instance.add_best_solution(fo_best, S_best)
             else:
                 x = random.uniform(0, 1)
                 if x < math.exp(-delta/T):                    
@@ -106,12 +107,8 @@ def SA(instance, S, T0, SAMax, alpha):
         print(T, fo_S, fo_best)
         T = T * alpha
         iterations = 0
-
-    instance.fo = fo_best
-    instance.solution = S_best
-    for route_index in range(len(S_best) - 1):
-        instance.fo_per_route[route_index] = construction.calculate_fo_per_route(instance, S_best[route_index])
-
+    
+    instance.print_solutions()
     return S_best
 
     

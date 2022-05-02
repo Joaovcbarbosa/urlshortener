@@ -1,5 +1,6 @@
 import os
 import math
+import construction
 
 class Instance:    
     def __init__(self, name, points, vehicles_quantity):
@@ -7,9 +8,49 @@ class Instance:
         self.points = points
         self.vehicles_quantity = vehicles_quantity
         self.matrix = generate_matrix(points)
-        self.fo = 0   
-        self.fo_per_route = [0 for item in range(vehicles_quantity)]   
-        self.solution = []  
+        self.fo_per_route = [0 for item in range(vehicles_quantity)] 
+        self.best_fos = []
+        self.best_solutions = []
+
+    def add_best_solution(self, fo, solution):
+        if len(self.best_fos) == 100:
+            worst_value = max(self.best_fos)
+            if fo < worst_value:
+                index = self.best_fos.index(worst_value)
+                self.best_fos[index] = fo
+                self.best_solutions[index] = solution
+                self.calculate_fo_per_route(solution)
+        else:
+            self.best_fos.append(fo)
+            self.best_solutions.append(solution)
+            self.calculate_fo_per_route(solution)
+
+    def calculate_fo_per_route(self, solution):
+        for route_index in range(len(solution) - 1):
+            self.fo_per_route[route_index] = construction.calculate_fo_per_route(self, solution[route_index])
+
+    def best_solution(self):
+        best_fo = min(self.best_fos)
+        index = self.best_fos.index(best_fo)
+        best_solution = self.best_solutions[index]
+
+        return best_fo, best_solution
+
+    def all_solutions(self):
+        return self.best_solutions
+
+    def print_solutions(self):
+        print('BEST SOLUTIONS:')
+        for index in range(len(self.best_solutions)):
+            print(str(index + 1) + ' -> ', end = '')
+            print(self.best_solutions[index])
+
+        print('================================================================================')
+
+        fo, route = self.best_solution()
+        print('WINNER:')                    
+        print('ROUTES: ' + str(route))
+        print('FO: ' + str(fo))
 
 def generate_matrix(points):
     matrix = []
