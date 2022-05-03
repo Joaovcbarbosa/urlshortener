@@ -16,6 +16,7 @@ def print_routes(instance, routes):
     print('=================================================================================================================================================')
     print('instance: ' + instance.name)    
     
+    fo = 0
     for i in range(len(routes)):
         print('\n')
         print('route ' + str(i+1) + ': ', end = '')
@@ -23,10 +24,14 @@ def print_routes(instance, routes):
         print('points:', end = ' ')
         for j in range(len(routes[i])):
             print(instance.points[routes[i][j]], end = ' ')
-        print('\nfo manually calculated: ' + str(calculate_fo_per_route(instance, routes[i])))
-        print('fo dynamically calculated: ' + str(instance.fo_per_route[i]))
+        fo_route = calculate_fo_per_route(instance, routes[i])
+        fo += fo_route
+        print('\nfo manually calculated: ' + str(fo_route))
+
+    print('total fo: ' + str(fo))
+        
     
-    print('fo: ' + str(instance.fo))    
+    
 
 def create_routes(instance):    
     routes = [[0] for item in range(instance.vehicles_quantity)] # Cria uma lista de listas baseado na quantidade de veículos

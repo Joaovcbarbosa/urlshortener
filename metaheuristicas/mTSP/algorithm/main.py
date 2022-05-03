@@ -17,7 +17,9 @@ def main():
             routes = construction.create_routes(instance)
             routes = simulated_annealing.SA(instance, routes, 1000000, 200, 0.99)
         if option == '3':
-            routes = grasp.GRASP(instance)
+            routes = grasp.GRASP(instance)            
+            routes = local_search.local_search(instance, routes)
+            construction.print_routes(instance, routes)
         else:
             exit 
         
