@@ -1,11 +1,29 @@
 import random
 import math
 import copy
-import construction
 
 def intra_route_swap(route, point_one_index, point_one_value, point_two_index, point_two_value):     
-    route[point_one_index] = point_two_value
+    route[point_one_index] = point_two_value    
     route[point_two_index] = point_one_value
+    
+    # point_b = route[route_index][point_one_index]['index']
+    # point_a = route[route_index][point_one_index - 1]['index']
+    # point_c = route[route_index][point_one_index + 1]['index'] if point_one_index + 1 < len(route[route_index]) else 0
+
+    # point_e = route[route_index][point_two_index]['index']
+    # point_d = route[route_index][point_two_index - 1]['index']
+    # point_f = route[route_index][point_two_index + 1]['index'] if point_one_index + 1 < len(route[route_index]) else 0
+
+    # cost = (instance.matrix[point_b][point_d] +
+    #         instance.matrix[point_b][point_f] -
+    #         instance.matrix[point_d][point_e] -
+    #         instance.matrix[point_d][point_f] +
+    #         instance.matrix[point_a][point_e] +
+    #         instance.matrix[point_e][point_c] -
+    #         instance.matrix[point_a][point_b] -
+    #         instance.matrix[point_b][point_c])
+    
+    # instance.fo += cost                    
               
 def intra_route_shift(route, point_one_value, point_two_index):  
     route.remove(point_one_value)
@@ -19,7 +37,7 @@ def inter_route_shift(route_one, route_two, point_one_value, point_two_index):
     route_one.remove(point_one_value)
     route_two.insert(point_two_index, point_one_value)
 
-def random_neighbor(routes):    
+def random_neighbor(instance, routes):    
     routes_copy = copy.deepcopy(routes)
     option = random.randint(0, 3) # Sorteia uma das operações
 
@@ -66,29 +84,17 @@ def random_neighbor(routes):
     
     return routes_copy
 
-def calculate_FO(instance, routes):
-    fo = 0
-    for route in routes: # Para cada rota   
-        if len(route) > 1:     
-            fo += instance.matrix[0][route[1]] # Distância da garagem ao primeiro ponto da rota
-            for point_index in range(len(route)): # Para cada ponto
-                if point_index > 0 and point_index < len(route) - 1: # Se o index do ponto não for a garagem nem o último ponto
-                    fo += instance.matrix[route[point_index]][route[point_index+1]] # Distancia entre o ponto e o próximo ponto
-                elif point_index == len(route) - 1: # Se for o último ponto da rota
-                    fo += instance.matrix[route[point_index]][0] # Distância entre o ponto e a garagem        
-    return fo
-
 def SA(instance, S, T0, SAMax, alpha):
     S_best = copy.deepcopy(S)
-    fo_best = calculate_FO(instance, S)
+    fo_best = instance.fo
     iterations = 0
     T = T0
     while T > 0.0001:
         while iterations < SAMax:
             iterations += 1
-            S_neighbor = copy.deepcopy(random_neighbor(S))
-            fo_neighbor = calculate_FO(instance, S_neighbor)
-            fo_S = calculate_FO(instance, S)
+            S_neighbor = random_neighbor(instance, S)
+            fo_neighbor = instance.calculate_FO(S_neighbor)
+            fo_S = instance.calculate_FO(S)
             delta = fo_neighbor - fo_S
 
             if delta <= 0:
@@ -108,7 +114,6 @@ def SA(instance, S, T0, SAMax, alpha):
         T = T * alpha
         iterations = 0
     
-    instance.print_solutions()
     return S_best
 
     
