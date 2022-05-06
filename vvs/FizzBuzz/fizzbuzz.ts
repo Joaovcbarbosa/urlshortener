@@ -1,23 +1,20 @@
-export function fizzBuzz (n: number): string {
-  
-  if (n % 3 === 0 && n % 5 === 0){
-    return 'fizzbuzz'
-  }  
-  if (n % 3 === 0){
-    return 'fizz'
-  }
-  if (n % 5 === 0){
-    return 'buzz'
-  }  
+export function fizzBuzz (n: number): string {  
+  if (isDivisibleBy(3, n) && isDivisibleBy(5, n)) return 'fizzbuzz'
+  if (isDivisibleBy(3, n)) return 'fizz'
+  if (isDivisibleBy(5, n)) return 'buzz'
   return n.toString()
 }
 
-export function play (inputArray: number[]): string[] {
-  let fizzBuzzArray = new Array(); 
-  inputArray.forEach(function (value) {
-    let returnString = fizzBuzz(value)
-    fizzBuzzArray.push(returnString)
-  }); 
+function isDivisibleBy(divisor: number, dividend: number): boolean {
+  return dividend % divisor === 0
+}
+
+export function play (inputArray: number[]): string{
+ 
+  let fizzBuzzArray = inputArray.map((element) =>{
+    return fizzBuzz(element);
+  }).join(', ')
+
   return fizzBuzzArray
 }
 
