@@ -1,3 +1,4 @@
+from pickle import TRUE
 import random
 import math
 import copy
@@ -37,7 +38,7 @@ def inter_route_shift(route_one, route_two, point_one_value, point_two_index):
     route_one.remove(point_one_value)
     route_two.insert(point_two_index, point_one_value)
 
-def random_neighbor(instance, routes):    
+def random_neighbor(routes):    
     routes_copy = copy.deepcopy(routes)
     option = random.randint(0, 3) # Sorteia uma das operações
 
@@ -84,15 +85,16 @@ def random_neighbor(instance, routes):
     
     return routes_copy
 
-def SA(instance, S, T0, SAMax, alpha):
+def SA(instance, T0, SAMax, alpha):
+    S = copy.deepcopy(instance.current_solution)
     S_best = copy.deepcopy(S)
-    fo_best = instance.fo
+    fo_best = instance.current_solution_fo
     iterations = 0
     T = T0
     while T > 0.0001:
         while iterations < SAMax:
             iterations += 1
-            S_neighbor = random_neighbor(instance, S)
+            S_neighbor = random_neighbor(S)
             fo_neighbor = instance.calculate_FO(S_neighbor)
             fo_S = instance.calculate_FO(S)
             delta = fo_neighbor - fo_S
@@ -104,6 +106,7 @@ def SA(instance, S, T0, SAMax, alpha):
                     S_best = copy.deepcopy(S_neighbor)
                     fo_best = fo_neighbor
                     instance.add_best_solution(fo_best, S_best)
+                    instance.refresh(solution = S_best, calculate_fo_per_route = 1)
             else:
                 x = random.uniform(0, 1)
                 if x < math.exp(-delta/T):                    
@@ -113,10 +116,6 @@ def SA(instance, S, T0, SAMax, alpha):
         print(T, fo_S, fo_best)
         T = T * alpha
         iterations = 0
-    
-    return S_best
-
-    
 
 
 

@@ -1,3 +1,4 @@
+import copy
 
 def intra_route_swap(instance, routes):
     for route_index in range(len(routes)): # Para cada rota
@@ -15,11 +16,12 @@ def intra_route_swap(instance, routes):
 
                         value_of_new_fo_per_route = instance.calculate_fo_per_route(routes[route_index])
 
-                        if value_of_new_fo_per_route < instance.fo_per_route[route_index]: # Se o valor do FO novo é menor que o antigo
+                        if value_of_new_fo_per_route < instance.current_solution_fo_per_route[route_index]: # Se o valor do FO novo é menor que o antigo
                             # Atualiza FO
-                            instance.fo_per_route[route_index] = value_of_new_fo_per_route
-                            instance.fo = sum(instance.fo_per_route)  
-                            instance.add_best_solution(instance.fo, routes)
+                            instance.current_solution_fo_per_route[route_index] = value_of_new_fo_per_route
+                            instance.current_solution_fo = sum(instance.current_solution_fo_per_route)  
+                            instance.current_solution = routes
+                            instance.add_best_solution(instance.current_solution_fo, routes)
                             intra_route_swap(instance, routes)
                             break
                         else: # Se não for, reverte o SWAP
@@ -44,11 +46,12 @@ def intra_route_shift(instance, routes):
                         routes[route_index].insert(point_two_index, aux_point_one)
 
                         value_of_new_fo_per_route = instance.calculate_fo_per_route(routes[route_index])
-                        if value_of_new_fo_per_route < instance.fo_per_route[route_index]: # Se o valor do FO novo é menor que o antigo
+                        if value_of_new_fo_per_route < instance.current_solution_fo_per_route[route_index]: # Se o valor do FO novo é menor que o antigo
                             # Atualiza FO
-                            instance.fo_per_route[route_index] = value_of_new_fo_per_route
-                            instance.fo = sum(instance.fo_per_route) 
-                            instance.add_best_solution(instance.fo, routes)
+                            instance.current_solution_fo_per_route[route_index] = value_of_new_fo_per_route
+                            instance.current_solution_fo = sum(instance.current_solution_fo_per_route) 
+                            instance.current_solution = routes
+                            instance.add_best_solution(instance.current_solution_fo, routes)
                             intra_route_shift(instance, routes)
                             break
                         else: # Se não for, reverte o shift
@@ -75,17 +78,18 @@ def inter_route_swap(instance, routes):
                                 routes[route_two_index][route_two_point_index] = aux_route_one_point
 
                                 # Calcula o valor da nova FO
-                                value_of_fo_per_route_old = instance.fo_per_route[route_one_index] + instance.fo_per_route[route_two_index]
+                                value_of_fo_per_route_old = instance.current_solution_fo_per_route[route_one_index] + instance.current_solution_fo_per_route[route_two_index]
                                 value_of_route_one_new_fo_per_route = instance.calculate_fo_per_route(routes[route_one_index]) 
                                 value_of_route_two_new_fo_per_route = instance.calculate_fo_per_route(routes[route_two_index])
                                 value_of_sum_new_fo_per_route = value_of_route_one_new_fo_per_route + value_of_route_two_new_fo_per_route
 
                                 if value_of_sum_new_fo_per_route < value_of_fo_per_route_old: # Se a nova FO é melhor que a antiga
                                     # Atualiza FO
-                                    instance.fo_per_route[route_one_index] = value_of_route_one_new_fo_per_route
-                                    instance.fo_per_route[route_two_index] = value_of_route_two_new_fo_per_route                                    
-                                    instance.fo = sum(instance.fo_per_route)  
-                                    instance.add_best_solution(instance.fo, routes)
+                                    instance.current_solution_fo_per_route[route_one_index] = value_of_route_one_new_fo_per_route
+                                    instance.current_solution_fo_per_route[route_two_index] = value_of_route_two_new_fo_per_route                                    
+                                    instance.current_solution_fo = sum(instance.current_solution_fo_per_route)  
+                                    instance.current_solution = routes
+                                    instance.add_best_solution(instance.current_solution_fo, routes)
                                     inter_route_swap(instance, routes)
                                     break
                                 else: # Se não diminuiu a FO, reverte o SWAP
@@ -114,17 +118,18 @@ def inter_route_shift(instance, routes):
                                 routes[route_two_index].insert(route_two_point_index, aux_point)
 
                                 # Calcula o valor da nova FO
-                                value_of_fo_per_route_old = instance.fo_per_route[route_one_index] + instance.fo_per_route[route_two_index]
+                                value_of_fo_per_route_old = instance.current_solution_fo_per_route[route_one_index] + instance.current_solution_fo_per_route[route_two_index]
                                 value_of_route_one_new_fo_per_route = instance.calculate_fo_per_route(routes[route_one_index]) 
                                 value_of_route_two_new_fo_per_route = instance.calculate_fo_per_route(routes[route_two_index])
                                 value_of_sum_new_fo_per_route = value_of_route_one_new_fo_per_route + value_of_route_two_new_fo_per_route
                                 
                                 if value_of_sum_new_fo_per_route < value_of_fo_per_route_old: # Se a nova FO é melhor que a antiga
                                     # Atualiza FO
-                                    instance.fo_per_route[route_one_index] = value_of_route_one_new_fo_per_route
-                                    instance.fo_per_route[route_two_index] = value_of_route_two_new_fo_per_route
-                                    instance.fo = sum(instance.fo_per_route) 
-                                    instance.add_best_solution(instance.fo, routes)
+                                    instance.current_solution_fo_per_route[route_one_index] = value_of_route_one_new_fo_per_route
+                                    instance.current_solution_fo_per_route[route_two_index] = value_of_route_two_new_fo_per_route
+                                    instance.current_solution_fo = sum(instance.current_solution_fo_per_route) 
+                                    instance.current_solution = routes
+                                    instance.add_best_solution(instance.current_solution_fo, routes)
                                     inter_route_shift(instance, routes)                                    
                                     break
                                 else: # Se não diminuiu a FO, reverte o SHIFT
@@ -138,7 +143,8 @@ def inter_route_shift(instance, routes):
                 break
  
       
-def local_search(instance, routes):     
+def local_search(instance):     
+    routes = copy.deepcopy(instance.current_solution)
     inter_route_swap(instance, routes)
     inter_route_shift(instance, routes)  
     intra_route_swap(instance, routes)

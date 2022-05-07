@@ -66,24 +66,18 @@ def semi_greedy_construction(instance, RLC_length_in_percentage, alpha):
         candidates.remove(selected_candidate) # Remove da lista de candidatos
         RCL.clear()
 
-    instance.add_best_solution(fo, routes)
-    return routes
+    instance.refresh(solution = routes, calculate_fo_per_route = 1)
     
 def GRASP(instance, GRASP_max, RLC_length_in_percentage, alpha):
     fo_best = -1
     for iteration in range(GRASP_max):
-        S = semi_greedy_construction(instance, RLC_length_in_percentage, alpha)
-        S = local_search.local_search(instance, S)
+        semi_greedy_construction(instance, RLC_length_in_percentage, alpha)
+        local_search.local_search(instance)
+        
+        if  instance.current_solution_fo < fo_best or fo_best < 0:
+            fo_best = instance.current_solution_fo
 
-        fo_current = instance.calculate_FO(S)
-        if  fo_current < fo_best or fo_best < 0:
-            S_best = copy.deepcopy(S)
-            fo_best = fo_current
-            instance.add_best_solution(fo_best, S_best)
-
-        print(iteration, fo_current, fo_best)
-
-    return S_best
+        print(iteration, instance.current_solution_fo, fo_best)
 
     
 

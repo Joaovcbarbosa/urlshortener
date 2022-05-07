@@ -1,13 +1,17 @@
+from asyncio.windows_events import NULL
 import os
 import math
+import copy
 
 class Instance:    
     def __init__(self, name, points, vehicles_quantity):
         self.name = name
         self.points = points
         self.vehicles_quantity = vehicles_quantity
-        self.matrix = generate_matrix(points)
-        self.fo_per_route = [0 for item in range(vehicles_quantity)] 
+        self.matrix = generate_matrix(points)    
+        self.current_solution = []
+        self.current_solution_fo = [0 for item in range(vehicles_quantity)] 
+        self.current_solution_fo_per_route = [0 for item in range(vehicles_quantity)]         
         self.best_fos = []
         self.best_solutions = [] # Guarda as 100 melhores soluções
 
@@ -18,15 +22,9 @@ class Instance:
                 index = self.best_fos.index(worst_value) # Seleciona o index do pior FO
                 self.best_fos[index] = fo # Adiciona o FO novo na lista, no lugar do antigo
                 self.best_solutions[index] = solution
-                self.update_fo_per_route(solution)
         else: # Se a lista ainda não está lotada, insere o FO na lista
             self.best_fos.append(fo)
             self.best_solutions.append(solution)
-            self.update_fo_per_route(solution)
-
-    def update_fo_per_route(self, solution): # Atualiza o FO de cada rota
-        for route_index in range(len(solution) - 1):
-            self.fo_per_route[route_index] = self.calculate_fo_per_route(solution[route_index])
 
     def best_solution(self):
         best_fo = min(self.best_fos)
@@ -77,6 +75,15 @@ class Instance:
         
         return fo
         
+    def refresh(self, solution, calculate_fo_per_route = 0, route_one_index = NULL, route_one_fo = NULL, route_two_index = NULL, route_two_fo = NULL):
+        if route_one_index != NULL: self.current_solution_fo_per_route[route_one_index] = route_one_fo
+        if route_two_index != NULL: self.current_solution_fo_per_route[route_two_index] = route_two_fo
+        if calculate_fo_per_route == 1: 
+            for route_index in range(len(solution)):
+                self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(solution[route_index])
+        self.current_solution_fo = sum(self.current_solution_fo_per_route)  
+        self.current_solution = copy.deepcopy(solution)
+        
 def generate_matrix(points):
     matrix = []
     for i in range(len(points)): # Para cada ponto
@@ -102,6 +109,31 @@ def export_instance(list_of_instance): # Exporta a instância para arquivo txt
 def treat_character(line): 
     line = line.replace('\n', '').replace('	', ' ').replace('  ', ' ').split(' ')
     return line[0].isnumeric(), line 
+
+def generate_test_instance():
+    instance_file = open('algorithm\instances\set I\mtsp51_3.txt', 'r')
+    first_line = True 
+    point_index = 0
+    points = []  
+    for line in instance_file: # Para cada linha do arquivo                
+        xy = []  
+        validation, line = treat_character(line)
+        if first_line == True: # Se for a primeira linha, quarda a qtd de veículos e o nome da instância
+            vehicles_quantity = int(line[2])
+            name = line[0] + '_' + str(vehicles_quantity)
+            first_line = False
+        else: # Caso contrário, guarda o index do ponto (para usar na matriz de distância) e o ponto
+            if validation == True:                        
+                xy.append(float(line[1]))
+                xy.append(float(line[2]))
+                element = {
+                    'index': point_index,
+                    'xy': xy
+                }
+                points.append(element)
+                point_index+=1
+
+    return Instance(name, points, vehicles_quantity)
 
 def import_instances():
     walk_dir = os.path.dirname(os.path.abspath(__file__)) + '\instances'

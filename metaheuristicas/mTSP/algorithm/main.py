@@ -11,13 +11,13 @@ def main():
 
     for instance in list_of_instance:
         if option == '1':
-            routes = construction.create_routes(instance)
-            routes = local_search.local_search(instance, routes)            
+            construction.create_routes(instance)
+            local_search.local_search(instance)      
         if option == '2':
-            routes = construction.create_routes(instance)
-            routes = simulated_annealing.SA(instance, routes, 5000000, 1000, 0.8)
+            construction.create_routes(instance)
+            simulated_annealing.SA(instance, 5000000, 1000, 0.8)
         if option == '3':
-            routes = grasp.GRASP(instance, 250, 20, 0.5)   
+            grasp.GRASP(instance, 250, 20, 0.5)   
         else:
             exit 
     
