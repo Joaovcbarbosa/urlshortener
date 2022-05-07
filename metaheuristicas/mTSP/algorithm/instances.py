@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import os
 import math
 import copy
@@ -74,16 +73,14 @@ class Instance:
                     fo += self.matrix[point][0] # Distância entre o ponto e a garagem
         
         return fo
-        
-    def refresh(self, solution, calculate_fo_per_route = 0, route_one_index = NULL, route_one_fo = NULL, route_two_index = NULL, route_two_fo = NULL):
-        if route_one_index != NULL: self.current_solution_fo_per_route[route_one_index] = route_one_fo
-        if route_two_index != NULL: self.current_solution_fo_per_route[route_two_index] = route_two_fo
-        if calculate_fo_per_route == 1: 
-            for route_index in range(len(solution)):
-                self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(solution[route_index])
+    
+    def refresh(self, routes, calculate_fo=0):   
+        if calculate_fo != 0:     
+            for route_index in range(len(routes)):
+                    self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(routes[route_index])
         self.current_solution_fo = sum(self.current_solution_fo_per_route)  
-        self.current_solution = copy.deepcopy(solution)
-        
+        self.current_solution = copy.deepcopy(routes)
+                    
 def generate_matrix(points):
     matrix = []
     for i in range(len(points)): # Para cada ponto

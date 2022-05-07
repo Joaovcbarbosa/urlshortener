@@ -15,7 +15,7 @@ def main():
             local_search.local_search(instance)      
         if option == '2':
             construction.create_routes(instance)
-            simulated_annealing.SA(instance, 5000000, 1000, 0.8)
+            simulated_annealing.SA(instance, 1000000, 200, 0.8)
         if option == '3':
             grasp.GRASP(instance, 250, 20, 0.5)   
         else:
