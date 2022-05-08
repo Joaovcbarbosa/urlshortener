@@ -1,10 +1,13 @@
 import os
 import math
 import copy
+import networkx as nx
+import matplotlib.pyplot as plt
 
 class Instance:    
-    def __init__(self, name, points, vehicles_quantity):
+    def __init__(self, name, path, points, vehicles_quantity):
         self.name = name
+        self.path = path
         self.points = points
         self.vehicles_quantity = vehicles_quantity
         self.matrix = generate_matrix(points)    
@@ -32,7 +35,7 @@ class Instance:
 
         return best_fo, best_solution
 
-    def print_solution(self):
+    def print_solution(self, plot_solution=0):
         fo, routes = self.best_solution()
         fo_manually = 0
         print('WINNER ROUTE: ')
@@ -51,6 +54,58 @@ class Instance:
 
         print('\nfo manually calculated: ' + str(fo_manually))
         print('FO: ' + str(fo))
+
+        if plot_solution == 1:
+            self.plot_solution(True)
+
+
+    def treat_solution(self, solution):
+        result = []
+        for route in solution:
+            del route[0] # Exclui a garagem
+            points = []
+            for point in route:
+                points.append(point['index'])
+
+            result.append(points)
+            points.clear()
+
+        return result 
+
+    def plot_solution(self, withDepEdges):
+        fo, solution = self.best_solution()
+        solution = copy.deepcopy(self.treat_solution(solution))
+        #filename - String com o caminho para o arquivo da instância
+        #solution - Lista de Listas / M listas de rotas sem o depósito (1) - Ex: [ [2,5,6], [7,8,12,10,11], [12,3,4] ]
+        #withDepEdges - boolean - Caso queira imprimir os arcos que saem do depósito
+        #figureFileName - String com o caminho e nome do arquivo de saída (sem extenção)
+
+        fIn = open(self.path, 'r')
+        matRaw = [ [a for a in b.split(' ')] for b in fIn.read().split('\n') if b != '' ]
+        matRaw = matRaw[1:]
+        #print(matRaw)
+        fIn.close()
+        baseColors = ['red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'pink'] #podem add mais cores de rotas
+        G=nx.Graph()
+        for nNode in matRaw:
+            nID = int(nNode[0])
+            G.add_node(nID,pos=( float(nNode[1]) , float(nNode[2])), color= 'lightblue' if nID==1 else 'lightgreen')
+    
+        for rID in range(len(solution)):
+            route = solution[rID]
+            rColor = baseColors[rID % len(baseColors)]
+            if withDepEdges:
+                G.add_edge(1,route[0],  color=rColor)
+                G.add_edge(1,route[-1], color=rColor)
+            if (len(route) > 0):
+                for i in range(len(route)-1):
+                    G.add_edge(route[i], route[i+1], color=rColor)
+        positions  = nx.get_node_attributes(G,'pos')
+        nodeColors = nx.get_node_attributes(G,'color').values()
+        edgeColors = nx.get_edge_attributes(G,'color').values()
+        plt.figure(1,figsize=(40,40)) #ajustar: Números maiores -> nós menores (mas a resolução do arquivo de saída aumenta)
+        nx.draw(G, positions, edge_color=edgeColors, node_color=nodeColors, with_labels=True)
+        plt.savefig("%s.png" % (self.name))
 
     def calculate_FO(self, routes):
         fo = 0
@@ -130,15 +185,16 @@ def generate_test_instance():
                 points.append(element)
                 point_index+=1
 
-    return Instance(name, points, vehicles_quantity)
+    return Instance(name, 'algorithm\instances\set I\mtsp51_3.txt', points, vehicles_quantity)
 
 def import_instances():
     walk_dir = os.path.dirname(os.path.abspath(__file__)) + '\instances'
     list_of_instance = []
 
     for root, subdirs, files in os.walk(walk_dir):        
-        for filename in files: # Para cada arquivo de instância           
-            instance_file = open(os.path.join(root, filename), 'r')
+        for filename in files: # Para cada arquivo de instância   
+            instance_file_name = os.path.join(root, filename)  
+            instance_file = open(instance_file_name, 'r')
             first_line = True 
             point_index = 0
             points = []  
@@ -160,6 +216,6 @@ def import_instances():
                         points.append(element)
                         point_index+=1
 
-            list_of_instance.append(Instance(name, points, vehicles_quantity))
+            list_of_instance.append(Instance(name, instance_file_name, points, vehicles_quantity))
     return list_of_instance
      
