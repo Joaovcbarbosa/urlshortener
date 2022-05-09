@@ -1,6 +1,7 @@
 import os
 import math
 import copy
+from datetime import datetime
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -65,25 +66,19 @@ class Instance:
             del route[0] # Exclui a garagem
             points = []
             for point in route:
-                points.append(point['index'])
+                points.append(point['index'] + 1)
 
             result.append(points)
-            points.clear()
+            points = []
 
         return result 
 
     def plot_solution(self, withDepEdges):
         fo, solution = self.best_solution()
         solution = copy.deepcopy(self.treat_solution(solution))
-        #filename - String com o caminho para o arquivo da instância
-        #solution - Lista de Listas / M listas de rotas sem o depósito (1) - Ex: [ [2,5,6], [7,8,12,10,11], [12,3,4] ]
-        #withDepEdges - boolean - Caso queira imprimir os arcos que saem do depósito
-        #figureFileName - String com o caminho e nome do arquivo de saída (sem extenção)
-
         fIn = open(self.path, 'r')
-        matRaw = [ [a for a in b.split(' ')] for b in fIn.read().split('\n') if b != '' ]
+        matRaw = [ [a for a in b.split('\t')] for b in fIn.read().split('\n') if b != '' ]
         matRaw = matRaw[1:]
-        #print(matRaw)
         fIn.close()
         baseColors = ['red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'pink'] #podem add mais cores de rotas
         G=nx.Graph()
@@ -94,10 +89,10 @@ class Instance:
         for rID in range(len(solution)):
             route = solution[rID]
             rColor = baseColors[rID % len(baseColors)]
-            if withDepEdges:
-                G.add_edge(1,route[0],  color=rColor)
-                G.add_edge(1,route[-1], color=rColor)
             if (len(route) > 0):
+                if withDepEdges:
+                    G.add_edge(1,route[0],  color=rColor)
+                    G.add_edge(1,route[-1], color=rColor)
                 for i in range(len(route)-1):
                     G.add_edge(route[i], route[i+1], color=rColor)
         positions  = nx.get_node_attributes(G,'pos')
@@ -105,7 +100,8 @@ class Instance:
         edgeColors = nx.get_edge_attributes(G,'color').values()
         plt.figure(1,figsize=(40,40)) #ajustar: Números maiores -> nós menores (mas a resolução do arquivo de saída aumenta)
         nx.draw(G, positions, edge_color=edgeColors, node_color=nodeColors, with_labels=True)
-        plt.savefig("%s.png" % (self.name))
+        data = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+        plt.savefig("%s.png" % ('solution_' + self.name + '_' + data))
 
     def calculate_FO(self, routes):
         fo = 0

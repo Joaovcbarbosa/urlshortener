@@ -20,7 +20,7 @@ def update_solution(instance, routes, route_index_one, route_index_two=-1):
     instance.current_solution = routes
     instance.add_best_solution(instance.current_solution_fo, routes)
 
-def isBetter(instance, routes, route_one_index, route_two_index=-1):
+def is_better(instance, routes, route_one_index, route_two_index=-1):
     route_one_fo = instance.calculate_fo_per_route(routes[route_one_index])
     if route_two_index == -1:
         return route_one_fo < instance.current_solution_fo_per_route[route_one_index]
@@ -38,7 +38,7 @@ def intra_route_swap(instance, routes):
                     if point_one_index != point_two_index and point_two_index > 0: # Se o ponto não é o mesmo nem é a garagem                    
                         swap(routes=routes, route_one_index=route_index, route_two_index=route_index, 
                              point_one_index=point_one_index, point_two_index=point_two_index)                        
-                        if isBetter(instance, routes, route_index): 
+                        if is_better(instance, routes, route_index): 
                             update_solution(instance, routes, route_index)
                             intra_route_swap(instance, routes)
                             break
@@ -58,7 +58,7 @@ def intra_route_shift(instance, routes):
                     if point_one_index != point_two_index and point_two_index > 0: # Se a posição não for a mesma e não for a garagem                       
                         shift(routes=routes, route_one_index=route_index, route_two_index=route_index,
                               insert_index=point_two_index, point_index=point_one_index)
-                        if isBetter(instance, routes, route_index): 
+                        if is_better(instance, routes, route_index): 
                             update_solution(instance, routes, route_index)
                             intra_route_shift(instance, routes)
                             break
@@ -80,7 +80,7 @@ def inter_route_shift(instance, routes):
                             if route_two_point_index > 0:            
                                 shift(routes=routes, route_one_index=route_one_index, route_two_index=route_two_index,
                                       insert_index=route_two_point_index, point_index=route_one_point_index)
-                                if isBetter(instance, routes, route_one_index, route_two_index): 
+                                if is_better(instance, routes, route_one_index, route_two_index): 
                                     update_solution(instance, routes, route_one_index, route_two_index)
                                     inter_route_shift(instance, routes)                                    
                                     break
@@ -104,7 +104,7 @@ def inter_route_swap(instance, routes):
                             if route_two_point_index > 0: 
                                 swap(routes=routes, route_one_index=route_one_index, route_two_index=route_two_index, 
                                      point_one_index=route_one_point_index, point_two_index=route_two_point_index)
-                                if isBetter(instance, routes, route_one_index, route_two_index): 
+                                if is_better(instance, routes, route_one_index, route_two_index): 
                                     update_solution(instance, routes, route_one_index, route_two_index)
                                     inter_route_swap(instance, routes)
                                     break
