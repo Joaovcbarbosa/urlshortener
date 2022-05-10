@@ -4,15 +4,10 @@ from disturbance import random_neighbor
 from random import randint 
 from copy import deepcopy
 
-def disturbance():
-    pass
-
 def ILS(instance, betta_min, betta_max, ILS_max):
-    create_routes(instance)
     local_search(instance)
     best_fo, best_S = instance.best_solution()
     S = deepcopy(best_S)
-    print(best_fo)
 
     for i in range(ILS_max):
         disturbance_percentage = int((randint(betta_min, betta_max) / 100) * len(instance.points))

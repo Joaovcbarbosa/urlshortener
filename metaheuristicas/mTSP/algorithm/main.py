@@ -1,26 +1,47 @@
 import instances
-import construction
-import local_search
-import simulated_annealing
-import grasp 
-import iterated_local_search
+from construction import create_routes
+from construction import create_test_routes
+from local_search import local_search
+from simulated_annealing import SA
+from grasp import GRASP 
+from iterated_local_search import ILS
+from variable_neighborhood_search import VNS
+from variable_neighborhood_descent import VND
 
 def main():
-    option = input('1 -> Local Search\n2 -> SA\n3 -> GRASP\n4 -> ILS\n')
-    list_of_instance = instances.import_instances()
+    input_string = ('1 -> Local Search\n' +
+                    '2 -> SA\n' +
+                    '3 -> GRASP \n' +
+                    '4 -> ILS\n' +
+                    '5 -> VNS\n' +
+                    '6 -> VND\n')
+    option = input(input_string)
+    
+    list_of_instance = instances.import_instances()    
+    choice = None 
     # instances.export_instance(list_of_instance)
     
     for instance in list_of_instance:
         if option == '1':
-            construction.create_routes(instance)
-            local_search.local_search(instance)      
+            if choice is None:
+                create_routes(instance)
+            else:
+                create_test_routes(instance, choice)
+            local_search(instance)      
         if option == '2':
-            construction.create_routes(instance)
-            simulated_annealing.SA(instance, 1000000, 200, 0.8)
+            create_routes(instance)
+            SA(instance, 1000000, 200, 0.8)
         if option == '3':
-            grasp.GRASP(instance, 50, 20, 0.5)   
+            GRASP(instance, 50, 20, 0.5)   
         if option == '4':
-            iterated_local_search.ILS(instance, 1, 5, 500)   
+            create_routes(instance)
+            ILS(instance, 5, 10, 1000)   
+        if option == '5':
+            create_routes(instance)
+            VNS(instance, 5, 50)     
+        if option == '6':
+            create_routes(instance)
+            VND(instance, 4)   
         else:
             exit 
     

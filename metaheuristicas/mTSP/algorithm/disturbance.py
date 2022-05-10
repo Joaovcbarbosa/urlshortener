@@ -38,7 +38,7 @@ def random_point(point_one_index, routes, route_index):
     return point_two_index, point_two_value
 
 def is_only_depot(routes, route_index):
-    len(routes[route_index]) <= 1
+    return len(routes[route_index]) < 2
 
 def random_neighbor(routes):    
     routes_copy = copy.deepcopy(routes)

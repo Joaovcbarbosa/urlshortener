@@ -33,13 +33,14 @@ class Instance:
         best_fo = min(self.best_fos)
         index = self.best_fos.index(best_fo)
         best_solution = self.best_solutions[index]
-
         return best_fo, best_solution
 
     def print_solution(self, plot_solution=0):
         fo, routes = self.best_solution()
         fo_manually = 0
         print('WINNER ROUTE: ')
+        print(routes)
+        print('\n', end = '')
         for i in range(len(routes)):
             print('\n', end = '')
             print('route ' + str(i+1) + ': ')
@@ -100,8 +101,7 @@ class Instance:
         edgeColors = nx.get_edge_attributes(G,'color').values()
         plt.figure(1,figsize=(40,40)) #ajustar: Números maiores -> nós menores (mas a resolução do arquivo de saída aumenta)
         nx.draw(G, positions, edge_color=edgeColors, node_color=nodeColors, with_labels=True)
-        data = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
-        plt.savefig("%s.png" % ('solution_' + self.name + '_' + data))
+        plt.savefig("%s.png" % ('solution_' + self.name + '_fo_' + str(float("{0:.4f}".format(fo)))))
 
     def calculate_FO(self, routes):
         fo = 0
@@ -137,7 +137,8 @@ def generate_matrix(points):
     for i in range(len(points)): # Para cada ponto
         row = [] 
         for j in range(len(points)):
-            row.append(math.dist(points[i]['xy'], points[j]['xy'])) # Calcula a distância dele para todos os outros pontos
+            distance = math.dist(points[i]['xy'], points[j]['xy'])
+            row.append(distance) # Calcula a distância dele para todos os outros pontos
         matrix.append(row)  
 
     return matrix  

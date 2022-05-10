@@ -74,3 +74,4 @@ def semi_greedy_construction(instance, RLC_length_in_percentage, alpha):
         RCL.clear()
 
     instance.refresh(routes, calculate_fo=1)
+    instance.add_best_solution(instance.current_solution_fo, routes)

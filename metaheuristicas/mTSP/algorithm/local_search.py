@@ -120,9 +120,9 @@ def inter_route_swap(instance, routes):
 
 def local_search(instance):     
     routes = copy.deepcopy(instance.current_solution)
-    inter_route_swap(instance, routes)
-    inter_route_shift(instance, routes)  
     intra_route_swap(instance, routes)
     intra_route_shift(instance, routes)
+    inter_route_shift(instance, routes)  
+    inter_route_swap(instance, routes)
 
     return routes
