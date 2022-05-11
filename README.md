@@ -1,2 +1,2 @@
 # Universidade Federal de São Paulo - UNIFESP
-Arquivos utilizados na graduação em Ciências da Computação pela Universidade Federal de São Paulo
+Files used in Computer Science graduation at the Federal University of São Paulo.
