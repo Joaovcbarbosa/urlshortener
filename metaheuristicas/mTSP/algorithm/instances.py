@@ -1,7 +1,6 @@
 import os
-import math
-import copy
-from datetime import datetime
+from math import dist
+from copy import deepcopy
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -76,7 +75,7 @@ class Instance:
 
     def plot_solution(self, withDepEdges):
         fo, solution = self.best_solution()
-        solution = copy.deepcopy(self.treat_solution(solution))
+        solution = deepcopy(self.treat_solution(solution))
         fIn = open(self.path, 'r')
         matRaw = [ [a for a in b.split('\t')] for b in fIn.read().split('\n') if b != '' ]
         matRaw = matRaw[1:]
@@ -130,14 +129,14 @@ class Instance:
             for route_index in range(len(routes)):
                     self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(routes[route_index])
         self.current_solution_fo = sum(self.current_solution_fo_per_route)  
-        self.current_solution = copy.deepcopy(routes)
+        self.current_solution = deepcopy(routes)
                     
 def generate_matrix(points):
     matrix = []
     for i in range(len(points)): # Para cada ponto
         row = [] 
         for j in range(len(points)):
-            distance = math.dist(points[i]['xy'], points[j]['xy'])
+            distance = round(dist(points[i]['xy'], points[j]['xy']), 2)
             row.append(distance) # Calcula a distância dele para todos os outros pontos
         matrix.append(row)  
 

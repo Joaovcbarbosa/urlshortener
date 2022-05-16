@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 
 def swap(routes, route_one_index, route_two_index, point_one_index, point_two_index):
     point_one = routes[route_one_index][point_one_index]
@@ -75,7 +75,7 @@ def inter_route_shift(instance, routes):
         for route_one_point_index in range(len(routes[route_one_index])): # Seleciona um ponto
             if route_one_point_index > 0:
                 for route_two_index in range(len(routes)): # Seleciona uma rota diferente da primeira selecionada
-                    if route_one_index != route_two_index:
+                    if route_one_index != route_two_index and len(routes[route_one_index]) > 2: # Deve haver pelo menos 3 pontos na rota
                         for route_two_point_index in range(len(routes[route_two_index])): # Seleciona um ponto da segunda rota
                             if route_two_point_index > 0:            
                                 shift(routes=routes, route_one_index=route_one_index, route_two_index=route_two_index,
@@ -119,7 +119,7 @@ def inter_route_swap(instance, routes):
                 break
 
 def local_search(instance):     
-    routes = copy.deepcopy(instance.current_solution)
+    routes = deepcopy(instance.current_solution)
     intra_route_swap(instance, routes)
     intra_route_shift(instance, routes)
     inter_route_shift(instance, routes)  

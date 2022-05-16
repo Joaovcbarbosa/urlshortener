@@ -1,11 +1,17 @@
-import random 
-import copy
+from random import choice 
+from copy import deepcopy
 
 def generate_candidates(instance):
-    candidates = copy.deepcopy(instance.points) # Todos os pontos
+    candidates = deepcopy(instance.points) # Todos os pontos
     del candidates[0] # Exclui a garagem    
     routes = [[instance.points[0]] for item in range(instance.vehicles_quantity)] # Cria uma lista de listas baseado na quantidade de veículos
-    
+     
+    i = 1
+    for j in range(len(routes)):
+        routes[j].append(candidates[i])
+        del candidates[i] 
+        i += 1
+
     return routes, candidates, []
 
 def sort_by_fo(e):
@@ -25,7 +31,7 @@ def get_random_candidate(RCL, RLC_length_in_percentage, alpha):
         if (item['cost'] <= condition) == False:
             RCL.remove(item)
 
-    return random.choice(RCL)
+    return choice(RCL)
    
 def calculate_cost(instance, routes, route_index, point_index, candidate_index, route_length):
     cost = instance.matrix[routes[route_index][point_index]['index']][candidate_index] # Custo do ponto até o candidato

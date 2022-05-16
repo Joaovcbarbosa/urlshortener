@@ -1,4 +1,3 @@
-from construction import create_routes
 from local_search import local_search
 from disturbance import random_neighbor
 from random import randint 

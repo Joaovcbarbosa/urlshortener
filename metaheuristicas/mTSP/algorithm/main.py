@@ -1,4 +1,5 @@
-import instances
+from instances import import_instances
+from instances import export_instance
 from construction import create_routes
 from construction import create_test_routes
 from local_search import local_search
@@ -17,9 +18,9 @@ def main():
                     '6 -> VND\n')
     option = input(input_string)
     
-    list_of_instance = instances.import_instances()    
-    choice = None 
-    # instances.export_instance(list_of_instance)
+    list_of_instance = import_instances()    
+    choice = 0
+    # export_instance(list_of_instance)
     
     for instance in list_of_instance:
         if option == '1':
@@ -30,21 +31,21 @@ def main():
             local_search(instance)      
         if option == '2':
             create_routes(instance)
-            SA(instance, 1000000, 200, 0.8)
+            SA(instance, 1000000, 200, 0.99)
         if option == '3':
             GRASP(instance, 50, 20, 0.5)   
         if option == '4':
             create_routes(instance)
-            ILS(instance, 5, 10, 1000)   
+            ILS(instance, 5, 10, 200)   
         if option == '5':
             create_routes(instance)
-            VNS(instance, 5, 50)     
+            VNS(instance, 5, 100)     
         if option == '6':
             create_routes(instance)
             VND(instance, 4)   
         else:
             exit 
     
-    instance.print_solution(True)
+    instance.print_solution(False)
 
 main()
