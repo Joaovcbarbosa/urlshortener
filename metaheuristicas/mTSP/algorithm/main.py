@@ -19,7 +19,7 @@ def main():
     option = input(input_string)
     
     list_of_instance = import_instances()    
-    choice = 0
+    choice = None
     # export_instance(list_of_instance)
     
     for instance in list_of_instance:
