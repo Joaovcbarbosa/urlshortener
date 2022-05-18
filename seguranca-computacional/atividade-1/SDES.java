@@ -2,7 +2,7 @@ import java.io.*;
  
 public class SDES {
 
-	public String K1, K2, B;
+	public String key1, key2, message;
     public int[][] S0 = {{ 1, 0, 3, 2},
                         {3, 2, 1, 0},
                         {0, 2, 1, 3},
@@ -12,112 +12,112 @@ public class SDES {
                         {3, 0, 1, 0},
                         {2, 1, 0, 3}};
 
-    public SDES(String K, String B) {
-        this.B = B;
-        generateKeys(K);   
+    public SDES(String key, String message) {
+        this.message = message;
+        generateKeys(key);   
 	}
 
-    public void generateKeys(String K){   
-        K = shift(P10(K));
-        this.K1 = P8(K);
-        this.K2 = P8(shift(shift(K)));
+    public void generateKeys(String key){   
+        key = shift(P10(key));
+        this.key1 = P8(key);
+        this.key2 = P8(shift(shift(key)));
     }
 
     public String encrypt(){
-        return IPReverse(F(swap(F(IP(this.B), this.K1)), this.K2));
+        return IPReverse(F(swap(F(IP(this.message), this.key1)), this.key2));
     }
 
     public String decrypt(){
-        return IPReverse(F(swap(F(IP(this.B), this.K2)), this.K1));
+        return IPReverse(F(swap(F(IP(this.message), this.key2)), this.key1));
     }
 
-    public String P10(String K){
-        String KPermutated;
-        KPermutated = (
-            String.valueOf(K.charAt(2)) + 
-            String.valueOf(K.charAt(4)) + 
-            String.valueOf(K.charAt(1)) + 
-            String.valueOf(K.charAt(6)) + 
-            String.valueOf(K.charAt(3)) + 
-            String.valueOf(K.charAt(9)) + 
-            String.valueOf(K.charAt(0)) + 
-            String.valueOf(K.charAt(8)) + 
-            String.valueOf(K.charAt(7)) + 
-            String.valueOf(K.charAt(5)));
+    public String P10(String key){
+        String permutatedKey;
+        permutatedKey = (
+            String.valueOf(key.charAt(2)) + 
+            String.valueOf(key.charAt(4)) + 
+            String.valueOf(key.charAt(1)) + 
+            String.valueOf(key.charAt(6)) + 
+            String.valueOf(key.charAt(3)) + 
+            String.valueOf(key.charAt(9)) + 
+            String.valueOf(key.charAt(0)) + 
+            String.valueOf(key.charAt(8)) + 
+            String.valueOf(key.charAt(7)) + 
+            String.valueOf(key.charAt(5)));
 
-        return KPermutated;
+        return permutatedKey;
     }
 
-    public String shift(String K){
-        String KLeft, KRight;
-        KLeft = shiftTable(K.substring(0, 5));
-        KRight = shiftTable(K.substring(5, 10));
-        return KLeft + KRight;
+    public String shift(String key){
+        String keyLeft, keyRight;
+        keyLeft = shiftTable(key.substring(0, 5));
+        keyRight = shiftTable(key.substring(5, 10));
+        return keyLeft + keyRight;
     }
 
-    public String shiftTable(String K){
-        return (String.valueOf(K.charAt(1)) + 
-                String.valueOf(K.charAt(2)) + 
-                String.valueOf(K.charAt(3)) + 
-                String.valueOf(K.charAt(4)) + 
-                String.valueOf(K.charAt(0)));
+    public String shiftTable(String key){
+        return (String.valueOf(key.charAt(1)) + 
+                String.valueOf(key.charAt(2)) + 
+                String.valueOf(key.charAt(3)) + 
+                String.valueOf(key.charAt(4)) + 
+                String.valueOf(key.charAt(0)));
     }
 
-    public String P8(String K){
-        String KPermutated;
-        KPermutated = (
-            String.valueOf(K.charAt(5)) + 
-            String.valueOf(K.charAt(2)) + 
-            String.valueOf(K.charAt(6)) + 
-            String.valueOf(K.charAt(3)) + 
-            String.valueOf(K.charAt(7)) + 
-            String.valueOf(K.charAt(4)) + 
-            String.valueOf(K.charAt(9)) + 
-            String.valueOf(K.charAt(8)));
+    public String P8(String key){
+        String permutatedKey;
+        permutatedKey = (
+            String.valueOf(key.charAt(5)) + 
+            String.valueOf(key.charAt(2)) + 
+            String.valueOf(key.charAt(6)) + 
+            String.valueOf(key.charAt(3)) + 
+            String.valueOf(key.charAt(7)) + 
+            String.valueOf(key.charAt(4)) + 
+            String.valueOf(key.charAt(9)) + 
+            String.valueOf(key.charAt(8)));
 
-        return KPermutated;
+        return permutatedKey;
     }
 
-    public String IP(String B){
-        String BPermutated;
-        BPermutated = (
-            String.valueOf(B.charAt(1)) + 
-            String.valueOf(B.charAt(5)) + 
-            String.valueOf(B.charAt(2)) + 
-            String.valueOf(B.charAt(0)) + 
-            String.valueOf(B.charAt(3)) + 
-            String.valueOf(B.charAt(7)) + 
-            String.valueOf(B.charAt(4)) + 
-            String.valueOf(B.charAt(6)));
+    public String IP(String message){
+        String permutatedMessage;
+        permutatedMessage = (
+            String.valueOf(message.charAt(1)) + 
+            String.valueOf(message.charAt(5)) + 
+            String.valueOf(message.charAt(2)) + 
+            String.valueOf(message.charAt(0)) + 
+            String.valueOf(message.charAt(3)) + 
+            String.valueOf(message.charAt(7)) + 
+            String.valueOf(message.charAt(4)) + 
+            String.valueOf(message.charAt(6)));
 
-        return BPermutated;
+        return permutatedMessage;
     }
 
-    public String F(String B, String K){   
+    public String F(String message, String K){   
         String left, right, newValues;
-        left = B.substring(0, 4);
-        right = B.substring(4, 8);
+        left = message.substring(0, 4);
+        right = message.substring(4, 8);
 
         newValues = XOR(P4(blocks(XOR(expansion(right), K))), left); 
 
         return newValues + right;
     }
 
-    public String expansion(String B){
+    public String expansion(String message){
         
-        String BExpanded;
+        String messageExpanded;
 
-        BExpanded = (
-            String.valueOf(B.charAt(3)) + 
-            String.valueOf(B.charAt(0)) + 
-            String.valueOf(B.charAt(1)) + 
-            String.valueOf(B.charAt(2)) + 
-            String.valueOf(B.charAt(1)) + 
-            String.valueOf(B.charAt(2)) + 
-            String.valueOf(B.charAt(3)) + 
-            String.valueOf(B.charAt(0)));
+        messageExpanded = (
+            String.valueOf(message.charAt(3)) + 
+            String.valueOf(message.charAt(0)) + 
+            String.valueOf(message.charAt(1)) + 
+            String.valueOf(message.charAt(2)) + 
+            String.valueOf(message.charAt(1)) + 
+            String.valueOf(message.charAt(2)) + 
+            String.valueOf(message.charAt(3)) + 
+            String.valueOf(message.charAt(0)));
 
-        return BExpanded;
+        return messageExpanded;
     }
 
     public String XOR(String left, String right){
@@ -145,18 +145,18 @@ public class SDES {
         return binary;
     }
 
-    public String blocks(String B){
+    public String blocks(String message){
         
-        String BLeft, BRight, S0Cell, S1Cell;  
+        String messageLeft, messageRight, S0Cell, S1Cell;  
         int S0Row, S0Column, S1Row, S1Column;   
 
-        BLeft = B.substring(0, 4);
-        S0Row = Integer.parseInt(String.valueOf(BLeft.charAt(0)) + String.valueOf(BLeft.charAt(3)), 2); 
-        S0Column = Integer.parseInt(String.valueOf(BLeft.charAt(1)) + String.valueOf(BLeft.charAt(2)), 2); 
+        messageLeft = message.substring(0, 4);
+        S0Row = Integer.parseInt(String.valueOf(messageLeft.charAt(0)) + String.valueOf(messageLeft.charAt(3)), 2); 
+        S0Column = Integer.parseInt(String.valueOf(messageLeft.charAt(1)) + String.valueOf(messageLeft.charAt(2)), 2); 
 
-        BRight = B.substring(4, 8);
-        S1Row = Integer.parseInt(String.valueOf(BRight.charAt(0)) + String.valueOf(BRight.charAt(3)), 2); 
-        S1Column = Integer.parseInt(String.valueOf(BRight.charAt(1)) + String.valueOf(BRight.charAt(2)), 2); 
+        messageRight = message.substring(4, 8);
+        S1Row = Integer.parseInt(String.valueOf(messageRight.charAt(0)) + String.valueOf(messageRight.charAt(3)), 2); 
+        S1Column = Integer.parseInt(String.valueOf(messageRight.charAt(1)) + String.valueOf(messageRight.charAt(2)), 2); 
 
 
         S0Cell = intToBinary(S0[S0Row][S0Column]);
@@ -165,62 +165,62 @@ public class SDES {
         return S0Cell + S1Cell;
     }
 
-    public String P4(String B){        
-        String BPermutated;
-        BPermutated = (
-            String.valueOf(B.charAt(1)) + 
-            String.valueOf(B.charAt(3)) + 
-            String.valueOf(B.charAt(2)) + 
-            String.valueOf(B.charAt(0)));
+    public String P4(String message){        
+        String permutatedMessage;
+        permutatedMessage = (
+            String.valueOf(message.charAt(1)) + 
+            String.valueOf(message.charAt(3)) + 
+            String.valueOf(message.charAt(2)) + 
+            String.valueOf(message.charAt(0)));
 
-        return BPermutated;
+        return permutatedMessage;
     }
 
-    public String swap(String B){        
-        String BSwaped;
-        BSwaped = B.substring(4, 8) + B.substring(0, 4);
+    public String swap(String message){        
+        String swappedMessage;
+        swappedMessage = message.substring(4, 8) + message.substring(0, 4);
 
-        return BSwaped;
+        return swappedMessage;
     }
 
 
-    public String IPReverse(String B){
-        String BPermutated;
-        BPermutated = (
-            String.valueOf(B.charAt(3)) + 
-            String.valueOf(B.charAt(0)) + 
-            String.valueOf(B.charAt(2)) + 
-            String.valueOf(B.charAt(4)) + 
-            String.valueOf(B.charAt(6)) + 
-            String.valueOf(B.charAt(1)) + 
-            String.valueOf(B.charAt(7)) + 
-            String.valueOf(B.charAt(5)));
+    public String IPReverse(String message){
+        String permutatedMessage;
+        permutatedMessage = (
+            String.valueOf(message.charAt(3)) + 
+            String.valueOf(message.charAt(0)) + 
+            String.valueOf(message.charAt(2)) + 
+            String.valueOf(message.charAt(4)) + 
+            String.valueOf(message.charAt(6)) + 
+            String.valueOf(message.charAt(1)) + 
+            String.valueOf(message.charAt(7)) + 
+            String.valueOf(message.charAt(5)));
 
-        return BPermutated;
+        return permutatedMessage;
     }
 
     public static void main( String args[]) throws NumberFormatException, IOException{
-        int L;  
-        String O, K, B;
+        int operationQuantity;  
+        String operation, key, message;
         
 		InputStreamReader oInputStreamReader = new InputStreamReader(System.in);
         BufferedReader oBufferedReader = new BufferedReader(oInputStreamReader);
 
-        L = Integer.parseInt(oBufferedReader.readLine());
-        String[] respostas = new String[L];
+        operationQuantity = Integer.parseInt(oBufferedReader.readLine());
+        String[] respostas = new String[operationQuantity];
 
-        for (int i = 0; i < L; i++) {             
-            O = oBufferedReader.readLine();
-            K = oBufferedReader.readLine();
-            B = oBufferedReader.readLine();            
-            SDES sdes = new SDES(K, B);
-            if(O.equals("C"))
+        for (int i = 0; i < operationQuantity; i++) {             
+            operation = oBufferedReader.readLine();
+            key = oBufferedReader.readLine();
+            message = oBufferedReader.readLine();            
+            SDES sdes = new SDES(key, message);
+            if(operation.equals("C"))
                 respostas[i] = sdes.encrypt();
             else
                 respostas[i] = sdes.decrypt();
         }
 
-        for (int i = 0; i < L; i++) {           
+        for (int i = 0; i < operationQuantity; i++) {           
             System.out.println(respostas[i]);
         }
     }
