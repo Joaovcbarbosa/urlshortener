@@ -23,6 +23,14 @@ public class SDES {
         this.K2 = P8(shift(shift(K)));
     }
 
+    public String encrypt(){
+        return IPReverse(F(swap(F(IP(this.B), this.K1)), this.K2));
+    }
+
+    public String decrypt(){
+        return IPReverse(F(swap(F(IP(this.B), this.K2)), this.K1));
+    }
+
     public String P10(String K){
         String KPermutated;
         KPermutated = (
@@ -70,14 +78,6 @@ public class SDES {
         return KPermutated;
     }
 
-    public String encrypt(){
-        return IPReverse(F(swap(F(IP(B), this.K1)), this.K2));
-    }
-
-    public String decrypt(){
-        return IPReverse(F(swap(F(IP(B), this.K2)), this.K1));
-    }
-
     public String IP(String B){
         String BPermutated;
         BPermutated = (
@@ -94,21 +94,13 @@ public class SDES {
     }
 
     public String F(String B, String K){   
-        String BLeft, BRight, L;
-        L = B.substring(0, 4);
+        String left, right, newValues;
+        left = B.substring(0, 4);
+        right = B.substring(4, 8);
 
-        if(K == K1) BLeft = B.substring(0, 4);
-        else BLeft = B.substring(4, 8);
+        newValues = XOR(P4(blocks(XOR(expansion(right), K))), left); 
 
-        BRight = B.substring(4, 8);
-
-        BRight = expansion(BRight);
-        BRight = XOR(BRight, K); 
-        BRight = Blocks(BRight); 
-        BRight = P4(BRight); 
-        BRight = XOR(BRight, L); 
-
-        return BRight + BLeft;
+        return newValues + right;
     }
 
     public String expansion(String B){
@@ -128,20 +120,21 @@ public class SDES {
         return BExpanded;
     }
 
-    public String XOR(String Left, String Right){
+    public String XOR(String left, String right){
         
         int i;
-        String BXOR = "";
+        String binaryXOR = "";
 
-        for(i = 0; i < Left.length(); i++){
-            if((Left.charAt(i) == '1' && Right.charAt(i) == '0') || (Left.charAt(i) == '0' && Right.charAt(i) == '1'))
-                BXOR += '1';
+        for(i = 0; i < left.length(); i++){
+            if((left.charAt(i) == '1' && right.charAt(i) == '0') || (left.charAt(i) == '0' && right.charAt(i) == '1'))
+                binaryXOR += '1';
             else
-                BXOR += '0';
+                binaryXOR += '0';
         }
 
-        return BXOR;
+        return binaryXOR;
     }
+
     public String intToBinary(int i){        
         String binary = "";
         if(i == 0) binary = "00";
@@ -152,7 +145,7 @@ public class SDES {
         return binary;
     }
 
-    public String Blocks(String B){
+    public String blocks(String B){
         
         String BLeft, BRight, S0Cell, S1Cell;  
         int S0Row, S0Column, S1Row, S1Column;   
