@@ -1,17 +1,20 @@
-import java.util.*;  
 import java.io.*;
-
+import java.util.*;
+ 
 public class SDES {
-    public static void main( String args[]){
-        String L, O, K, B;  
+    public static void main( String args[]) throws NumberFormatException, IOException{
+        int L;  
+        String O, K, B;
         
-        DataInputStream inp=new DataInputStream(System.in);
-        L = sc.nextLine();
-        for (int i = 0; i < Integer.parseInt(L); i++) {             
-            O = sc.nextLine();     
-            K = sc.nextLine();    
-            B = sc.nextLine();  
-            System.out.println("O: " + O + "K: " +K +" B: " + B);
+		InputStreamReader oInputStreamReader = new InputStreamReader(System.in);
+        BufferedReader oBufferedReader = new BufferedReader(oInputStreamReader);
+
+        L = Integer.parseInt(oBufferedReader.readLine());
+        for (int i = 0; i < L; i++) {             
+            O = oBufferedReader.readLine();
+            K = oBufferedReader.readLine();
+            B = oBufferedReader.readLine();
+            System.out.println("O: " + O + " K: " +K +" B: " + B);
         }
     }
 }
