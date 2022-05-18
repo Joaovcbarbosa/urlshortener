@@ -3,7 +3,7 @@ import java.io.DataInputStream;
 /*
  * Link For reference: https://www.brainkart.com/article/Simplified-Data-Encryption-Standard-(S-DES)_8343/
  */ // https://www.brainkart.com/article/Simplified-Data-Encryption-Standard-(S-DES)_8343/
-public class SDESTESTE {
+public class SDESEXEMPLO {
 
 	public int K1,K2;
 //Note: below matrics will be provided in lab(PICT)..
@@ -139,7 +139,7 @@ return ((x & 0xF) << 4) | ((x >> 4) & 0xF);
      * K1 = P8 (Shift_1 (P10 (Key)))
 	   K2 = P8 (Shift_2 (shift_1 (P10 (Key))))
      */
-     public SDESTESTE( int K) //COnstructor generates key k1 & k2 used for encyption
+     public SDESEXEMPLO( int K) //COnstructor generates key k1 & k2 used for encyption
    {
        K = permute( K, P10, P10max);
        int t1 = (K >> 5) & 0x1F;
@@ -162,19 +162,19 @@ return ((x & 0xF) << 4) | ((x >> 4) & 0xF);
       DataInputStream inp=new DataInputStream(System.in);
       System.out.println("Enter the 10 Bit Key :"); //1011011010
        int K = Integer.parseInt(inp.readLine(),2);
-       SDESTESTE A = new SDESTESTE( K);
+       SDESEXEMPLO A = new SDESEXEMPLO( K);
        System.out.println("Enter the 8 Bit message To be Encrypt  : ");
        int m = Integer.parseInt(inp.readLine(),2); //10110110
        System.out.print("\nKey K1: ");
-       SDESTESTE.printData( A.K1, 8);
+       SDESEXEMPLO.printData( A.K1, 8);
        System.out.print("\nKey K2: ");
-       SDESTESTE.printData( A.K2, 8);
+       SDESEXEMPLO.printData( A.K2, 8);
        m = A.encrypt( m);
        System.out.print("\nEncrypted Message: ");
-       SDESTESTE.printData( m, 8);
+       SDESEXEMPLO.printData( m, 8);
        m = A.decrypt( m);
        System.out.print("\nDecrypted Message: ");
-       SDESTESTE.printData( m, 8);
+       SDESEXEMPLO.printData( m, 8);
     
      }
 	
