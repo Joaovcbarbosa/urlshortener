@@ -8,8 +8,9 @@ from grasp import GRASP
 from iterated_local_search import ILS
 from variable_neighborhood_search import VNS
 from variable_neighborhood_descent import VND
-
+from sys import setrecursionlimit
 def main():
+    setrecursionlimit(100000000)
     input_string = ('1 -> Local Search\n' +
                     '2 -> SA\n' +
                     '3 -> GRASP \n' +

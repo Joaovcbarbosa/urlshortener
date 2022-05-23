@@ -6,6 +6,6 @@ def test_local_search():
     instance = generate_test_instance()
     create_test_routes(instance, 0)
     local_search(instance) 
-    assert instance.current_solution_fo == 575.84
+    assert round(instance.current_solution_fo, 2) == 575.84
 
 
