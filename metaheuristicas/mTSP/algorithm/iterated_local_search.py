@@ -24,4 +24,3 @@ def ILS(instance, betta_min, betta_max, ILS_max):
 
         best_fo, S = instance.best_solution()
         print(i, S_fo, best_fo)
-
