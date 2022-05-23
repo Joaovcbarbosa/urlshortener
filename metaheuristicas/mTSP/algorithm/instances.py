@@ -183,6 +183,7 @@ def generate_matrix(points):
 
     return matrix  
 
+
 def calculate_cost_swap(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
     i = routes[route_one_index][point_one_index]["index"]
     i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
@@ -212,8 +213,7 @@ def calculate_cost_shift(instance, routes, route_one_index, route_two_index, poi
     i = routes[route_one_index][point_one_index]["index"]
     i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
     i_back = routes[route_one_index][point_one_index - 1]["index"]
-    j = routes[route_two_index][point_two_index]["index"]
-    j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
+    j_front = routes[route_two_index][point_two_index]["index"]
     j_back = routes[route_two_index][point_two_index - 1]["index"]
 
     cost = (- instance.matrix[i_back][i]
@@ -222,9 +222,9 @@ def calculate_cost_shift(instance, routes, route_one_index, route_two_index, poi
             + instance.matrix[j_back][i]
             + instance.matrix[i][j_front]
             - instance.matrix[j_back][j_front])
-   
 
     return cost
+
 
 def export_instance(list_of_instance): # Exporta a instância para arquivo txt
     for index in range(len(list_of_instance)):        

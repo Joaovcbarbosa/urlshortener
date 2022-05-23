@@ -1,6 +1,6 @@
 from copy import deepcopy
-from instances import calculate_cost_shift
 from instances import calculate_cost_swap
+from instances import calculate_cost_shift 
 
 def swap(routes, route_one_index, route_two_index, point_one_index, point_two_index):
     point_one = routes[route_one_index][point_one_index]
