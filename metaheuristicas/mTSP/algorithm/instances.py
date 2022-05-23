@@ -195,7 +195,7 @@ def calculate_cost_swap(instance, routes, route_one_index, route_two_index, poin
     j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
     j_back = routes[route_two_index][point_two_index - 1]["index"]
     
-    if route_one_index == route_two_index and point_one_index + 1 == point_two_index:
+    if route_one_index == route_two_index and abs(point_one_index - point_two_index) == 1:
         cost = (- instance.matrix[i_back][i]
                 - instance.matrix[j][j_front]
                 + instance.matrix[i_back][j]

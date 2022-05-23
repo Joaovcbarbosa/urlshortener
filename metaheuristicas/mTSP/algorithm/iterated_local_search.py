@@ -11,12 +11,13 @@ def ILS(instance, betta_min, betta_max, ILS_max):
     for i in range(ILS_max):
         disturbance_percentage = int((randint(betta_min, betta_max) / 100) * len(instance.points))
         for j in range(disturbance_percentage):                         
-            S = random_neighbor(S)
-            instance.refresh(S, 1)
+            S, S_fo = random_neighbor(instance, S)
+            S_fo = instance.calculate_FO(S)
+            instance.refresh(S, S_fo)
 
         local_search(instance)
         S = deepcopy(instance.current_solution)
-        S_fo = instance.calculate_FO(S)
+        S_fo = instance.current_solution_fo
 
         if S_fo < best_fo:
             best_fo = S_fo
