@@ -1,4 +1,6 @@
 from copy import deepcopy
+from instances import calculate_cost_shift
+from instances import calculate_cost_swap
 
 def swap(routes, route_one_index, route_two_index, point_one_index, point_two_index):
     point_one = routes[route_one_index][point_one_index]
@@ -16,47 +18,6 @@ def update_solution(instance, routes, cost):
     instance.current_solution_fo += cost
     instance.current_solution = routes
     instance.add_best_solution(instance.current_solution_fo, routes)
-
-def calculate_cost_swap(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
-    i = routes[route_one_index][point_one_index]["index"]
-    i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
-    i_back = routes[route_one_index][point_one_index - 1]["index"]
-    j = routes[route_two_index][point_two_index]["index"]
-    j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
-    j_back = routes[route_two_index][point_two_index - 1]["index"]
-    
-    if point_one_index + 1 == point_two_index:
-        cost = (- instance.matrix[i_back][i]
-                - instance.matrix[j][j_front]
-                + instance.matrix[i_back][j]
-                + instance.matrix[i][j_front])
-    else:
-        cost = (- instance.matrix[i_back][i]
-                - instance.matrix[i][i_front]
-                - instance.matrix[j_back][j]
-                - instance.matrix[j][j_front]
-                + instance.matrix[i_back][j]
-                + instance.matrix[j][i_front]
-                + instance.matrix[j_back][i]
-                + instance.matrix[i][j_front])
-
-    return cost 
-
-def calculate_cost_shift(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
-    i = routes[route_one_index][point_one_index]["index"]
-    i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
-    i_back = routes[route_one_index][point_one_index - 1]["index"]
-    j_front = routes[route_two_index][point_two_index]["index"]
-    j_back = routes[route_two_index][point_two_index - 1]["index"]
-
-    cost = (- instance.matrix[i_back][i]
-            - instance.matrix[i][i_front]
-            + instance.matrix[i_back][i_front]
-            + instance.matrix[j_back][i]
-            + instance.matrix[i][j_front]
-            - instance.matrix[j_back][j_front])
-
-    return cost
 
 def intra_route_swap(instance, routes):
     for route_index in range(len(routes)): # Para cada rota

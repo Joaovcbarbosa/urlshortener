@@ -1,6 +1,5 @@
 from local_search import local_search
 from semi_greedy_construction import semi_greedy_construction
-from variable_neighborhood_search import VNS
    
 def is_better(instance, fo_best):
     return instance.current_solution_fo < fo_best or fo_best < 0

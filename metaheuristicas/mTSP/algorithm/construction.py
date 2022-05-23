@@ -1,38 +1,50 @@
+from operator import index
 from random import sample
 from copy import deepcopy
 
+def sort_by_distance(e):
+    return e['distance']
+
 def create_routes(instance):    
-    routes = [[instance.points[0]] for item in range(instance.vehicles_quantity)] # Cria uma lista de listas baseado na quantidade de veículos
+    routes = [[instance.points[0]] for item in range(instance.vehicles_quantity)] # Cria uma lista de listas baseado na quantidade de veículos    
+    list_of_points = deepcopy(instance.points) # Lista de pontos
+    del list_of_points[0] # Remove a garagem
+    list_of_distances = [-1] * len(list_of_points) # Lista de distâncias dos pontos a garagem, a partir do ponto 1 (0 é a garagem)
+
+    # Para cada ponto da lista de pontos
+    for i in range(len(list_of_points)):
+        element = {
+                    'distance': instance.matrix[0][i + 1] + instance.matrix[i + 1][0], # Distancia a garagem
+                    'point': instance.points[i + 1]
+                  }
+        list_of_distances[i] = element
     
-    points = deepcopy(instance.points)
-    i = 1
-    for j in range(len(routes)):
-        routes[j].append(points[i])
-        instance.current_solution_fo_per_route[j] = (instance.matrix[0][i] # + Distância do último ponto da rota ao ponto atual
-                                                     + instance.matrix[0][i] # + Distância da garagem ao ponto atual
-                                                    )
-        del points[i] 
-        i += 1
+    list_of_distances.sort(key=sort_by_distance) # Organiza a lista pelas distâncias de forma crescente
 
-    for point in sample(points, len(points)): # Para cada ponto embaralhado da instância
+    # Para cada rota da solução
+    for route_index in range(len(routes)):
+        routes[route_index].append(list_of_distances[0]['point']) # Adiciona o menor ponto
+        instance.current_solution_fo_per_route[route_index] = list_of_distances[0]['distance']
+        del list_of_distances[0] # Retira o menor ponto da lista
+        list_of_points.remove(routes[route_index][1]) # Retira o ponto da lista de pontos
+
+    # Para cada ponto embaralhado da instância
+    for point in sample(list_of_points, len(list_of_points)): 
         point_index = point['index']
-        if point_index != 0: # Se não for a garagem
-            list_of_new_fo_per_route = []
-            for route_index in range(len(routes)): # Seleciona uma rota   
-                last_point_index = routes[route_index][-1]['index']
-                first_point_index = 0
-                                
-                value_of_new_fo_per_route = (instance.current_solution_fo_per_route[route_index] # FO atual daquela rota
-                                             + instance.matrix[last_point_index][point_index] # + Distância do último ponto da rota ao ponto atual
-                                             + instance.matrix[first_point_index][point_index] # + Distância da garagem ao ponto atual
-                                             - instance.matrix[last_point_index][first_point_index]) # - Distância do último ponto da rota a garagem
-                
-                list_of_new_fo_per_route.append(value_of_new_fo_per_route) # Adiciona o valor encontrado na lista de FO's de rotas
+        list_of_fo = []
+        for route_index in range(len(routes)): # Seleciona uma rota   
+            last_point_index = routes[route_index][-1]['index']
+            first_point_index = 0            
+            value_of_fo = (instance.current_solution_fo_per_route[route_index] # FO atual daquela rota
+                           + instance.matrix[last_point_index][point_index] # + Distância do último ponto da rota ao ponto atual
+                           + instance.matrix[first_point_index][point_index] # + Distância da garagem ao ponto atual
+                           - instance.matrix[last_point_index][first_point_index]) # - Distância do último ponto da rota a garagem            
+            list_of_fo.append(value_of_fo) # Adiciona o valor encontrado na lista de FO's de rotas
 
-            best_fo_value =  min(list_of_new_fo_per_route)  # Seleciona o melhor valor de FO
-            route_index = list_of_new_fo_per_route.index(best_fo_value) # Seleciona o index da rota com menor FO
-            instance.current_solution_fo_per_route[route_index] = best_fo_value # Atualiza o valor da FO da rota
-            routes[route_index].append(point) # Adiciona ponto a rota
+        best_fo_value =  min(list_of_fo)  # Seleciona o melhor valor de FO
+        route_index = list_of_fo.index(best_fo_value) # Seleciona o index da rota com menor FO
+        instance.current_solution_fo_per_route[route_index] = best_fo_value # Atualiza o valor da FO da rota
+        routes[route_index].append(point) # Adiciona ponto a rota
 
     instance.current_solution_fo = sum(instance.current_solution_fo_per_route) # Soma o FO de todas as rotas, formando o FO da solução
     instance.current_solution = routes

@@ -131,13 +131,17 @@ class Instance:
         
         return fo
     
-    def refresh(self, routes, calculate_fo=0):   
-        if calculate_fo != 0:     
-            for route_index in range(len(routes)):
-                    self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(routes[route_index])
-        self.current_solution_fo = sum(self.current_solution_fo_per_route)  
-        self.current_solution = deepcopy(routes)
+    # def refresh(self, routes, calculate_fo=0):   
+    #     if calculate_fo != 0:     
+    #         for route_index in range(len(routes)):
+    #                 self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(routes[route_index])
+    #     self.current_solution_fo = sum(self.current_solution_fo_per_route)  
+    #     self.current_solution = deepcopy(routes)
     
+    def refresh(self, routes, fo):        
+        self.current_solution_fo = fo
+        self.current_solution = deepcopy(routes)
+
     def is_valid_solution(self):   
         fo, solution = self.best_solution()   
         solution_len = 0     
@@ -178,6 +182,49 @@ def generate_matrix(points):
         matrix.append(row)  
 
     return matrix  
+
+def calculate_cost_swap(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
+    i = routes[route_one_index][point_one_index]["index"]
+    i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
+    i_back = routes[route_one_index][point_one_index - 1]["index"]
+    j = routes[route_two_index][point_two_index]["index"]
+    j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
+    j_back = routes[route_two_index][point_two_index - 1]["index"]
+    
+    if point_one_index + 1 == point_two_index:
+        cost = (- instance.matrix[i_back][i]
+                - instance.matrix[j][j_front]
+                + instance.matrix[i_back][j]
+                + instance.matrix[i][j_front])
+    else:
+        cost = (- instance.matrix[i_back][i]
+                - instance.matrix[i][i_front]
+                - instance.matrix[j_back][j]
+                - instance.matrix[j][j_front]
+                + instance.matrix[i_back][j]
+                + instance.matrix[j][i_front]
+                + instance.matrix[j_back][i]
+                + instance.matrix[i][j_front])
+
+    return cost 
+
+def calculate_cost_shift(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
+    i = routes[route_one_index][point_one_index]["index"]
+    i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
+    i_back = routes[route_one_index][point_one_index - 1]["index"]
+    j = routes[route_two_index][point_two_index]["index"]
+    j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
+    j_back = routes[route_two_index][point_two_index - 1]["index"]
+
+    cost = (- instance.matrix[i_back][i]
+            - instance.matrix[i][i_front]
+            + instance.matrix[i_back][i_front]
+            + instance.matrix[j_back][i]
+            + instance.matrix[i][j_front]
+            - instance.matrix[j_back][j_front])
+   
+
+    return cost
 
 def export_instance(list_of_instance): # Exporta a instância para arquivo txt
     for index in range(len(list_of_instance)):        
