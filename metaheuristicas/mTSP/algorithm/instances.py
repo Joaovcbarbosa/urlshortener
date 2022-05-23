@@ -138,8 +138,11 @@ class Instance:
     #     self.current_solution_fo = sum(self.current_solution_fo_per_route)  
     #     self.current_solution = deepcopy(routes)
     
-    def refresh(self, routes, fo):        
-        self.current_solution_fo = fo
+    def refresh(self, routes, fo = -1):
+        if fo == -1:
+            self.current_solution_fo = sum(self.current_solution_fo_per_route)
+        else:        
+            self.current_solution_fo = fo
         self.current_solution = deepcopy(routes)
 
     def is_valid_solution(self):   
@@ -192,7 +195,7 @@ def calculate_cost_swap(instance, routes, route_one_index, route_two_index, poin
     j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
     j_back = routes[route_two_index][point_two_index - 1]["index"]
     
-    if point_one_index + 1 == point_two_index:
+    if route_one_index == route_two_index and point_one_index + 1 == point_two_index:
         cost = (- instance.matrix[i_back][i]
                 - instance.matrix[j][j_front]
                 + instance.matrix[i_back][j]
@@ -207,12 +210,13 @@ def calculate_cost_swap(instance, routes, route_one_index, route_two_index, poin
                 + instance.matrix[j_back][i]
                 + instance.matrix[i][j_front])
 
-    return cost 
+    return round(cost, 2)
 
 def calculate_cost_shift(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
+
     intra = 0
-    if route_one_index == route_two_index and point_one_index < point_two_index:
-        intra = 1 
+    if route_one_index == route_two_index and point_one_index < point_two_index: # Se for intrarota e o ponto i é menor que o j
+        intra = 1 # Então adiciona 1 ao ponto, pois ao retirar da posição i, o vetor será rearranjado e j será j - 1
     
     i = routes[route_one_index][point_one_index]["index"]
     i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
@@ -228,7 +232,7 @@ def calculate_cost_shift(instance, routes, route_one_index, route_two_index, poi
             - instance.matrix[j_back][j])
 
 
-    return cost
+    return round(cost, 2)
 
 
 def export_instance(list_of_instance): # Exporta a instância para arquivo txt

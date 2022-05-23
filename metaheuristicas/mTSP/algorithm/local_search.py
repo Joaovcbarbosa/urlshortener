@@ -90,7 +90,7 @@ def inter_route_swap(instance, routes):
                                 if cost < 0:
                                     swap(routes=routes, route_one_index=route_one_index, route_two_index=route_two_index, 
                                         point_one_index=route_one_point_index, point_two_index=route_two_point_index)   
-                                    update_solution(instance, routes, cost)                        
+                                    update_solution(instance, routes, cost) 
                                     inter_route_swap(instance, routes)
                                     break
                         else:

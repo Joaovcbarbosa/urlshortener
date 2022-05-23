@@ -1,16 +1,31 @@
 from random import choice 
 from copy import deepcopy
 
+def sort_by_distance(e):
+    return e['distance']
+
 def generate_candidates(instance):
     candidates = deepcopy(instance.points) # Todos os pontos
     del candidates[0] # Exclui a garagem    
     routes = [[instance.points[0]] for item in range(instance.vehicles_quantity)] # Cria uma lista de listas baseado na quantidade de veículos
-     
-    i = 1
-    for j in range(len(routes)):
-        routes[j].append(candidates[i])
-        del candidates[i] 
-        i += 1
+    list_of_distances = [-1] * len(candidates) # Lista de distâncias dos pontos a garagem, a partir do ponto 1 (0 é a garagem)
+
+    # Para cada ponto da lista de pontos
+    for i in range(len(candidates)):
+        element = {
+                    'distance': instance.matrix[0][i + 1] + instance.matrix[i + 1][0], # Distancia a garagem
+                    'point': instance.points[i + 1]
+                  }
+        list_of_distances[i] = element
+    
+    list_of_distances.sort(key=sort_by_distance) # Organiza a lista pelas distâncias de forma crescente
+
+    # Para cada rota da solução
+    for route_index in range(len(routes)):
+        routes[route_index].append(list_of_distances[0]['point']) # Adiciona o menor ponto
+        instance.current_solution_fo_per_route[route_index] = list_of_distances[0]['distance']
+        del list_of_distances[0] # Retira o menor ponto da lista
+        candidates.remove(routes[route_index][1]) # Retira o ponto da lista de pontos
 
     return routes, candidates, []
 
@@ -54,10 +69,12 @@ def candidate_values(cost, candidate, route_index, point_index):
 
     return candidate_values
 
-def add_candidate_to_route(selected_candidate_values, routes):
+def add_candidate_to_route(instance, selected_candidate_values, routes):
     selected_candidate = selected_candidate_values['candidate']
     selected_candidate_route = selected_candidate_values['route_index']
+    selected_candidate_cost = selected_candidate_values['cost']
     selected_candidate_new_index = selected_candidate_values['point_index'] + 1 
+    instance.current_solution_fo_per_route[selected_candidate_route] += selected_candidate_cost
     routes[selected_candidate_route].insert(selected_candidate_new_index, selected_candidate) # Adiciona candidato na solução    
            
 def remove_candidate(selected_candidate_values, candidates):    
@@ -75,9 +92,9 @@ def semi_greedy_construction(instance, RLC_length_in_percentage, alpha):
                     RCL.append(candidate_values(cost, candidate, route_index, point_index))
             
         selected_candidate_values = get_random_candidate(RCL, RLC_length_in_percentage, alpha) # Seleciona candidato de forma parcialmente randômica
-        add_candidate_to_route(selected_candidate_values, routes)  
+        add_candidate_to_route(instance, selected_candidate_values, routes)  
         remove_candidate(selected_candidate_values, candidates)      
         RCL.clear()
 
-    instance.refresh(routes, calculate_fo=1)
+    instance.refresh(routes)
     instance.add_best_solution(instance.current_solution_fo, routes)
