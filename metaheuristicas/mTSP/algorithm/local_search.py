@@ -29,26 +29,52 @@ def is_better(instance, routes, route_one_index, route_two_index=-1):
     new_routes_fo = route_one_fo + route_two_fo
     return new_routes_fo < old_routes_fo
 
+def calculate_cost(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
+    i = routes[route_one_index][point_one_index]["index"]
+    i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
+    i_back = routes[route_one_index][point_one_index - 1]["index"]
+    j = routes[route_two_index][point_two_index]["index"]
+    j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
+    j_back = routes[route_two_index][point_two_index - 1]["index"]
+    
+    if point_one_index + 1 == point_two_index:
+        cost = (- instance.matrix[i_back][i]
+                - instance.matrix[j][j_front]
+                + instance.matrix[i_back][j]
+                + instance.matrix[i][j_front])
+    else:
+        cost = (- instance.matrix[i_back][i]
+                - instance.matrix[i][i_front]
+                - instance.matrix[j_back][j]
+                - instance.matrix[j][j_front]
+                + instance.matrix[i_back][j]
+                + instance.matrix[j][i_front]
+                + instance.matrix[j_back][i]
+                + instance.matrix[i][j_front])
+
+    return cost 
+
 def intra_route_swap(instance, routes):
     for route_index in range(len(routes)): # Para cada rota
         lenght_route = len(routes[route_index])
         for point_one_index in range(lenght_route): # Seleciona um ponto da rota
             if point_one_index > 0:
                 for point_two_index in range(lenght_route): # Compara ele com todos os outros pontos
-                    if point_one_index != point_two_index and point_two_index > 0: # Se o ponto não é o mesmo nem é a garagem                    
-                        swap(routes=routes, route_one_index=route_index, route_two_index=route_index, 
-                             point_one_index=point_one_index, point_two_index=point_two_index)                        
-                        if is_better(instance, routes, route_index): 
-                            update_solution(instance, routes, route_index)
-                            intra_route_swap(instance, routes)
-                            break
-                        else: # Reverte o SWAP                      
+                    if point_one_index < point_two_index and point_two_index > 0: # Se o ponto não é o mesmo nem é a garagem   
+                        cost = calculate_cost(instance, routes, route_index, route_index, point_one_index, point_two_index)                        
+                        if cost < 0:
                             swap(routes=routes, route_one_index=route_index, route_two_index=route_index, 
-                                 point_one_index=point_one_index, point_two_index=point_two_index)
+                                point_one_index=point_one_index, point_two_index=point_two_index)  
+                            instance.current_solution_fo_per_route[route_index] += cost
+                            instance.current_solution_fo = sum(instance.current_solution_fo_per_route)  
+                            instance.current_solution = routes
+                            instance.add_best_solution(instance.current_solution_fo, routes)
+                            intra_route_swap(instance, routes)
+                            break   
                 else:
                     continue
                 break
-         
+
 def intra_route_shift(instance, routes):
     for route_index in range(len(routes)):  # Para cada rota
         lenght_route = len(routes[route_index])

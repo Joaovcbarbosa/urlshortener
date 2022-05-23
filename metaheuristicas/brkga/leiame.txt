@@ -1,0 +1,8 @@
+The arqProblems.txt file contains the following information on each line:
+
+- Instance Name
+- Run mode (debug = 1, run = 0)
+- Local search module enabled (1) or disabled (0)
+- Maximum execution time
+- Maximum number of runs
+- Number of threads used in OpenMP

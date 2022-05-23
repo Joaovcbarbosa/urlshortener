@@ -37,6 +37,13 @@ class Instance:
     def print_solution(self, plot_solution=0):
         fo, routes = self.best_solution()
         fo_manually = 0
+        is_valid = self.is_valid_solution()
+
+        if is_valid:
+            print('The solution is valid')
+        else:
+            print('THE SOLUTION IS NOT VALID')
+
         print('WINNER ROUTE: ')
         print(routes)
         print('\n', end = '')
@@ -130,6 +137,36 @@ class Instance:
                     self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(routes[route_index])
         self.current_solution_fo = sum(self.current_solution_fo_per_route)  
         self.current_solution = deepcopy(routes)
+    
+    def is_valid_solution(self):   
+        fo, solution = self.best_solution()   
+        solution_len = 0     
+        points = deepcopy(self.points)
+
+        for route in solution:
+            solution_len += len(route) - 1
+
+            # Se todas as rotas tem pelo menos um ponto além da garagem
+            if len(route) < 2:
+                return False
+
+            for point_index in range(len(route)):
+                route_point = route[point_index]
+                
+                # Se começa na garagem
+                if point_index == 0 and route_point != self.points[0]:
+                    return False
+
+                if route_point in points:
+                    points.remove(route_point)
+
+        # Se todos os pontos foram visitados
+        if len(points) > 0:
+            return False            
+        if solution_len != len(self.points) - 1:
+            return False
+
+        return True
                     
 def generate_matrix(points):
     matrix = []
