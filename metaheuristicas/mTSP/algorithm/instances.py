@@ -213,15 +213,24 @@ def calculate_cost_shift(instance, routes, route_one_index, route_two_index, poi
     i = routes[route_one_index][point_one_index]["index"]
     i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
     i_back = routes[route_one_index][point_one_index - 1]["index"]
-    j_front = routes[route_two_index][point_two_index]["index"]
+    j = routes[route_two_index][point_two_index]["index"]
     j_back = routes[route_two_index][point_two_index - 1]["index"]
 
-    cost = (- instance.matrix[i_back][i]
-            - instance.matrix[i][i_front]
-            + instance.matrix[i_back][i_front]
-            + instance.matrix[j_back][i]
-            + instance.matrix[i][j_front]
-            - instance.matrix[j_back][j_front])
+    if i > j:
+        cost = (- instance.matrix[i_back][i]
+                - instance.matrix[i][i_front]
+                + instance.matrix[i_back][i_front]
+                + instance.matrix[j_back][i]
+                + instance.matrix[i][j]
+                - instance.matrix[j_back][j])
+    else:
+        cost = (- instance.matrix[i_back][i]
+                - instance.matrix[i][i_front]
+                + instance.matrix[i_back][i_front]
+                + instance.matrix[j_back][i]
+                + instance.matrix[i][j]
+                - instance.matrix[j_back][j])
+
 
     return cost
 
