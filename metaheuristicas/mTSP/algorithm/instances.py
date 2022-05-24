@@ -194,12 +194,18 @@ def calculate_cost_swap(instance, routes, route_one_index, route_two_index, poin
     j = routes[route_two_index][point_two_index]["index"]
     j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
     j_back = routes[route_two_index][point_two_index - 1]["index"]
-    
+
     if route_one_index == route_two_index and abs(point_one_index - point_two_index) == 1:
-        cost = (- instance.matrix[i_back][i]
-                - instance.matrix[j][j_front]
-                + instance.matrix[i_back][j]
-                + instance.matrix[i][j_front])
+        if point_two_index > point_one_index:
+            cost = (- instance.matrix[i_back][i]
+                    - instance.matrix[j][j_front]
+                    + instance.matrix[i_back][j]
+                    + instance.matrix[i][j_front])
+        else:
+            cost = (- instance.matrix[j_back][j]
+                    - instance.matrix[i][i_front]
+                    + instance.matrix[j_back][i]
+                    + instance.matrix[j][i_front])
     else:
         cost = (- instance.matrix[i_back][i]
                 - instance.matrix[i][i_front]
@@ -208,8 +214,8 @@ def calculate_cost_swap(instance, routes, route_one_index, route_two_index, poin
                 + instance.matrix[i_back][j]
                 + instance.matrix[j][i_front]
                 + instance.matrix[j_back][i]
-                + instance.matrix[i][j_front])
-
+                + instance.matrix[i][j_front])       
+        
     return round(cost, 2)
 
 def calculate_cost_shift(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
@@ -307,4 +313,3 @@ def import_instances():
 
             list_of_instance.append(Instance(name, instance_file_name, points, vehicles_quantity))
     return list_of_instance
-     

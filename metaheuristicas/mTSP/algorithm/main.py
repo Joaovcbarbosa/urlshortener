@@ -9,6 +9,7 @@ from iterated_local_search import ILS
 from variable_neighborhood_search import VNS
 from variable_neighborhood_descent import VND
 # from sys import setrecursionlimit
+from disturbance import intra_route_swap
 
 def main():
     # setrecursionlimit(100000000)
@@ -33,9 +34,9 @@ def main():
             local_search(instance)      
         if option == '2':
             create_routes(instance)
-            SA(instance, 1000000, 100, 0.8)
+            SA(instance, 1000000, 100, 0.99)
         if option == '3':
-            GRASP(instance, 50, 20, 0.5)   
+            GRASP(instance, 200, 20, 0.5)   
         if option == '4':
             create_routes(instance)
             ILS(instance, 5, 10, 200)   

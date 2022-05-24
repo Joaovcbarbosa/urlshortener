@@ -14,7 +14,6 @@ def SA(instance, T0, SAMax, alpha):
         while iterations < SAMax:
             iterations += 1
             S_neighbor, fo_neighbor = random_neighbor(instance, S) 
-            fo_neighbor = instance.calculate_FO(S_neighbor)
             delta = fo_neighbor - fo_S
 
             if delta <= 0:
