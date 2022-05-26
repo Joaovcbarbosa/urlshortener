@@ -23,7 +23,7 @@ def generate_candidates(instance):
     # Para cada rota da solução
     for route_index in range(len(routes)):
         routes[route_index].append(list_of_distances[0]['point']) # Adiciona o menor ponto
-        instance.current_solution_fo_per_route[route_index] = list_of_distances[0]['distance']
+        instance.current_solution_fo_per_route[route_index] = round(list_of_distances[0]['distance'], 2)
         del list_of_distances[0] # Retira o menor ponto da lista
         candidates.remove(routes[route_index][1]) # Retira o ponto da lista de pontos
 
@@ -58,7 +58,7 @@ def calculate_cost(instance, routes, route_index, point_index, candidate_index, 
         cost += instance.matrix[candidate_index][routes[route_index][point_index + 1]['index']] # + Distância do candidato ao próximo ponto
         cost -= instance.matrix[routes[route_index][point_index]['index']][routes[route_index][point_index + 1]['index']]# - Distância do ponto corrente ao próximo ponto
     
-    return cost
+    return round(cost, 2)
 
 def candidate_values(cost, candidate, route_index, point_index):
     candidate_values = {}

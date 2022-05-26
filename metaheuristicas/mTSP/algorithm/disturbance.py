@@ -84,4 +84,4 @@ def random_neighbor(instance, routes):
         if option == 3:
             fo = inter_route_shift(instance, routes_copy, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index)
 
-    return routes_copy, fo
+    return routes_copy, round(fo, 2)

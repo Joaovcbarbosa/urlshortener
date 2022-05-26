@@ -12,12 +12,13 @@ class Instance:
         self.vehicles_quantity = vehicles_quantity
         self.matrix = generate_matrix(points)    
         self.current_solution = []
-        self.current_solution_fo = [0 for item in range(vehicles_quantity)] 
+        self.current_solution_fo = 0 
         self.current_solution_fo_per_route = [0 for item in range(vehicles_quantity)]         
         self.best_fos = []
         self.best_solutions = [] # Guarda as 100 melhores soluções
-
+    
     def add_best_solution(self, fo, solution):
+        fo = round(fo, 2)
         if len(self.best_fos) == 100:  # Se a lista está lotada
             worst_value = max(self.best_fos)
             if fo < worst_value: # E o FO encontrado é melhor que o pior FO da lista
@@ -34,15 +35,15 @@ class Instance:
         best_solution = self.best_solutions[index]
         return best_fo, best_solution
 
-    def print_solution(self, plot_solution=0):
+    def print_solution(self, plot_solution = 0):
         fo, routes = self.best_solution()
         fo_manually = 0
         is_valid = self.is_valid_solution()
-
+       
         if is_valid:
-            print('The solution is valid')
+            print('\nThe solution is valid')
         else:
-            print('THE SOLUTION IS NOT VALID')
+            print('\nTHE SOLUTION IS NOT VALID')
 
         print('WINNER ROUTE: ')
         print(routes)
@@ -58,14 +59,13 @@ class Instance:
         
             fo_route = self.calculate_fo_per_route(routes[i])
             fo_manually += fo_route
-            print('\nfo manually calculated: ' + str(fo_route))
+            print('\nfo manually calculated: ' + str(round(fo_route, 2)))
 
-        print('\nfo manually calculated: ' + str(fo_manually))
+        print('\nfo manually calculated: ' + str(round(fo_manually, 2)))
         print('FO: ' + str(fo))
 
         if plot_solution == 1:
             self.plot_solution(True)
-
 
     def treat_solution(self, solution):
         result = []
@@ -114,7 +114,7 @@ class Instance:
         for route in routes: 
             fo += self.calculate_fo_per_route(route)
             
-        return fo
+        return round(fo, 2)
 
     def calculate_fo_per_route(self, route):
         fo = 0
@@ -131,16 +131,9 @@ class Instance:
         
         return fo
     
-    # def refresh(self, routes, calculate_fo=0):   
-    #     if calculate_fo != 0:     
-    #         for route_index in range(len(routes)):
-    #                 self.current_solution_fo_per_route[route_index] = self.calculate_fo_per_route(routes[route_index])
-    #     self.current_solution_fo = sum(self.current_solution_fo_per_route)  
-    #     self.current_solution = deepcopy(routes)
-    
     def refresh(self, routes, fo = -1):
         if fo == -1:
-            self.current_solution_fo = sum(self.current_solution_fo_per_route)
+            self.current_solution_fo = round(sum(self.current_solution_fo_per_route), 2)
         else:        
             self.current_solution_fo = fo
         self.current_solution = deepcopy(routes)
