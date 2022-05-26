@@ -17,7 +17,7 @@ def shift(routes, route_one_index, route_two_index, insert_index, point_index):
 def update_solution(instance, routes, cost):
     instance.current_solution_fo = round(instance.current_solution_fo + cost, 2)
     instance.current_solution = routes
-    instance.add_best_solution(instance.current_solution_fo, routes)
+    instance.add_best_solution(instance.current_solution_fo, instance.current_solution)
 
 def intra_route_swap(instance, routes):
     for route_index in range(len(routes)): # Para cada rota

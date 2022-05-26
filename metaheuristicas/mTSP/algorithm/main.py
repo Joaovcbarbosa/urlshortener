@@ -34,7 +34,7 @@ def main():
             local_search(instance)      
         if option == '2':
             create_routes(instance)
-            SA(instance, 1000000, 100, 0.99)
+            SA(instance, 1000000, 100, 0.9)
         if option == '3':
             GRASP(instance, 200, 20, 0.5)   
         if option == '4':

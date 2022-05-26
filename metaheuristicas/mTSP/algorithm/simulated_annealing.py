@@ -13,7 +13,7 @@ def SA(instance, T0, SAMax, alpha):
     while T > 0.0001:
         while iterations < SAMax:
             iterations += 1
-            S_neighbor, fo_neighbor = random_neighbor(instance, S) 
+            S_neighbor, fo_neighbor = random_neighbor(instance, S, fo_S) 
             delta = fo_neighbor - fo_S
 
             if delta <= 0:

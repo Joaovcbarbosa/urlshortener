@@ -7,25 +7,25 @@ def intra_route_swap(instance, routes, route_index, point_one_index, point_one_v
     cost = calculate_cost_swap(instance, routes, route_index, route_index, point_one_index, point_two_index)  
     routes[route_index][point_one_index] = point_two_value    
     routes[route_index][point_two_index] = point_one_value   
-    return instance.current_solution_fo + cost 
+    return cost 
     
 def intra_route_shift(instance, routes, route_index, point_one_index, point_one_value, point_two_index):  
     cost = calculate_cost_shift(instance, routes, route_index, route_index, point_one_index, point_two_index)
     routes[route_index].remove(point_one_value)
     routes[route_index].insert(point_two_index, point_one_value)
-    return instance.current_solution_fo + cost 
+    return cost 
 
 def inter_route_swap(instance, routes, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index, point_two_value):  
     cost = calculate_cost_swap(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index)   
     routes[route_one_index][point_one_index] = point_two_value
     routes[route_two_index][point_two_index] = point_one_value
-    return instance.current_solution_fo + cost 
+    return cost 
 
 def inter_route_shift(instance, routes, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index): 
     cost = calculate_cost_shift(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index)
     routes[route_one_index].remove(point_one_value)
     routes[route_two_index].insert(point_two_index, point_one_value)
-    return instance.current_solution_fo + cost 
+    return cost 
 
 def random_route(routes):
     # Sorteia uma das rotas que tenha pelo menos dois pontos além da garagem
@@ -50,7 +50,7 @@ def random_point(point_one_index, routes, route_index):
 def inter_route_shift_is_valid(routes, route_index):
     return len(routes[route_index]) > 2
 
-def random_neighbor(instance, routes):    
+def random_neighbor(instance, routes, current_fo):    
     routes_copy = deepcopy(routes)
     route_one_index = random_route(routes)
     point_one_index = randint(1, len(routes[route_one_index]) - 1) # Sorteia um ponto da rota selecionada
@@ -64,10 +64,10 @@ def random_neighbor(instance, routes):
             option = 0
             
         if option == 0:
-            fo = intra_route_swap(instance, routes_copy, route_one_index, point_one_index, point_one_value, point_two_index, point_two_value)
+            current_fo += intra_route_swap(instance, routes_copy, route_one_index, point_one_index, point_one_value, point_two_index, point_two_value)
             
         if option == 1:
-            fo = intra_route_shift(instance, routes_copy, route_one_index, point_one_index, point_one_value, point_two_index)            
+            current_fo += intra_route_shift(instance, routes_copy, route_one_index, point_one_index, point_one_value, point_two_index)            
 
     # Inter rota
     if option > 1:
@@ -79,9 +79,9 @@ def random_neighbor(instance, routes):
             option = 2        
 
         if option == 2:
-            fo = inter_route_swap(instance, routes_copy, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index, point_two_value)
+            current_fo += inter_route_swap(instance, routes_copy, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index, point_two_value)
 
         if option == 3:
-            fo = inter_route_shift(instance, routes_copy, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index)
+            current_fo += inter_route_shift(instance, routes_copy, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index)
 
-    return routes_copy, round(fo, 2)
+    return routes_copy, round(current_fo, 2)
