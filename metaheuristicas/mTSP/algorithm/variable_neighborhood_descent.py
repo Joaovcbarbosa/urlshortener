@@ -5,27 +5,28 @@ from copy import deepcopy
 
 def VND(instance, r):
     best_fo, best_S = instance.best_solution()
+    fo = best_fo
     k = 1
-    while k <= r:
-        S = deepcopy(instance.current_solution)
+    
+    while k <= r:        
+        fo_initial = fo
         if k >= 1:                    
-            intra_route_swap(instance, S)        
+            intra_route_swap(instance, instance.current_solution)        
         if k >= 2:                    
-            intra_route_shift(instance, S)       
+            intra_route_shift(instance, instance.current_solution)       
         if k >= 3:                    
-            inter_route_shift(instance, S)       
+            inter_route_shift(instance, instance.current_solution)       
         if k == 4:                    
-            inter_route_swap(instance, S)
+            inter_route_swap(instance, instance.current_solution)
 
-        S = deepcopy(instance.current_solution)
-        S_fo = instance.calculate_FO(S)
+        fo = instance.current_solution_fo
 
-        if S_fo < best_fo:
-            best_fo = S_fo
+        if fo < best_fo:
+            best_fo = fo
             k = 1
         else:
             k+=1
         
-        print(S_fo, best_fo)
+        print(fo_initial, best_fo)
 
 
