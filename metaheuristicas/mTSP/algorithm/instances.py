@@ -233,6 +233,21 @@ def calculate_cost_shift(instance, routes, route_one_index, route_two_index, poi
 
     return round(cost, 2)
 
+def calculate_cost_2opt(instance, routes, route_index, point_one_index, point_two_index):
+
+    i = routes[route_index][point_one_index]["index"]
+    i_front = routes[route_index][point_one_index + 1]["index"]
+    j = routes[route_index][point_two_index]["index"]
+    j_front = routes[route_index][point_two_index + 1]["index"]
+    
+    cost = (- instance.matrix[i][i_front]
+            - instance.matrix[j][j_front]
+            + instance.matrix[i][j]
+            + instance.matrix[i_front][j_front])
+
+    return round(cost, 2)
+
+
 
 def export_instance(list_of_instance): # Exporta a instância para arquivo txt
     for index in range(len(list_of_instance)):        

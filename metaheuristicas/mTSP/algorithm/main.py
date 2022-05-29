@@ -21,33 +21,30 @@ def main():
     option = input(input_string)
     
     list_of_instance = import_instances()    
-    choice = None # None, 0 ou 1
+    choice = None # None, 0, 1, 2
     # export_instance(list_of_instance)
     
     for instance in list_of_instance:
-        if option == '1':
-            if choice is None:
-                create_routes(instance)
-            else:
-                create_test_routes(instance, choice)
-            local_search(instance)      
-        if option == '2':
+        if choice is None:
             create_routes(instance)
+        else:
+            create_test_routes(instance, choice)
+
+        if option == '1':            
+            local_search(instance)    
+        if option == '2':
             SA(instance, 1000000, 100, 0.9)
         if option == '3':
-            GRASP(instance, 200, 20, 0.5)   
+            GRASP(instance, 100, 20, 0.3)   
         if option == '4':
-            create_routes(instance)
-            ILS(instance, 5, 10, 200)   
+            ILS(instance, 20, 40, 600)   
         if option == '5':
-            create_routes(instance)
             VNS(instance, 10, 100)     
         if option == '6':
-            create_routes(instance)
             VND(instance, 4)   
         else:
             exit 
     
-    instance.print_solution(False)
+    instance.print_solution(True)
 
 main()
