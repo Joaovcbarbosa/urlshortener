@@ -3,7 +3,7 @@ from math import exp
 from copy import deepcopy
 from disturbance import random_neighbor
 
-def SA(instance, T0, SAMax, alpha):
+def SA(instance, T0, SAMax, cooling_rate):
     S = deepcopy(instance.current_solution)
     fo_S = instance.current_solution_fo
     S_best = deepcopy(S)
@@ -34,7 +34,7 @@ def SA(instance, T0, SAMax, alpha):
                        
 
         print(T, fo_S, fo_best)
-        T = T * alpha
+        T = T * cooling_rate
         iterations = 0
 
 

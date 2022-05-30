@@ -1,7 +1,4 @@
-from construction import create_routes
-from local_search import inter_route_swap, inter_route_shift, intra_route_shift, intra_route_swap
-from disturbance import random_neighbor
-from copy import deepcopy
+from local_search import inter_route_swap, inter_route_shift, intra_route_shift, intra_route_swap, intra_route_2opt
 
 def VND(instance, r):
     best_fo, best_S = instance.best_solution()
@@ -13,11 +10,15 @@ def VND(instance, r):
         if k >= 1:                    
             intra_route_swap(instance, instance.current_solution)        
         if k >= 2:                    
-            intra_route_shift(instance, instance.current_solution)       
+            intra_route_shift(instance, instance.current_solution)      
         if k >= 3:                    
+            intra_route_2opt(instance, instance.current_solution)      
+        if k >= 4:                    
             inter_route_shift(instance, instance.current_solution)       
-        if k == 4:                    
-            inter_route_swap(instance, instance.current_solution)
+        if k >= 5:                    
+            inter_route_swap(instance, instance.current_solution)  
+        if k == 6:                    
+            intra_route_2opt(instance, instance.current_solution)   
 
         fo = instance.current_solution_fo
 

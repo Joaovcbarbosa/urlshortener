@@ -4,6 +4,9 @@ from copy import deepcopy
 def sort_by_distance(e):
     return e['distance']
 
+def sort_by_fo(e):
+    return e['cost']
+
 def generate_candidates(instance):
     candidates = deepcopy(instance.points) # Todos os pontos
     del candidates[0] # Exclui a garagem    
@@ -29,9 +32,6 @@ def generate_candidates(instance):
 
     return routes, candidates, []
 
-def sort_by_fo(e):
-  return e['cost']
-
 def get_random_candidate(RCL, RLC_length_in_percentage, alpha):
     RCL.sort(key=sort_by_fo)     
     best_candidate_values = RCL[0]
@@ -47,7 +47,11 @@ def get_random_candidate(RCL, RLC_length_in_percentage, alpha):
             RCL.remove(item)
 
     return choice(RCL)
-   
+
+def get_min_candidate(RCL):
+    RCL.sort(key=sort_by_fo)     
+    return RCL[0]
+
 def calculate_cost(instance, routes, route_index, point_index, candidate_index, route_length):
     cost = instance.matrix[routes[route_index][point_index]['index']][candidate_index] # Custo do ponto até o candidato
 
@@ -69,17 +73,72 @@ def candidate_values(cost, candidate, route_index, point_index):
 
     return candidate_values
 
-def add_candidate_to_route(instance, selected_candidate_values, routes):
+def add_candidate_to_route(instance, selected_candidate_values, routes, semi_greedy_construction = False):
     selected_candidate = selected_candidate_values['candidate']
     selected_candidate_route = selected_candidate_values['route_index']
     selected_candidate_cost = selected_candidate_values['cost']
     selected_candidate_new_index = selected_candidate_values['point_index'] + 1 
-    instance.current_solution_fo_per_route[selected_candidate_route] += selected_candidate_cost
+    if semi_greedy_construction == True : instance.current_solution_fo_per_route[selected_candidate_route] += selected_candidate_cost
     routes[selected_candidate_route].insert(selected_candidate_new_index, selected_candidate) # Adiciona candidato na solução    
            
 def remove_candidate(selected_candidate_values, candidates):    
     candidate = selected_candidate_values['candidate']
     candidates.remove(candidate) # Remove da lista de candidatos
+
+def greedy_random_construction(instance, routes, fo, candidates):  
+    while len(candidates) > 0: # Enquanto houver candidatos
+        candidate = choice(candidates)
+        candidates.remove(candidate)
+        candidate = instance.points[candidate]
+        RCL = []
+
+        for route_index in range(len(routes)): # Para cada rota
+            route_length = len(routes[route_index])
+            for point_index in range(route_length): # Para cada ponto da rota
+                cost = calculate_cost(instance, routes, route_index, point_index, candidate['index'], route_length)                    
+                RCL.append(candidate_values(cost, candidate, route_index, point_index))
+            
+        selected_candidate_values = get_min_candidate(RCL) 
+        add_candidate_to_route(instance, selected_candidate_values, routes)  
+        fo += selected_candidate_values['cost']   
+  
+    return routes, fo
+
+def greedy_miope_construction(instance, routes, fo, candidates): 
+    while len(candidates) > 0: # Enquanto houver candidatos
+        RCL = []
+        for candidate in candidates: # Para cada candidato
+            candidate = instance.points[candidate]
+            for route_index in range(len(routes)): # Para cada rota
+                route_length = len(routes[route_index])
+                for point_index in range(route_length): # Para cada ponto da rota
+                    cost = calculate_cost(instance, routes, route_index, point_index, candidate['index'], route_length)                    
+                    RCL.append(candidate_values(cost, candidate, route_index, point_index))
+                        
+        selected_candidate_values = get_min_candidate(RCL) 
+        add_candidate_to_route(instance, selected_candidate_values, routes)  
+        candidates.remove(selected_candidate_values['candidate']['index'])   
+        fo += selected_candidate_values['cost']   
+  
+    return routes, fo
+
+def greedy_miope_restrict_construction(instance, routes, fo, candidates, RLC_length_in_percentage, alpha):
+    while len(candidates) > 0: # Enquanto houver candidatos
+        RCL = []
+        for candidate in candidates: # Para cada candidato
+            candidate = instance.points[candidate]
+            for route_index in range(len(routes)): # Para cada rota
+                route_length = len(routes[route_index])
+                for point_index in range(route_length): # Para cada ponto da rota
+                    cost = calculate_cost(instance, routes, route_index, point_index, candidate['index'], route_length)                    
+                    RCL.append(candidate_values(cost, candidate, route_index, point_index))
+                        
+        selected_candidate_values = get_random_candidate(RCL, RLC_length_in_percentage, alpha)
+        add_candidate_to_route(instance, selected_candidate_values, routes)  
+        candidates.remove(selected_candidate_values['candidate']['index'])   
+        fo += selected_candidate_values['cost']   
+  
+    return routes, fo
 
 def semi_greedy_construction(instance, RLC_length_in_percentage, alpha):    
     routes, candidates, RCL = generate_candidates(instance) # Gera a lista de candidatos
@@ -91,8 +150,8 @@ def semi_greedy_construction(instance, RLC_length_in_percentage, alpha):
                     cost = calculate_cost(instance, routes, route_index, point_index, candidate['index'], route_length)                    
                     RCL.append(candidate_values(cost, candidate, route_index, point_index))
             
-        selected_candidate_values = get_random_candidate(RCL, RLC_length_in_percentage, alpha) # Seleciona candidato de forma parcialmente randômica
-        add_candidate_to_route(instance, selected_candidate_values, routes)  
+        selected_candidate_values = get_random_candidate(RCL, RLC_length_in_percentage, alpha) 
+        add_candidate_to_route(instance, selected_candidate_values, routes, True)  
         remove_candidate(selected_candidate_values, candidates)      
         RCL.clear()
 

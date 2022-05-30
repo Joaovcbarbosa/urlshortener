@@ -35,17 +35,17 @@ def main():
         if option == '1':            
             local_search(instance)    
         if option == '2':
-            SA(instance, 1000000, 100, 0.9)
+            SA(instance, T0=1000000, SAMax=100, cooling_rate=0.9)
         if option == '3':
-            GRASP(instance, 100, 20, 0.3)   
+            GRASP(instance, GRASP_max=100, RLC_length_in_percentage=20, alpha=0.3)   
         if option == '4':
-            ILS(instance, 20, 40, 600)   
+            ILS(instance, betta_min=20, betta_max=40, ILS_max=600)   
         if option == '5':
-            VNS(instance, 10, 100)     
+            VNS(instance, r=10, VNS_max=100)     
         if option == '6':
-            VND(instance, 4)     
+            VND(instance, r=6)     
         if option == '7':
-            LNS(instance, 1000000, 100, 0.9, 20, 40)
+            LNS(instance, T0=1000000, SAMax=100, cooling_rate=0.9, betta_min=20, betta_max=40, RLC_length_in_percentage=20, alpha=0.3)  
         else:
             exit 
     

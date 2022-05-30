@@ -2,8 +2,9 @@ from random import uniform
 from math import exp
 from copy import deepcopy
 from destruction_rebuild import destruction_rebuild
+from destruction_rebuild import ConstructionWeight
 
-def LNS(instance, T0, SAMax, alpha, betta_min, betta_max) :
+def LNS(instance, T0, SAMax, cooling_rate, betta_min, betta_max, RLC_length_in_percentage, alpha):
     S = deepcopy(instance.current_solution)
     fo_S = instance.current_solution_fo
     S_best = deepcopy(S)
@@ -13,7 +14,7 @@ def LNS(instance, T0, SAMax, alpha, betta_min, betta_max) :
     while T > 0.0001:
         while iterations < SAMax:
             iterations += 1
-            S_neighbor, fo_neighbor = destruction_rebuild(instance, S, fo_S, betta_min, betta_max)   
+            S_neighbor, fo_neighbor = destruction_rebuild(instance, S, fo_S, fo_best, betta_min, betta_max, RLC_length_in_percentage, alpha)   
             delta = fo_neighbor - fo_S
 
             if delta <= 0:
@@ -32,8 +33,9 @@ def LNS(instance, T0, SAMax, alpha, betta_min, betta_max) :
                     instance.refresh(S, fo_S)
                   
         print(T, fo_S, fo_best)
-        T = T * alpha
+        T = T * cooling_rate
         iterations = 0
+        ConstructionWeight.weight = [0, 1, 2]
 
 
 
