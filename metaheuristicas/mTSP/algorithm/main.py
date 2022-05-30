@@ -45,10 +45,10 @@ def main():
         if option == '6':
             VND(instance, 4)     
         if option == '7':
-            LNS(instance, 1000000, 100, 0.7, 20, 40)
+            LNS(instance, 1000000, 100, 0.9, 20, 40)
         else:
             exit 
     
-    instance.print_solution(True)
+    instance.print_solution(False)
 
 main()

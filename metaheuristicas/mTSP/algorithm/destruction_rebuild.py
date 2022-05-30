@@ -117,24 +117,25 @@ def greedy_miope(instance, routes, fo, list_of_candidates):
   
     return routes, fo
 
-def destruction_rebuild(instance, S, fo, betta_min, betta_max):   
+def destruction_rebuild(instance, routes, fo, betta_min, betta_max): 
+    S = deepcopy(routes)  
 
     disturbance_percentage = int((randint(betta_min, betta_max) / 100) * len(instance.points))
     removed_points = []
     for j in range(disturbance_percentage):                         
-        option = randint(0, 1) # Sorteia uma das operações        
+        option = randint(0, 1) # Sorteia uma das operações      
         if option == 0:
             S, fo = remove_random(instance, S, fo, removed_points) 
         else:
             S, fo = remove_worst(instance, S, fo, removed_points)
-        if round(fo, 2) != instance.calculate_FO(S):
-            fo = instance.calculate_FO(S)
 
     for i in range(len(removed_points)):
-        option = randint(0, 1) # Sorteia uma das operações        
-        if option == 0:
-            S, fo = greedy_random(instance, S, fo, removed_points) 
-        if option == 1:
-            S, fo = greedy_miope(instance, S, fo, removed_points)  
-      
+        option = randint(0, 1) # Sorteia uma das operações      
+        S, fo = greedy_random(instance, S, fo, removed_points)  
+       
+        # if option == 0:
+        #     S, fo = greedy_random(instance, S, fo, removed_points) 
+        # if option == 1:
+        #     S, fo = greedy_miope(instance, S, fo, removed_points)  
+   
     return S, round(fo, 2)

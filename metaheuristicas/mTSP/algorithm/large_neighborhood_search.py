@@ -13,29 +13,25 @@ def LNS(instance, T0, SAMax, alpha, betta_min, betta_max) :
     while T > 0.0001:
         while iterations < SAMax:
             iterations += 1
-            S_new, fo_new = destruction_rebuild(instance, S, fo_S, betta_min, betta_max)           
-            delta = fo_new - fo_S
+            S_neighbor, fo_neighbor = destruction_rebuild(instance, S, fo_S, betta_min, betta_max)   
+            delta = fo_neighbor - fo_S
 
             if delta <= 0:
-                S = deepcopy(S_new)
-                fo_S = fo_new
+                S = deepcopy(S_neighbor)
+                fo_S = fo_neighbor
                 instance.refresh(S, fo_S)
-                if fo_new < fo_best:
-                    S_best = deepcopy(S_new)
-                    fo_best = fo_new
+                if fo_neighbor < fo_best:
+                    S_best = deepcopy(S_neighbor)
+                    fo_best = fo_neighbor
                     instance.add_best_solution(fo_best, S_best)
             else:
                 x = uniform(0, 1)
                 if x < exp(-delta/T):                    
-                    S = deepcopy(S_new)    
-                    fo_S = fo_new 
+                    S = deepcopy(S_neighbor)    
+                    fo_S = fo_neighbor 
                     instance.refresh(S, fo_S)
-
-                       
-
+                  
         print(T, fo_S, fo_best)
-        if fo_best < 445:
-            print('a')
         T = T * alpha
         iterations = 0
 
