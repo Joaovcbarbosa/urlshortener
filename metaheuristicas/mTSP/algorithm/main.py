@@ -35,11 +35,11 @@ def main():
         if option == '2':
             SA(instance, T0=1000000, SAMax=200, cooling_rate=0.9)
         if option == '3':
-            GRASP(instance, GRASP_max=100, RLC_length_in_percentage=20, alpha=0.3)   
+            GRASP(instance, GRASP_max=300, RLC_length_in_percentage=20, alpha=0.3)   
         if option == '4':
-            ILS(instance, betta_min=20, betta_max=40, ILS_max=600)   
+            ILS(instance, betta_min=20, betta_max=40, ILS_max=300)   
         if option == '5':
-            VNS(instance, r=10, VNS_max=100)     
+            VNS(instance, betta_min=20, betta_max=40, VNS_max=50)     
         if option == '6':
             VND(instance, r=6)     
         if option == '7':

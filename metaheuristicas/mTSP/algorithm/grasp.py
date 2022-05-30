@@ -1,5 +1,6 @@
 from local_search import local_search
 from variable_neighborhood_descent import VND
+from iterated_local_search import ILS 
 from semi_greedy_construction import semi_greedy_construction
    
 def is_better(instance, fo_best):
