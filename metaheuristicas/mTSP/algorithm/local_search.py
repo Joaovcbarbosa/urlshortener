@@ -32,7 +32,7 @@ def intra_route_2opt(instance, routes):
         for point_one_index in range(1, lenght_route - 2): # Seleciona um ponto da rota
             point_two_index = point_one_index + 2
             while point_two_index < lenght_route:
-                cost = calculate_cost_2opt(instance, routes, route_index, point_one_index - 1, point_two_index - 1)
+                cost = calculate_cost_2opt(instance, routes[route_index], point_one_index - 1, point_two_index - 1)
                 if cost < 0:
                     two_opt(routes[route_index], point_one_index, point_two_index - 1)
                     update_solution(instance, routes, cost)     

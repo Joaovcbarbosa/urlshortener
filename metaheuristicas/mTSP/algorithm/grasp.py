@@ -6,14 +6,14 @@ def is_better(instance, fo_best):
 
 def GRASP(instance, GRASP_max, RLC_length_in_percentage, alpha):
     fo_best = -1
-    for iteration in range(GRASP_max):
+    for i in range(GRASP_max):
         semi_greedy_construction(instance, RLC_length_in_percentage, alpha)
         local_search(instance) 
         
         if is_better(instance, fo_best):
             fo_best = instance.current_solution_fo
 
-        print(iteration, instance.current_solution_fo, fo_best)
+        print(i, instance.current_solution_fo, fo_best)
 
     
 

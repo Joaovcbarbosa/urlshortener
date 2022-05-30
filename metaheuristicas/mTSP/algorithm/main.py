@@ -1,7 +1,5 @@
-from instances import import_instances
-from instances import export_instance
-from construction import create_routes
-from construction import create_test_routes
+from instances import import_instances, export_instance
+from construction import create_solution, create_test_solution
 from local_search import local_search
 from simulated_annealing import SA
 from grasp import GRASP 
@@ -28,9 +26,9 @@ def main():
     
     for instance in list_of_instance:
         if choice is None:
-            create_routes(instance)
+            create_solution(instance)
         else:
-            create_test_routes(instance, choice)
+            create_test_solution(instance, choice)
 
         if option == '1':            
             local_search(instance)    
@@ -49,6 +47,6 @@ def main():
         else:
             exit 
     
-    instance.print_solution(False)
+    instance.print_solution(True)
 
 main()

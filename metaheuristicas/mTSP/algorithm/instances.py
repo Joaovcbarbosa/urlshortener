@@ -1,6 +1,7 @@
 import os
 from math import dist
 from copy import deepcopy
+from re import I
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -17,26 +18,26 @@ class Instance:
         self.best_fos = []
         self.best_solutions = [] # Guarda as 100 melhores soluções
     
-    def add_best_solution(self, fo, solution):
+    def add_best_solution(self, fo, S):
         fo = round(fo, 2)
         if len(self.best_fos) == 100:  # Se a lista está lotada
             worst_value = max(self.best_fos)
             if fo < worst_value: # E o FO encontrado é melhor que o pior FO da lista
-                index = self.best_fos.index(worst_value) # Seleciona o index do pior FO
-                self.best_fos[index] = fo # Adiciona o FO novo na lista, no lugar do antigo
-                self.best_solutions[index] = solution
+                i = self.best_fos.index(worst_value) # Seleciona o index do pior FO
+                self.best_fos[i] = fo # Adiciona o FO novo na lista, no lugar do antigo
+                self.best_solutions[i] = S
         else: # Se a lista ainda não está lotada, insere o FO na lista
             self.best_fos.append(fo)
-            self.best_solutions.append(solution)
+            self.best_solutions.append(S)
 
     def best_solution(self):
         best_fo = min(self.best_fos)
-        index = self.best_fos.index(best_fo)
-        best_solution = self.best_solutions[index]
+        i = self.best_fos.index(best_fo)
+        best_solution = self.best_solutions[i]
         return best_fo, best_solution
 
-    def print_solution(self, plot_solution = 0):
-        fo, routes = self.best_solution()
+    def print_solution(self, plot_solution = False):
+        fo, S = self.best_solution()
         fo_manually = 0
         is_valid = self.is_valid_solution()
        
@@ -46,30 +47,30 @@ class Instance:
             print('\nTHE SOLUTION IS NOT VALID')
 
         print('WINNER ROUTE: ')
-        print(routes)
+        print(S)
         print('\n', end = '')
-        for i in range(len(routes)):
+        for i in range(len(S)):
             print('\n', end = '')
             print('route ' + str(i+1) + ': ')
-            for item in routes[i]:
+            for item in S[i]:
                 print(item['index'], end = ' ')
             print('\n', end = '')
-            for item in routes[i]:
+            for item in S[i]:
                 print(item['xy'], end = ' ')
         
-            fo_route = self.calculate_fo_per_route(routes[i])
+            fo_route = self.calculate_fo_per_route(S[i])
             fo_manually += fo_route
             print('\nfo manually calculated: ' + str(round(fo_route, 2)))
 
         print('\nfo manually calculated: ' + str(round(fo_manually, 2)))
         print('FO: ' + str(fo))
 
-        if plot_solution == 1:
+        if plot_solution == True:
             self.plot_solution(True)
 
-    def treat_solution(self, solution):
+    def treat_solution(self, S):
         result = []
-        for route in solution:
+        for route in S:
             del route[0] # Exclui a garagem
             points = []
             for point in route:
@@ -109,52 +110,52 @@ class Instance:
         nx.draw(G, positions, edge_color=edgeColors, node_color=nodeColors, with_labels=True)
         plt.savefig("%s.png" % ('solution_' + self.name + '_fo_' + str(float("{0:.4f}".format(fo)))))
 
-    def calculate_FO(self, routes):
+    def calculate_FO(self, S):
         fo = 0
-        for route in routes: 
+        for route in S: 
             fo += self.calculate_fo_per_route(route)
             
         return round(fo, 2)
 
-    def calculate_fo_per_route(self, route):
+    def calculate_fo_per_route(self, S):
         fo = 0
-        if len(route) > 1:     
-            first_point_index = route[1]['index']
-            fo += self.matrix[0][first_point_index] # Distância da garagem ao primeiro ponto da rota
-            for point_index in range(len(route)): # Para cada ponto
-                point = route[point_index]['index']
-                if point_index > 0 and point_index < len(route) - 1: # Se o index do ponto não for a garagem nem o último ponto                    
-                    next_point = route[point_index + 1]['index'] 
+        if len(S) > 1:     
+            first_i = S[1]['index']
+            fo += self.matrix[0][first_i] # Distância da garagem ao primeiro ponto da rota
+            for i in range(len(S)): # Para cada ponto
+                point = S[i]['index']
+                if i > 0 and i < len(S) - 1: # Se o index do ponto não for a garagem nem o último ponto                    
+                    next_point = S[i + 1]['index'] 
                     fo += self.matrix[point][next_point] # Distância entre o ponto e o próximo ponto
-                elif point_index == len(route) - 1: # Se for o último ponto da rota
+                elif i == len(S) - 1: # Se for o último ponto da rota
                     fo += self.matrix[point][0] # Distância entre o ponto e a garagem
         
         return fo
     
-    def refresh(self, routes, fo = -1):
+    def refresh(self, S, fo = -1):
         if fo == -1:
             self.current_solution_fo = round(sum(self.current_solution_fo_per_route), 2)
         else:        
             self.current_solution_fo = fo
-        self.current_solution = deepcopy(routes)
+        self.current_solution = deepcopy(S)
 
     def is_valid_solution(self):   
-        fo, solution = self.best_solution()   
-        solution_len = 0     
+        fo, S = self.best_solution()   
+        S_len = 0     
         points = deepcopy(self.points)
 
-        for route in solution:
-            solution_len += len(route) - 1
+        for route in S:
+            S_len += len(route) - 1
 
             # Se todas as rotas tem pelo menos um ponto além da garagem
             if len(route) < 2:
                 return False
 
-            for point_index in range(len(route)):
-                route_point = route[point_index]
+            for i in range(len(route)):
+                route_point = route[i]
                 
                 # Se começa na garagem
-                if point_index == 0 and route_point != self.points[0]:
+                if i == 0 and route_point != self.points[0]:
                     return False
 
                 if route_point in points:
@@ -163,7 +164,7 @@ class Instance:
         # Se todos os pontos foram visitados
         if len(points) > 0:
             return False            
-        if solution_len != len(self.points) - 1:
+        if S_len != len(self.points) - 1:
             return False
 
         return True
@@ -179,12 +180,10 @@ def generate_matrix(points):
 
     return matrix  
 
-
-def calculate_cost_remove(instance, route, point_index):
-
-    i = route[point_index]["index"]
-    i_front = route[point_index + 1 if point_index + 1 < len(route) else 0]["index"]
-    i_back = route[point_index - 1]["index"]
+def calculate_cost_remove(instance, S, index):
+    i = S[index]["index"]
+    i_front = S[index + 1 if index + 1 < len(S) else 0]["index"]
+    i_back = S[index - 1]["index"]
     
     cost = (- instance.matrix[i_back][i]
             - instance.matrix[i][i_front]
@@ -192,13 +191,13 @@ def calculate_cost_remove(instance, route, point_index):
 
     return round(cost, 2)
 
-def calculate_cost_swap(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
-    i = routes[route_one_index][point_one_index]["index"]
-    i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
-    i_back = routes[route_one_index][point_one_index - 1]["index"]
-    j = routes[route_two_index][point_two_index]["index"]
-    j_front = routes[route_two_index][point_two_index + 1 if point_two_index + 1 < len(routes[route_two_index]) else 0]["index"]
-    j_back = routes[route_two_index][point_two_index - 1]["index"]
+def calculate_cost_swap(instance, S, route_one_index, route_two_index, point_one_index, point_two_index):
+    i = S[route_one_index][point_one_index]["index"]
+    i_front = S[route_one_index][point_one_index + 1 if point_one_index + 1 < len(S[route_one_index]) else 0]["index"]
+    i_back = S[route_one_index][point_one_index - 1]["index"]
+    j = S[route_two_index][point_two_index]["index"]
+    j_front = S[route_two_index][point_two_index + 1 if point_two_index + 1 < len(S[route_two_index]) else 0]["index"]
+    j_back = S[route_two_index][point_two_index - 1]["index"]
 
     if route_one_index == route_two_index and abs(point_one_index - point_two_index) == 1:
         if point_two_index > point_one_index:
@@ -223,17 +222,17 @@ def calculate_cost_swap(instance, routes, route_one_index, route_two_index, poin
         
     return round(cost, 2)
 
-def calculate_cost_shift(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
+def calculate_cost_shift(instance, S, route_one_index, route_two_index, point_one_index, point_two_index):
 
     intra = 0
     if route_one_index == route_two_index and point_one_index < point_two_index: # Se for intrarota e o ponto i é menor que o j
         intra = 1 # Então adiciona 1 ao ponto, pois ao retirar da posição i, o vetor será rearranjado e j será j - 1
     
-    i = routes[route_one_index][point_one_index]["index"]
-    i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]
-    i_back = routes[route_one_index][point_one_index - 1]["index"]
-    j = routes[route_two_index][point_two_index + intra if point_two_index + intra < len(routes[route_two_index]) else 0]["index"]
-    j_back = routes[route_two_index][point_two_index - 1 + intra]["index"]
+    i = S[route_one_index][point_one_index]["index"]
+    i_front = S[route_one_index][point_one_index + 1 if point_one_index + 1 < len(S[route_one_index]) else 0]["index"]
+    i_back = S[route_one_index][point_one_index - 1]["index"]
+    j = S[route_two_index][point_two_index + intra if point_two_index + intra < len(S[route_two_index]) else 0]["index"]
+    j_back = S[route_two_index][point_two_index - 1 + intra]["index"]
 
     cost = (- instance.matrix[i_back][i]
             - instance.matrix[i][i_front]
@@ -242,15 +241,13 @@ def calculate_cost_shift(instance, routes, route_one_index, route_two_index, poi
             + instance.matrix[i][j]
             - instance.matrix[j_back][j])
 
-
     return round(cost, 2)
 
-def calculate_cost_2opt(instance, routes, route_index, point_one_index, point_two_index):
-
-    i = routes[route_index][point_one_index]["index"]
-    i_front = routes[route_index][point_one_index + 1]["index"]
-    j = routes[route_index][point_two_index]["index"]
-    j_front = routes[route_index][point_two_index + 1]["index"]
+def calculate_cost_2opt(instance, S, point_one_index, point_two_index):
+    i = S[point_one_index]["index"]
+    i_front = S[point_one_index + 1]["index"]
+    j = S[point_two_index]["index"]
+    j_front = S[point_two_index + 1]["index"]
     
     cost = (- instance.matrix[i][i_front]
             - instance.matrix[j][j_front]
@@ -259,17 +256,15 @@ def calculate_cost_2opt(instance, routes, route_index, point_one_index, point_tw
 
     return round(cost, 2)
 
-
-
 def export_instance(list_of_instance): # Exporta a instância para arquivo txt
-    for index in range(len(list_of_instance)):        
-        with open(os.path.dirname(os.path.abspath(__file__)) + '\\results_' + list_of_instance[index].name +'.txt', 'w+') as list_file:
-            list_file.write('vehicles_quantity: ' + str(list_of_instance[index].vehicles_quantity) + '\n') # Quantidade de veículos
+    for i in range(len(list_of_instance)):        
+        with open(os.path.dirname(os.path.abspath(__file__)) + '\\results_' + list_of_instance[i].name +'.txt', 'w+') as list_file:
+            list_file.write('vehicles_quantity: ' + str(list_of_instance[i].vehicles_quantity) + '\n') # Quantidade de veículos
             
-            for i in range(len(list_of_instance[index].points)): 
-                list_file.write(str(list_of_instance[index].points[i]['index']) + ' ' + str(list_of_instance[index].points[i]['xy']) + '\n') # Pontos
+            for i in range(len(list_of_instance[i].points)): 
+                list_file.write(str(list_of_instance[i].points[i]['index']) + ' ' + str(list_of_instance[i].points[i]['xy']) + '\n') # Pontos
 
-            for row in list_of_instance[index].matrix: # Matriz de distância
+            for row in list_of_instance[i].matrix: # Matriz de distância
                 list_file.write(str(row))
                 list_file.write('\n')
       
