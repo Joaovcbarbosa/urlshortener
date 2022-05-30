@@ -18,7 +18,7 @@ def remove_random(instance, S, fo, removed_points):
     route_index = random_valid_route(S)
     point_index = randint(1, len(S[route_index]) - 1)
     point = S[route_index][point_index]
-    removed_points.append(point["index"])
+    removed_points.append(point['index'])
     cost = calculate_cost_remove(instance, S[route_index], point_index)
     fo += cost     
     S[route_index].remove(point)
@@ -27,25 +27,25 @@ def remove_random(instance, S, fo, removed_points):
 
 def remove_worst(instance, S, fo, removed_points):
     worst = {
-    "route_index": -1,
-    "point_index": -1,
-    "value": -1,
-    "distance": -1
+        'route_index': -1,
+        'point_index': -1,
+        'value': -1,
+        'distance': -1
     }
 
     for i in range(len(S)):
         if len(S[i]) > 2:
             for j in range(1, len(S[i])): 
                 cost = calculate_cost_remove(instance, S[i], j)
-                if cost < worst["distance"] or worst["distance"] == -1:
-                    worst["route_index"] = i
-                    worst["point_index"] = j 
-                    worst["value"] = S[i][j] 
-                    worst["distance"] = cost 
+                if cost < worst['distance'] or worst['distance'] == -1:
+                    worst['route_index'] = i
+                    worst['point_index'] = j 
+                    worst['value'] = S[i][j] 
+                    worst['distance'] = cost 
 
-    S[worst["route_index"]].remove(worst["value"])    
-    removed_points.append(worst["value"]["index"])
-    fo += worst["distance"]
+    S[worst['route_index']].remove(worst['value'])    
+    removed_points.append(worst['value']['index'])
+    fo += worst['distance']
     
     return S, fo 
 

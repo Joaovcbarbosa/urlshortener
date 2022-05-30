@@ -108,7 +108,7 @@ class Instance:
         edgeColors = nx.get_edge_attributes(G,'color').values()
         plt.figure(1,figsize=(40,40)) #ajustar: Números maiores -> nós menores (mas a resolução do arquivo de saída aumenta)
         nx.draw(G, positions, edge_color=edgeColors, node_color=nodeColors, with_labels=True)
-        plt.savefig("%s.png" % ('solution_' + self.name + '_fo_' + str(float("{0:.4f}".format(fo)))))
+        plt.savefig('%s.png' % ('solution_' + self.name + '_fo_' + str(float('{0:.4f}'.format(fo)))))
 
     def calculate_FO(self, S):
         fo = 0
@@ -181,9 +181,9 @@ def generate_matrix(points):
     return matrix  
 
 def calculate_cost_remove(instance, route, index):
-    i = route[index]["index"]
-    i_front = route[index + 1 if index + 1 < len(route) else 0]["index"]
-    i_back = route[index - 1]["index"]
+    i = route[index]['index']
+    i_front = route[index + 1 if index + 1 < len(route) else 0]['index']
+    i_back = route[index - 1]['index']
     
     cost = (- instance.matrix[i_back][i]
             - instance.matrix[i][i_front]
@@ -192,12 +192,12 @@ def calculate_cost_remove(instance, route, index):
     return round(cost, 2)
 
 def calculate_cost_swap(instance, route_one, route_two, point_one_index, point_two_index):
-    i = route_one[point_one_index]["index"]
-    i_front = route_one[point_one_index + 1 if point_one_index + 1 < len(route_one) else 0]["index"]
-    i_back = route_one[point_one_index - 1]["index"]
-    j = route_two[point_two_index]["index"]
-    j_front = route_two[point_two_index + 1 if point_two_index + 1 < len(route_two) else 0]["index"]
-    j_back = route_two[point_two_index - 1]["index"]
+    i = route_one[point_one_index]['index']
+    i_front = route_one[point_one_index + 1 if point_one_index + 1 < len(route_one) else 0]['index']
+    i_back = route_one[point_one_index - 1]['index']
+    j = route_two[point_two_index]['index']
+    j_front = route_two[point_two_index + 1 if point_two_index + 1 < len(route_two) else 0]['index']
+    j_back = route_two[point_two_index - 1]['index']
 
     if route_one == route_two and abs(point_one_index - point_two_index) == 1:
         if point_two_index > point_one_index:
@@ -228,11 +228,11 @@ def calculate_cost_shift(instance, route_one, route_two, point_one_index, point_
     if route_one == route_two and point_one_index < point_two_index: # Se for intrarota e o ponto i é menor que o j
         intra = 1 # Então adiciona 1 ao ponto, pois ao retirar da posição i, o vetor será rearranjado e j será j - 1
     
-    i = route_one[point_one_index]["index"]
-    i_front = route_one[point_one_index + 1 if point_one_index + 1 < len(route_one) else 0]["index"]
-    i_back = route_one[point_one_index - 1]["index"]
-    j = route_two[point_two_index + intra if point_two_index + intra < len(route_two) else 0]["index"]
-    j_back = route_two[point_two_index - 1 + intra]["index"]
+    i = route_one[point_one_index]['index']
+    i_front = route_one[point_one_index + 1 if point_one_index + 1 < len(route_one) else 0]['index']
+    i_back = route_one[point_one_index - 1]['index']
+    j = route_two[point_two_index + intra if point_two_index + intra < len(route_two) else 0]['index']
+    j_back = route_two[point_two_index - 1 + intra]['index']
 
     cost = (- instance.matrix[i_back][i]
             - instance.matrix[i][i_front]
@@ -244,10 +244,10 @@ def calculate_cost_shift(instance, route_one, route_two, point_one_index, point_
     return round(cost, 2)
 
 def calculate_cost_2opt(instance, S, point_one_index, point_two_index):
-    i = S[point_one_index]["index"]
-    i_front = S[point_one_index + 1]["index"]
-    j = S[point_two_index]["index"]
-    j_front = S[point_two_index + 1]["index"]
+    i = S[point_one_index]['index']
+    i_front = S[point_one_index + 1]['index']
+    j = S[point_two_index]['index']
+    j_front = S[point_two_index + 1]['index']
     
     cost = (- instance.matrix[i][i_front]
             - instance.matrix[j][j_front]
