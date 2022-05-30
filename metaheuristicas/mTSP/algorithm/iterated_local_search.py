@@ -1,7 +1,6 @@
 from local_search import local_search
 from disturbance import random_neighbor
 from random import randint 
-from copy import deepcopy
 
 def ILS(instance, betta_min, betta_max, ILS_max):
     local_search(instance)

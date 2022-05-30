@@ -82,8 +82,8 @@ class Instance:
         return result 
 
     def plot_solution(self, withDepEdges):
-        fo, solution = self.best_solution()
-        solution = deepcopy(self.treat_solution(solution))
+        fo, S = self.best_solution()
+        S = deepcopy(self.treat_solution(S))
         fIn = open(self.path, 'r')
         matRaw = [ [a for a in b.split('\t')] for b in fIn.read().split('\n') if b != '' ]
         matRaw = matRaw[1:]
@@ -94,8 +94,8 @@ class Instance:
             nID = int(nNode[0])
             G.add_node(nID,pos=( float(nNode[1]) , float(nNode[2])), color= 'lightblue' if nID==1 else 'lightgreen')
     
-        for rID in range(len(solution)):
-            route = solution[rID]
+        for rID in range(len(S)):
+            route = S[rID]
             rColor = baseColors[rID % len(baseColors)]
             if (len(route) > 0):
                 if withDepEdges:
@@ -180,10 +180,10 @@ def generate_matrix(points):
 
     return matrix  
 
-def calculate_cost_remove(instance, S, index):
-    i = S[index]["index"]
-    i_front = S[index + 1 if index + 1 < len(S) else 0]["index"]
-    i_back = S[index - 1]["index"]
+def calculate_cost_remove(instance, route, index):
+    i = route[index]["index"]
+    i_front = route[index + 1 if index + 1 < len(route) else 0]["index"]
+    i_back = route[index - 1]["index"]
     
     cost = (- instance.matrix[i_back][i]
             - instance.matrix[i][i_front]
@@ -191,15 +191,15 @@ def calculate_cost_remove(instance, S, index):
 
     return round(cost, 2)
 
-def calculate_cost_swap(instance, S, route_one_index, route_two_index, point_one_index, point_two_index):
-    i = S[route_one_index][point_one_index]["index"]
-    i_front = S[route_one_index][point_one_index + 1 if point_one_index + 1 < len(S[route_one_index]) else 0]["index"]
-    i_back = S[route_one_index][point_one_index - 1]["index"]
-    j = S[route_two_index][point_two_index]["index"]
-    j_front = S[route_two_index][point_two_index + 1 if point_two_index + 1 < len(S[route_two_index]) else 0]["index"]
-    j_back = S[route_two_index][point_two_index - 1]["index"]
+def calculate_cost_swap(instance, route_one, route_two, point_one_index, point_two_index):
+    i = route_one[point_one_index]["index"]
+    i_front = route_one[point_one_index + 1 if point_one_index + 1 < len(route_one) else 0]["index"]
+    i_back = route_one[point_one_index - 1]["index"]
+    j = route_two[point_two_index]["index"]
+    j_front = route_two[point_two_index + 1 if point_two_index + 1 < len(route_two) else 0]["index"]
+    j_back = route_two[point_two_index - 1]["index"]
 
-    if route_one_index == route_two_index and abs(point_one_index - point_two_index) == 1:
+    if route_one == route_two and abs(point_one_index - point_two_index) == 1:
         if point_two_index > point_one_index:
             cost = (- instance.matrix[i_back][i]
                     - instance.matrix[j][j_front]
@@ -222,17 +222,17 @@ def calculate_cost_swap(instance, S, route_one_index, route_two_index, point_one
         
     return round(cost, 2)
 
-def calculate_cost_shift(instance, S, route_one_index, route_two_index, point_one_index, point_two_index):
+def calculate_cost_shift(instance, route_one, route_two, point_one_index, point_two_index):
 
     intra = 0
-    if route_one_index == route_two_index and point_one_index < point_two_index: # Se for intrarota e o ponto i é menor que o j
+    if route_one == route_two and point_one_index < point_two_index: # Se for intrarota e o ponto i é menor que o j
         intra = 1 # Então adiciona 1 ao ponto, pois ao retirar da posição i, o vetor será rearranjado e j será j - 1
     
-    i = S[route_one_index][point_one_index]["index"]
-    i_front = S[route_one_index][point_one_index + 1 if point_one_index + 1 < len(S[route_one_index]) else 0]["index"]
-    i_back = S[route_one_index][point_one_index - 1]["index"]
-    j = S[route_two_index][point_two_index + intra if point_two_index + intra < len(S[route_two_index]) else 0]["index"]
-    j_back = S[route_two_index][point_two_index - 1 + intra]["index"]
+    i = route_one[point_one_index]["index"]
+    i_front = route_one[point_one_index + 1 if point_one_index + 1 < len(route_one) else 0]["index"]
+    i_back = route_one[point_one_index - 1]["index"]
+    j = route_two[point_two_index + intra if point_two_index + intra < len(route_two) else 0]["index"]
+    j_back = route_two[point_two_index - 1 + intra]["index"]
 
     cost = (- instance.matrix[i_back][i]
             - instance.matrix[i][i_front]

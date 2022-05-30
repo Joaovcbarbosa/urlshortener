@@ -3,27 +3,27 @@ from disturbance import random_neighbor
 from copy import deepcopy
 
 def VNS(instance, r, VNS_max):
-    fo, S = instance.best_solution()    
-    best_fo = fo
+    fo_S, S = instance.best_solution()    
+    fo_best = fo_S
 
     for i in range(VNS_max):
-        fo_initial = fo
+        fo_initial = fo_S
         k = 1
         while k < r:
             for j in range(k):                         
-                S, fo = random_neighbor(instance, S, fo) 
-                instance.refresh(S, fo)
+                S, fo_S = random_neighbor(instance, S, fo_S) 
+                instance.refresh(S, fo_S)
 
             local_search(instance)
-            fo, S = instance.best_solution()
+            fo_S, S = instance.best_solution()
 
-            if fo < best_fo:
-                best_fo = fo
+            if fo_S < fo_best:
+                fo_best = fo
                 k = 1
             else:
                 k+=1
 
-        print(i, fo_initial, best_fo)
+        print(i, fo_initial, fo_best)
         fo, S = instance.best_solution()
 
 

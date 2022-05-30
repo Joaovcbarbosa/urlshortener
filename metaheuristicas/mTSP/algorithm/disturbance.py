@@ -3,25 +3,25 @@ from copy import deepcopy
 from instances import calculate_cost_shift, calculate_cost_swap
 
 def intra_route_swap(instance, S, route_index, point_one_index, point_one_value, point_two_index, point_two_value):   
-    cost = calculate_cost_swap(instance, S, route_index, route_index, point_one_index, point_two_index)  
+    cost = calculate_cost_swap(instance, S[route_index], S[route_index], point_one_index, point_two_index)  
     S[route_index][point_one_index] = point_two_value    
     S[route_index][point_two_index] = point_one_value   
     return cost 
     
 def intra_route_shift(instance, S, route_index, point_one_index, point_one_value, point_two_index):  
-    cost = calculate_cost_shift(instance, S, route_index, route_index, point_one_index, point_two_index)
+    cost = calculate_cost_shift(instance, S[route_index], S[route_index], point_one_index, point_two_index)
     S[route_index].remove(point_one_value)
     S[route_index].insert(point_two_index, point_one_value)
     return cost 
 
 def inter_route_swap(instance, S, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index, point_two_value):  
-    cost = calculate_cost_swap(instance, S, route_one_index, route_two_index, point_one_index, point_two_index)   
+    cost = calculate_cost_swap(instance, S[route_one_index], S[route_two_index], point_one_index, point_two_index)   
     S[route_one_index][point_one_index] = point_two_value
     S[route_two_index][point_two_index] = point_one_value
     return cost 
 
 def inter_route_shift(instance, S, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index): 
-    cost = calculate_cost_shift(instance, S, route_one_index, route_two_index, point_one_index, point_two_index)
+    cost = calculate_cost_shift(instance, S[route_one_index], S[route_two_index], point_one_index, point_two_index)
     S[route_one_index].remove(point_one_value)
     S[route_two_index].insert(point_two_index, point_one_value)
     return cost 

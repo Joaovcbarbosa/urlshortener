@@ -33,7 +33,7 @@ def main():
         if option == '1':            
             local_search(instance)    
         if option == '2':
-            SA(instance, T0=1000000, SAMax=100, cooling_rate=0.9)
+            SA(instance, T0=1000000, SAMax=200, cooling_rate=0.9)
         if option == '3':
             GRASP(instance, GRASP_max=100, RLC_length_in_percentage=20, alpha=0.3)   
         if option == '4':
