@@ -26,22 +26,6 @@ def two_opt(route, i, j):
     new_route.reverse()
     route[i:j+1] = new_route 
 
-# def intra_route_2opt_without_automatica_fo_calc(instance, routes):
-#     for route_index in range(len(routes)):  # Para cada rota
-#         lenght_route = len(routes[route_index])
-#         for point_one_index in range(1, lenght_route - 2): # Seleciona um ponto da rota
-#             point_two_index = point_one_index + 2
-#             while point_two_index < lenght_route - 1:
-
-#                 new_route = deepcopy(routes[route_index])
-#                 two_opt(new_route, point_one_index, point_two_index)
-#                 cost = instance.calculate_fo_per_route(new_route) - instance.calculate_fo_per_route(routes[route_index])
-#                 if cost < 0:
-#                     routes[route_index] = new_route
-#                     update_solution(instance, routes, cost)     
-#                     return intra_route_2opt(instance, routes)
-#                 point_two_index += 1  
-
 def intra_route_2opt(instance, routes):
     for route_index in range(len(routes)):  # Para cada rota
         lenght_route = len(routes[route_index])

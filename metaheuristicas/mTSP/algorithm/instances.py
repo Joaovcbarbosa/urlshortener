@@ -180,6 +180,18 @@ def generate_matrix(points):
     return matrix  
 
 
+def calculate_cost_remove(instance, route, point_index):
+
+    i = route[point_index]["index"]
+    i_front = route[point_index + 1 if point_index + 1 < len(route) else 0]["index"]
+    i_back = route[point_index - 1]["index"]
+    
+    cost = (- instance.matrix[i_back][i]
+            - instance.matrix[i][i_front]
+            + instance.matrix[i_back][i_front])
+
+    return round(cost, 2)
+
 def calculate_cost_swap(instance, routes, route_one_index, route_two_index, point_one_index, point_two_index):
     i = routes[route_one_index][point_one_index]["index"]
     i_front = routes[route_one_index][point_one_index + 1 if point_one_index + 1 < len(routes[route_one_index]) else 0]["index"]

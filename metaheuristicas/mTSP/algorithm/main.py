@@ -8,6 +8,7 @@ from grasp import GRASP
 from iterated_local_search import ILS
 from variable_neighborhood_search import VNS
 from variable_neighborhood_descent import VND
+from large_neighborhood_search import LNS
 # from sys import setrecursionlimit
 
 def main():
@@ -17,7 +18,8 @@ def main():
                     '3 -> GRASP \n' +
                     '4 -> ILS\n' +
                     '5 -> VNS\n' +
-                    '6 -> VND\n')
+                    '6 -> VND\n' +
+                    '7 -> LNS\n')
     option = input(input_string)
     
     list_of_instance = import_instances()    
@@ -41,7 +43,9 @@ def main():
         if option == '5':
             VNS(instance, 10, 100)     
         if option == '6':
-            VND(instance, 4)   
+            VND(instance, 4)     
+        if option == '7':
+            LNS(instance, 1000000, 100, 0.7, 20, 40)
         else:
             exit 
     
