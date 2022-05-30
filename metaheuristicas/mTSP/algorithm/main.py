@@ -7,6 +7,7 @@ from iterated_local_search import ILS
 from variable_neighborhood_search import VNS
 from variable_neighborhood_descent import VND
 from large_neighborhood_search import LNS
+from biased_random_key_genetic_algorithm import BRKGA
 # from sys import setrecursionlimit
 
 def main():
@@ -17,7 +18,8 @@ def main():
                     '4 -> ILS\n' +
                     '5 -> VNS\n' +
                     '6 -> VND\n' +
-                    '7 -> LNS\n')
+                    '7 -> LNS\n' +
+                    '8 -> BRKGA\n')
     option = input(input_string)
     
     list_of_instance = import_instances()    
@@ -44,6 +46,8 @@ def main():
             VND(instance, r=6)     
         if option == '7':
             LNS(instance, T0=1000000, SAMax=100, cooling_rate=0.9, betta_min=20, betta_max=40, RLC_length_in_percentage=20, alpha=0.3)  
+        if option == '8':
+            BRKGA(instance, BRKGAMax=1, p=1)  
         else:
             exit 
     
