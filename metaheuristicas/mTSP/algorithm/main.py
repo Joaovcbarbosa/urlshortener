@@ -47,7 +47,7 @@ def main():
         if option == '7':
             LNS(instance, T0=1000000, SAMax=100, cooling_rate=0.9, betta_min=20, betta_max=40, RLC_length_in_percentage=20, alpha=0.3)  
         if option == '8':
-            BRKGA(instance, BRKGAMax=2000, p=610, pe_min=10, pe_max=30, rhoe_min=55, rhoe_max=80, pm_min=20, pm_max=40)
+            BRKGA(instance, BRKGAMax=10000, p=610, pe_min=10, pe_max=30, rhoe_min=55, rhoe_max=80, pm_min=1, pm_max=7)
         else:
             exit 
     
