@@ -102,7 +102,7 @@ def greedy_random_construction(instance, S, fo, candidates):
         add_candidate_to_route(instance, selected_candidate_values, S)  
         fo += selected_candidate_values['cost']   
   
-    return S, fo
+    return S, round(fo, 2)
 
 def greedy_miope_construction(instance, S, fo, candidates): 
     while len(candidates) > 0: # Enquanto houver candidatos
@@ -120,7 +120,7 @@ def greedy_miope_construction(instance, S, fo, candidates):
         candidates.remove(selected_candidate_values['candidate']['index'])   
         fo += selected_candidate_values['cost']   
   
-    return S, fo
+    return S, round(fo, 2)
 
 def greedy_miope_restrict_construction(instance, S, fo, candidates, RLC_length_in_percentage, alpha):
     while len(candidates) > 0: # Enquanto houver candidatos
@@ -138,7 +138,7 @@ def greedy_miope_restrict_construction(instance, S, fo, candidates, RLC_length_i
         candidates.remove(selected_candidate_values['candidate']['index'])   
         fo += selected_candidate_values['cost']   
   
-    return S, fo
+    return S, round(fo, 2)
 
 def semi_greedy_construction(instance, RLC_length_in_percentage, alpha):    
     S, candidates, RCL = generate_candidates(instance) # Gera a lista de candidatos
