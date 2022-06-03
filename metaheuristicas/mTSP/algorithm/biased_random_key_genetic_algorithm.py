@@ -114,8 +114,11 @@ def crossover(instance, p, S, S_elite, rhoe_min, rhoe_max, pm_min, pm_max):
     return S_new
 
 def BRKGA(instance, BRKGAMax, p, pe_min, pe_max, rhoe_min, rhoe_max, pm_min, pm_max):
-    pm_min_original = pm_min
-    pm_max_original = pm_max
+    # pm_min_original = pm_min
+    # pm_max_original = pm_max    
+    # rhoe_min_original = rhoe_min
+    # rhoe_max_original = rhoe_max
+
     S = create_solutions(instance, p)
     S, S_elite = create_elite(S, pe_min, pe_max)
     i = 0
@@ -131,18 +134,18 @@ def BRKGA(instance, BRKGAMax, p, pe_min, pe_max, rhoe_min, rhoe_max, pm_min, pm_
         instance.add_best_solution(S_elite[0]['fo'], S_elite[0]['solution'])
         best_fo, best_solution = instance.best_solution()
         print(i, current_fo, best_fo)
-        if current_fo == best_fo:
-            j+=1
+        # if current_fo == best_fo:
+        #     j+=1
 
-        if j > 100:
-            pm_min = pm_min * 2
-            pm_max = pm_max * 2
-            j = 0
+        # if j > 100:
+        #     rhoe_min = 70
+        #     rhoe_max = 90
+        #     j = 0
 
-        if current_fo != best_fo:
-            j = 0
-            pm_min = pm_min_original 
-            pm_max = pm_max_original
+        # if current_fo != best_fo:
+        #     j = 0
+        #     rhoe_min = rhoe_min_original
+        #     rhoe_max = rhoe_max_original
 
 
 
