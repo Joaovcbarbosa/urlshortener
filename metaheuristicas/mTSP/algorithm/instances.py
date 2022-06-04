@@ -298,7 +298,7 @@ def generate_test_instance():
     return Instance(name, 'algorithm\instances\set I\mtsp51_3.txt', points, vehicles_quantity)
 
 def import_instances():
-    walk_dir = os.path.dirname(os.path.abspath(__file__)) + '\instances'
+    walk_dir = os.path.dirname(os.path.abspath(__file__)) + '//instances'
     list_of_instance = []
 
     for root, subdirs, files in os.walk(walk_dir):        

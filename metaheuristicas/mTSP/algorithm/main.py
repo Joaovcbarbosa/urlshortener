@@ -51,6 +51,6 @@ def main():
         else:
             exit 
     
-    instance.print_solution(False)
+        instance.print_solution(False)
 
 main()
