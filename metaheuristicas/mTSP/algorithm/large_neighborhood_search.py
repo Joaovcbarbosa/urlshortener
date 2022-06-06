@@ -2,6 +2,7 @@ from random import uniform
 from math import exp
 from copy import deepcopy
 from destruction_rebuild import destruction_rebuild, ConstructionWeight
+from variable_neighborhood_descent import VND
 
 def LNS(instance, T0, SAMax, cooling_rate, betta_min, betta_max, RLC_length_in_percentage, alpha):
     S = deepcopy(instance.current_solution)
@@ -31,6 +32,8 @@ def LNS(instance, T0, SAMax, cooling_rate, betta_min, betta_max, RLC_length_in_p
                     fo_S = fo_neighbor 
                     instance.refresh(S, fo_S)
                   
+        VND(instance, r=6, print_solution=False)  
+        fo_best, S_best = instance.best_solution()
         print(T, fo_S, fo_best)
         T = T * cooling_rate
         i = 0

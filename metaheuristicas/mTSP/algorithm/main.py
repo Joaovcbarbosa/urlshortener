@@ -37,17 +37,17 @@ def main():
         if option == '2':
             SA(instance, T0=1000000, SAMax=200, cooling_rate=0.9)
         if option == '3':
-            GRASP(instance, GRASP_max=300, RLC_length_in_percentage=20, alpha=0.3)   
+            GRASP(instance, GRASP_max=500, RLC_length_in_percentage=20, alpha_min=1, alpha_max=3)   
         if option == '4':
-            ILS(instance, betta_min=20, betta_max=40, ILS_max=300)   
+            ILS(instance, betta_min=5, betta_max=30, ILS_max=500)   
         if option == '5':
-            VNS(instance, betta_min=20, betta_max=40, VNS_max=50)     
+            VNS(instance, r=12, VNS_max=500)     
         if option == '6':
             VND(instance, r=6)     
         if option == '7':
-            LNS(instance, T0=1000000, SAMax=100, cooling_rate=0.9, betta_min=20, betta_max=40, RLC_length_in_percentage=20, alpha=0.3)  
+            LNS(instance, T0=10000, SAMax=50, cooling_rate=0.9, betta_min=5, betta_max=30, RLC_length_in_percentage=20, alpha=0.1)  
         if option == '8':
-            BRKGA(instance, BRKGAMax=10000, p=610, pe_min=10, pe_max=30, rhoe_min=55, rhoe_max=80, pm_min=1, pm_max=7)
+            BRKGA(instance, BRKGAMax=1000, p=610, pe_min=10, pe_max=30, rhoe_min=55, rhoe_max=80, pm_min=1, pm_max=7)
         else:
             exit 
     
