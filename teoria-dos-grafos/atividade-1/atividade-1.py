@@ -75,7 +75,7 @@ def main():
         u, v = input().split(' ')    
         u = int(u)
         v = int(v)
-        if cfc[u] == cfc[v]: # Verifica se os vértices estão no mesmo CFC
+        if cfc[u] == cfc[v]: 
             resp[i] = 1
 
     for item in resp:
