@@ -36,6 +36,18 @@ class Instance:
         best_solution = self.best_solutions[i]
         return best_fo, best_solution
 
+    def best_valid_solution(self):
+        is_valid = False
+        while is_valid == False:
+            fo_best, S_best = self.best_solution()
+            if self.is_valid_solution():
+                is_valid = True
+            else:
+                self.best_fos.remove(fo_best)
+                self.best_solutions.remove(S_best)
+
+        return fo_best
+
     def print_solution(self, plot_solution = False):
         fo, S = self.best_solution()
         fo_manually = 0
@@ -139,8 +151,9 @@ class Instance:
             self.current_solution_fo = fo
         self.current_solution = deepcopy(S)
 
-    def is_valid_solution(self):   
+    def is_valid_solution(self): 
         fo, S = self.best_solution()   
+        
         S_len = 0     
         points = deepcopy(self.points)
 

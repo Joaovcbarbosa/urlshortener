@@ -37,7 +37,7 @@ def main():
         if option == '2':
             SA(instance, T0=1000000, SAMax=200, cooling_rate=0.9)
         if option == '3':
-            GRASP(instance, GRASP_max=500, RLC_length_in_percentage=20, alpha_min=1, alpha_max=3)   
+            GRASP(instance, GRASP_max=500, RLC_length_in_percentage=20, alpha_min=1, alpha_max=3, print_solution = True)   
         if option == '4':
             ILS(instance, betta_min=5, betta_max=30, ILS_max=500)   
         if option == '5':
