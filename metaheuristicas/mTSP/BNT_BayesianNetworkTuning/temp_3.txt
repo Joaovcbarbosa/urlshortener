@@ -1,0 +1,1 @@
+Result for ParamILS: Solved, 0.968254, 0, 29821, 0

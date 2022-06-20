@@ -328,3 +328,29 @@ def import_instances():
 
             list_of_instance.append(Instance(name, instance_file_name, points, vehicles_quantity))
     return list_of_instance
+
+def import_instance(file):    
+    instance_file_name = file 
+    instance_file = open(instance_file_name, 'r')
+    first_line = True 
+    point_index = 0
+    points = []  
+    for line in instance_file: # Para cada linha do arquivo                
+        xy = []  
+        validation, line = treat_character(line)
+        if first_line == True: # Se for a primeira linha, quarda a qtd de veículos e o nome da instância
+            vehicles_quantity = int(line[2])
+            name = line[0] + '_' + str(vehicles_quantity)
+            first_line = False
+        else: # Caso contrário, guarda o index do ponto (para usar na matriz de distância) e o ponto
+            if validation == True:                        
+                xy.append(float(line[1]))
+                xy.append(float(line[2]))
+                element = {
+                    'index': point_index,
+                    'xy': xy
+                }
+                points.append(element)
+                point_index+=1
+
+    return Instance(name, instance_file_name, points, vehicles_quantity)

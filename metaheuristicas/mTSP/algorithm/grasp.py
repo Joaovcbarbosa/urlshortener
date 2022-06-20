@@ -5,7 +5,7 @@ from random import randint
 def is_better(instance, fo_best):
     return instance.current_solution_fo < fo_best or fo_best < 0
 
-def GRASP(instance, GRASP_max, RLC_length_in_percentage, alpha_min, alpha_max):
+def GRASP(instance, GRASP_max, RLC_length_in_percentage, alpha_min, alpha_max, print_result = False):
     fo_best = -1
     for i in range(GRASP_max):
         alpha = int((randint(alpha_min, alpha_max) / 100) * len(instance.points))
@@ -16,7 +16,10 @@ def GRASP(instance, GRASP_max, RLC_length_in_percentage, alpha_min, alpha_max):
         if is_better(instance, fo_best):
             fo_best = instance.current_solution_fo
 
-        print(i, instance.current_solution_fo, fo_best)
+        if print_result == True: print(i, instance.current_solution_fo, fo_best)
+
+    fo_best, S_best = instance.best_solution()
+    return fo_best
 
     
 
