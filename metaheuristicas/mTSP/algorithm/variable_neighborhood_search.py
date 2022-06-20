@@ -1,7 +1,7 @@
 from variable_neighborhood_descent import VND 
 from disturbance import random_neighbor
 
-def VNS(instance, r, VNS_max):    
+def VNS(instance, r, VNS_max, print_solution = False):    
     fo_S, S = instance.best_solution()    
     fo_best = fo_S
 
@@ -22,7 +22,9 @@ def VNS(instance, r, VNS_max):
             else:
                 k+=1
 
-        print(i, fo_initial, fo_best)
+        if print_solution == True: print(i, fo_initial, fo_best)
         fo, S = instance.best_solution()
+
+    return instance.best_valid_solution()
 
 

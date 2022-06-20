@@ -1,3 +1,4 @@
+import csv
 import os
 from math import dist
 from copy import deepcopy
@@ -18,6 +19,13 @@ class Instance:
         self.best_fos = []
         self.best_solutions = [] # Guarda as 100 melhores soluções
     
+    def reset_solutions(self):
+        self.best_fos.clear()
+        self.best_solutions.clear()
+        self.current_solution.clear()
+        self.current_solution_fo = 0 
+        self.current_solution_fo_per_route = [0 for item in range(self.vehicles_quantity)]  
+
     def add_best_solution(self, fo, S):
         fo = round(fo, 2)
         if len(self.best_fos) == 100:  # Se a lista está lotada
@@ -281,6 +289,30 @@ def export_instance(list_of_instance): # Exporta a instância para arquivo txt
                 list_file.write(str(row))
                 list_file.write('\n')
       
+def initiate_results(instance):    
+    filename = os.path.dirname(os.path.abspath(__file__)) + '/results_' + instance.name +'.csv'
+    with open(filename, 'w+') as f:       
+        f.write('"BRKGA", "LNS", "ILS", "SA", "GRASP", "VNS"\n')
+
+def export_results(instance, MH, i, result): # Exporta resultados para arquivo txt    
+    filename = os.path.dirname(os.path.abspath(__file__)) + '/results_' + instance.name +'.csv'
+    
+    arquivo_original = open(filename, 'r')
+    linhas = arquivo_original.readlines()
+    arquivo_original.close()
+    arquivo_novo = open(filename, 'w')
+
+    try:
+        linhas[i+1] = linhas[i+1].replace('\n', '')
+        linhas[i+1] = linhas[i+1] + ',' + str(result) + '\n'
+    except:
+        linhas.append(str(result) + '\n')
+
+    for linha in linhas:
+        arquivo_novo.write(linha)   
+
+    arquivo_novo.close()
+    
 def treat_character(line): 
     line = line.replace('\n', '').replace('	', ' ').replace('  ', ' ').split(' ')
     return line[0].isnumeric(), line 

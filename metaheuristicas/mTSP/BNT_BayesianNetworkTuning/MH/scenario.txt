@@ -1,10 +1,8 @@
 algo = python3 ./MH/Program/bnt_grasp.py
 execdir = .
 deterministic = 0
-run_obj = runtime
+run_obj = quality
 wallclock_limit = 2000
 cutoff_time = 1000
 paramfile = ./MH/params.pcs
 instance_file = ./MH/Instances/training.txt
-test_instance_file = ./MH/Instances/test.txt
-feature_file = ./MH/Instances/features.txt
