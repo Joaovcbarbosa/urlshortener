@@ -1,6 +1,6 @@
 from random import uniform, randint, choice
 from copy import deepcopy
-from semi_greedy_construction import greedy_random_construction
+from variable_neighborhood_descent import VND
 
 def sort_by_gene(e):
     return e['gene']
@@ -11,15 +11,9 @@ def sort_by_fo(e):
 def calculate_solution(instance, key):  
     S = [[instance.points[0]] for item in range(instance.vehicles_quantity)] # Cria uma lista de listas baseado na quantidade de veículos    
     instance.current_solution_fo_per_route = [0] * instance.vehicles_quantity
-    points_aux = deepcopy(instance.points)
-    points_aux.pop(0)
-    key_aux = []
     
     for index in range(len(key)):                 
-        i = key[index]['index']
-        if instance.points[i] not in points_aux: # Se o ponto não está na lista, então já foi inserido
-            key_aux.append(index)
-            continue
+        i = key[index]['index']        
         fos = []
         for j in range(len(S)): # Seleciona uma rota   
             last_point = S[j][-1]['index']
@@ -34,18 +28,8 @@ def calculate_solution(instance, key):
         route_index = fos.index(best_fo_value) # Seleciona o index da rota com menor FO
         instance.current_solution_fo_per_route[route_index] = best_fo_value # Atualiza o valor da FO da rota
         S[route_index].append(instance.points[i]) # Adiciona ponto a rota
-        points_aux.remove(instance.points[i])
     
     fo = round(sum(instance.current_solution_fo_per_route), 2)
-
-    if len(points_aux) > 0: # Se ainda existe elementos, então faltou inserir eles na lista
-        candidates = []
-        for item in points_aux:
-            candidates.append(item['index'])
-        for i in range(len(key_aux)):   
-            key[i]['index'] = candidates[i]
-        S, fo = greedy_random_construction(instance, S, fo, candidates)  
-
     return S, fo 
 
 def generate_key(instance):
@@ -58,16 +42,18 @@ def generate_key(instance):
         key.append(value)
 
     key.pop(0)
-    key.sort(key=sort_by_gene)
-    return key 
+    sorted_key = deepcopy(key)
+    sorted_key.sort(key=sort_by_gene)
+    return key, sorted_key
 
 def create_solutions(instance, p):  
     S = []
     for i in range(p):   
-        key = generate_key(instance)
-        solution, fo = calculate_solution(instance, key)
+        key, sorted_key = generate_key(instance)
+        solution, fo = calculate_solution(instance, sorted_key)
         element = {
             'key': key,
+            'sorted_key': sorted_key,
             'fo': fo,
             'solution': solution
         }
@@ -91,7 +77,7 @@ def generate_gene(elite_parent, non_elite_parent, rhoe_min, rhoe_max, pm_min, pm
     if x <= pm:
         value = {
             'gene': x,
-            'index': i
+            'index': i+1
         }
         return value
     if x <= rhoe:
@@ -108,16 +94,18 @@ def generate_key_crossover(instance, S, S_elite, rhoe_min, rhoe_max, pm_min, pm_
         value = generate_gene(elite_parent, non_elite_parent, rhoe_min, rhoe_max, pm_min, pm_max, i)
         key.append(value)
 
-    key.sort(key=sort_by_gene)
-    return key 
+    sorted_key = deepcopy(key)
+    sorted_key.sort(key=sort_by_gene)
+    return key, sorted_key
 
 def crossover(instance, p, S, S_elite, rhoe_min, rhoe_max, pm_min, pm_max):
     S_new = deepcopy(S_elite)
     for i in range(p - len(S_elite)):   
-        key = generate_key_crossover(instance, S, S_elite, rhoe_min, rhoe_max, pm_min, pm_max)
-        solution, fo = calculate_solution(instance, key)
+        key, sorted_key = generate_key_crossover(instance, S, S_elite, rhoe_min, rhoe_max, pm_min, pm_max)
+        solution, fo = calculate_solution(instance, sorted_key)
         element = {
             'key': key,
+            'sorted_key': sorted_key,
             'fo': fo,
             'solution': solution
         }
@@ -125,10 +113,11 @@ def crossover(instance, p, S, S_elite, rhoe_min, rhoe_max, pm_min, pm_max):
 
     return S_new
 
-def BRKGA(instance, BRKGAMax, p, pe_min, pe_max, rhoe_min, rhoe_max, pm_min, pm_max):
+def BRKGA(instance, BRKGAMax, p, pe_min, pe_max, rhoe_min, rhoe_max, pm_min, pm_max, print_solution = False):
     S = create_solutions(instance, p)
     S, S_elite = create_elite(S, pe_min, pe_max)
     i = 0
+    j = 0
 
     while i < BRKGAMax:
         i += 1
@@ -138,8 +127,14 @@ def BRKGA(instance, BRKGAMax, p, pe_min, pe_max, rhoe_min, rhoe_max, pm_min, pm_
         S, S_elite = create_elite(S, pe_min, pe_max)
 
         instance.add_best_solution(S_elite[0]['fo'], S_elite[0]['solution'])
+        VND(instance, r=6, print_solution=False)  
         best_fo, best_solution = instance.best_solution()
-        print(i, current_fo, best_fo)
+        
+        if print_solution == True: print(i, current_fo, best_fo)
+
+    return instance.best_valid_solution()
+
+
 
 
 
