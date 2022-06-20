@@ -20,16 +20,16 @@ def main():
                     result = BRKGA(instance, BRKGAMax=1000, p=610, pe_min=10, pe_max=30, rhoe_min=55, rhoe_max=80, pm_min=1, pm_max=7, print_solution = False)    
                     MH = 'BRKGA'        
                 if i == 1:
-                    result = LNS(instance, T0=10000, SAMax=50, cooling_rate=0.9, betta_min=5, betta_max=30, RLC_length_in_percentage=20, alpha=0.1, print_solution = False)   
+                    result = LNS(instance, T0=10000, SAMax=1, cooling_rate=0.9, betta_min=5, betta_max=30, RLC_length_in_percentage=20, alpha=0.1, print_solution = False)   
                     MH = 'LNS'          
                 if i == 2:
-                    result = ILS(instance, betta_min=5, betta_max=30, ILS_max=500, print_solution = False)   
+                    result = ILS(instance, betta_min=5, betta_max=30, ILS_max=300, print_solution = False)   
                     MH = 'ILS'          
                 if i == 3:
-                    result = SA(instance, T0=1000000, SAMax=50, cooling_rate=0.7, print_solution = False)   
+                    result = SA(instance, T0=10000, SAMax=200, cooling_rate=0.9, print_solution = False)   
                     MH = 'SA'          
                 if i == 4:
-                    result = GRASP(instance, GRASP_max=500, RLC_length_in_percentage=20, alpha_min=1, alpha_max=3, print_solution = False)   
+                    result = GRASP(instance, GRASP_max=500, RLC_length_in_percentage=20, alpha_min=10, alpha_max=30, print_solution = False)   
                     MH = 'GRASP'                     
                 if i == 5:
                     result = VNS(instance, r=12, VNS_max=500, print_solution = False)   
