@@ -4,7 +4,7 @@ from copy import deepcopy
 from destruction_rebuild import destruction_rebuild, ConstructionWeight
 from variable_neighborhood_descent import VND
 
-def LNS(instance, T0, SAMax, cooling_rate, betta_min, betta_max, RLC_length_in_percentage, alpha, print_solution = False):
+def LNS(instance, T0, SAMax, cooling_rate, betta_min, betta_max, RLC_length_in_percentage, alpha, print_execution = False):
     S = deepcopy(instance.current_solution)
     fo_S = instance.current_solution_fo
     S_best = deepcopy(S)
@@ -32,14 +32,14 @@ def LNS(instance, T0, SAMax, cooling_rate, betta_min, betta_max, RLC_length_in_p
                     fo_S = fo_neighbor 
                     instance.refresh(S, fo_S)
                   
-        VND(instance, r=6, print_solution=False)  
+        VND(instance, r=6)  
         fo_best, S_best = instance.best_solution()
-        if print_solution == True: print(T, fo_S, fo_best)
+        if print_execution == True: print(T, fo_S, fo_best)
         T = T * cooling_rate
         i = 0
         ConstructionWeight.weight = [0, 1, 2]
 
-    return instance.best_valid_solution()
+    return instance.best_solution()[0]
 
 
 

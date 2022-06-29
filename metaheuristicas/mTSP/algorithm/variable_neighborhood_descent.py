@@ -1,6 +1,6 @@
 from local_search import inter_route_swap, inter_route_shift, intra_route_shift, intra_route_swap, intra_route_2opt
 
-def VND(instance, r, print_solution = True):
+def VND(instance, r):
     fo_best, best_S = instance.best_solution()
     fo_S = fo_best
     k = 1
@@ -26,9 +26,6 @@ def VND(instance, r, print_solution = True):
             fo_best = fo_S
             k = 1
         else:
-            k+=1
-        
-        if print_solution == True:
-            print(fo_initial, fo_best)
+            k+=1      
 
 

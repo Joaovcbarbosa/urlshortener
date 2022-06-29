@@ -1,2 +1,0 @@
-- Naveguei até a pasta correspondente (Terminal Linux) e dei o comando: sh bnt.sh
-- Depois dei o comando: ./bnt.out -scenariofile ./MH/scenario.txt
