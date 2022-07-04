@@ -1,21 +1,22 @@
 from local_search import inter_route_swap, inter_route_shift, intra_route_shift, intra_route_swap, intra_route_2opt
 
-def VND(instance, r):
+def VND(instance):
     fo_best, best_S = instance.best_solution()
     fo_S = fo_best
     k = 1
+    r = 6
     
     while k <= r:        
         fo_initial = fo_S
-        if k >= 1:                    
+        if k == 1:                    
             intra_route_swap(instance, instance.current_solution)        
-        if k >= 2:                    
+        if k == 2:                    
             intra_route_shift(instance, instance.current_solution)      
-        if k >= 3:                    
+        if k == 3:                    
             intra_route_2opt(instance, instance.current_solution)      
-        if k >= 4:                    
+        if k == 4:                    
             inter_route_shift(instance, instance.current_solution)       
-        if k >= 5:                    
+        if k == 5:                    
             inter_route_swap(instance, instance.current_solution)  
         if k == 6:                    
             intra_route_2opt(instance, instance.current_solution)   

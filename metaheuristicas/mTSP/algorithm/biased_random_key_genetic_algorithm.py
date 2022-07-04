@@ -126,7 +126,7 @@ def BRKGA(instance, BRKGAMax, p, pe_min, pe_max, rhoe_min, rhoe_max, pm_min, pm_
         S, S_elite = create_elite(S, pe_min, pe_max)
 
         instance.add_best_solution(S_elite[0]['fo'], S_elite[0]['solution'])
-        VND(instance, r=6)  
+        VND(instance)  
         best_fo, best_solution = instance.best_solution()
         
         if print_execution == True: print(i, current_fo, best_fo)

@@ -32,7 +32,7 @@ def LNS(instance, T0, SAMax, cooling_rate, betta_min, betta_max, RLC_length_in_p
                     fo_S = fo_neighbor 
                     instance.refresh(S, fo_S)
                   
-        VND(instance, r=6)  
+        VND(instance)  
         fo_best, S_best = instance.best_solution()
         if print_execution == True: print(T, fo_S, fo_best)
         T = T * cooling_rate
