@@ -13,7 +13,7 @@ def VNS(instance, r, VNS_max, print_execution = False):
                 S, fo_S = random_neighbor(instance, S, fo_S) 
                 instance.refresh(S, fo_S)
 
-            VND(instance, r=6)   
+            VND(instance)   
             fo_S, S = instance.best_solution()
 
             if fo_S < fo_best:

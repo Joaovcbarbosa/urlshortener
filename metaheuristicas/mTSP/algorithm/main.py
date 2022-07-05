@@ -40,7 +40,7 @@ def main():
                 result = GRASP(instance, GRASP_max=500, RLC_length_in_percentage=20, alpha_min=1, alpha_max=3, print_execution=print_execution)   
             if option == '3':
                 MH = 'ILS'
-                result = ILS(instance, betta_min=5, betta_max=30, ILS_max=500, print_execution=print_execution)   
+                result = ILS(instance, betta_min=5, betta_max=30, ILS_max=150, print_execution=print_execution)   
             if option == '4':
                 MH = 'VNS'
                 result = VNS(instance, r=12, VNS_max=500, print_execution=print_execution)   

@@ -11,7 +11,7 @@ def GRASP(instance, GRASP_max, RLC_length_in_percentage, alpha_min, alpha_max, p
         alpha = int((randint(alpha_min, alpha_max) / 100) * len(instance.points))
         
         semi_greedy_construction(instance, RLC_length_in_percentage, alpha)
-        VND(instance, r=6) 
+        VND(instance) 
         
         if is_better(instance, fo_best):
             fo_best = instance.current_solution_fo
