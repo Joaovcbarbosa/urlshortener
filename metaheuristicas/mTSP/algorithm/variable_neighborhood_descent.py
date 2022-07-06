@@ -1,13 +1,12 @@
 from local_search import inter_route_swap, inter_route_shift, intra_route_shift, intra_route_swap, intra_route_2opt
 
 def VND(instance):
-    fo_best, best_S = instance.best_solution()
+    fo_best = instance.best_solution()[0]
     fo_S = fo_best
     k = 1
     r = 6
     
     while k <= r:        
-        fo_initial = fo_S
         if k == 1:                    
             intra_route_swap(instance, instance.current_solution)        
         if k == 2:                    

@@ -1,35 +1,32 @@
-import sys
- 
-class Grafo:
- 
-    def __init__(self, qtd_vertices):
-        self.qtd_vertices = qtd_vertices 
-        self.grafo = [[i for i in range(qtd_vertices)] for i in range(qtd_vertices)] 
-        self.tabela = gerar_tabela(qtd_vertices)
- 
+# https://www.youtube.com/watch?v=8zOqt7uyOwI
+tabela_inicial = []
 
-    def DFS_recursivo(self, u, vertices_visitados):
-        vertices_visitados.add(u)
-        self.soma_id += u + 1
- 
-        for v in self.grafo[u]:
-            if v not in vertices_visitados:
-                self.DFS_recursivo(v, vertices_visitados)
- 
-    def DFS(self, u, nivel):
-        vertices_visitados = set()
-        self.DFS_recursivo(u, vertices_visitados, nivel)
+def dist(d, i, j, k):
+  global tabela_inicial
+  if k == 0:
+    return tabela_inicial[i][j]
+  
+  return d[i][k] + d[k][j] if d[i][j] > d[i][k] + d[k][j] else d[i][j]
+  # return min(dist(d, i, j, k-1), dist(d, i, k, k-1) + dist(d, k, j, k-1))
 
-    def exchange(self):
-        i = 2
-        while i <= self.qtd_vertices:
-            for j in range(self.qtd_vertices):
-                self.DFS(j, i)
-                
-                
- 
+def floydWarshall(d, n):
+
+  for k in range(n):
+    for i in range(n):
+      for j in range(n):
+        d[i][j][k] = dist(d, i, j, k)
+  printSolution(d, n)
+
+def printSolution(d, n):
+  
+  for i in range(n):
+    for j in range(n):
+      print ((d[i][j][n-1]),end=' ')
+      if j == n-1:
+        print ()
 
 def gerar_tabela(n):
+    
     tabela = []
 
     for i in range(n):         
@@ -51,14 +48,14 @@ def gerar_tabela(n):
 
     return tabela  
     
-
 def main():
-    sys.setrecursionlimit(1000000)
-    n = int(input())
-    g = Grafo(n)
- 
-    print(g.grafo)
-    print(g.tabela)    
-    # g.exchange()
- 
+    global tabela_inicial 
+    # n = int(input())
+    # tabela_inicial = gerar_tabela(n)
+    n = 4
+    tabela_inicial = [[0, 3, 9999, 7],[8, 0, 2, 9999],[5, 9999, 0 , 1],[2, 9999, 9999, 0]]
+    
+    d = [[[0 for k in range(n)] for j in range(n)] for i in range(n)]
+    floydWarshall(d, n)
+
 main()

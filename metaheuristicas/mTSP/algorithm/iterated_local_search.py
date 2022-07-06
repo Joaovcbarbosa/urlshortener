@@ -1,4 +1,4 @@
-from variable_neighborhood_descent import VND
+from variable_neighborhood_descent_2 import VND
 from disturbance import random_neighbor
 from random import randint 
 

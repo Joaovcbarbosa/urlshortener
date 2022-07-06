@@ -54,33 +54,31 @@ def random_neighbor(instance, S, current_fo):
     route_one_index = random_route(S)
     point_one_index = randint(1, len(S[route_one_index]) - 1) # Sorteia um ponto da rota selecionada
     point_one_value = S[route_one_index][point_one_index]    
-    option = randint(0, 3) # Sorteia uma das operações
+    option = randint(1, 100) # Sorteia uma das operações
 
     # Intra rota
-    if option <= 1: 
+    if option <= 40: 
         point_two_index, point_two_value = random_point(point_one_index, S, route_one_index) 
         if abs(point_one_index - point_two_index) == 1:
             option = 0
             
-        if option == 0:
+        if option <= 20:
             current_fo += intra_route_swap(instance, S_copy, route_one_index, point_one_index, point_one_value, point_two_index, point_two_value)
-            
-        if option == 1:
+        else:
             current_fo += intra_route_shift(instance, S_copy, route_one_index, point_one_index, point_one_value, point_two_index)            
 
     # Inter rota
-    if option > 1:
+    if option > 40:
         route_two_index = random_route_two(S, route_one_index) 
         point_two_index = randint(1, len(S[route_two_index]) - 1) # Sorteia um ponto da rota 2  
         point_two_value = S[route_two_index][point_two_index]  
         
         if inter_route_shift_is_valid(S_copy, route_one_index) == False:
-            option = 2        
+            option = 30
 
-        if option == 2:
+        if option < 70:
             current_fo += inter_route_swap(instance, S_copy, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index, point_two_value)
-
-        if option == 3:
+        else:
             current_fo += inter_route_shift(instance, S_copy, route_one_index, route_two_index, point_one_index, point_one_value, point_two_index)
 
     return S_copy, round(current_fo, 2)
