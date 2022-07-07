@@ -10,9 +10,9 @@ def floydWarshall(dist):
   for k in range(V):
     for i in range(V):
       for j in range(V):
-        dist[i][j] = min(dist[i][j],
-                dist[i][k] + dist[k][j]
-                )
+        # dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+        dist[i][j] = max(dist[i][j], dist[i][k] * dist[k][j])
+        
   printSolution(dist)
 
 def printSolution(dist):
@@ -48,9 +48,20 @@ def gerar_tabela(n):
     
 def main():
     global V
-    n = int(input())
+    # n = int(input())
+    # 
+    # dist = gerar_tabela(n)
+
+    
+    # n = 4
+    # dist = [[0, 3, 9999, 7],[8, 0, 2, 9999],[5, 9999, 0 , 1],[2, 9999, 9999, 0]]
+    dist = [[1,1.2,0.89],[0.88,1,5.1],[1.1,0.15,1]]
+    n = 3
+
+
+
+
     V = n
-    dist = gerar_tabela(n)
     floydWarshall(dist)
 
 main()
