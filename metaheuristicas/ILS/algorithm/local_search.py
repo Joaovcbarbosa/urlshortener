@@ -34,6 +34,7 @@ def intra_route_2opt(instance, S):
                 if cost < 0:
                     two_opt(S[route_index], i, j - 1)
                     update_solution(instance, S, cost)     
+                    return intra_route_2opt(instance, S)
                 j += 1  
 
 def intra_route_swap(instance, S):
@@ -46,6 +47,7 @@ def intra_route_swap(instance, S):
                     if cost < 0:
                         swap(S[route_index], S[route_index], i, j)  
                         update_solution(instance, S, cost)
+                        return intra_route_swap(instance, S)
 
 def intra_route_shift(instance, S):
     for route_index in range(len(S)):  # Para cada rota
@@ -57,25 +59,19 @@ def intra_route_shift(instance, S):
                     if cost < 0:
                         shift(S[route_index], S[route_index], j, i)
                         update_solution(instance, S, cost)     
+                        return intra_route_shift(instance, S)
      
 def inter_route_shift(instance, S):
     for route_one_index in range(len(S)): # Para cada rota
-        i = 1
-        i_max = len(S[route_one_index]) - 1
-        while i < i_max: # Seleciona um ponto da primeira rota
+        for i in range(1, len(S[route_one_index])): # Seleciona um ponto
             for route_two_index in range(len(S)): # Seleciona uma rota diferente da primeira selecionada
-                if i == i_max:
-                    break
                 if route_one_index != route_two_index and len(S[route_one_index]) > 2: # Deve haver pelo menos 3 pontos na rota
                     for j in range(1, len(S[route_two_index])): # Seleciona um ponto da segunda rota
                         cost = calculate_cost_shift(instance, S[route_one_index], S[route_two_index], i, j)
                         if cost < 0:           
                             shift(S[route_one_index], S[route_two_index], j, i)                               
-                            update_solution(instance, S, cost) 
-                            i_max -= 1
-                            if i == i_max:
-                                break
-            i+=1
+                            update_solution(instance, S, cost)   
+                            return inter_route_shift(instance, S)       
 
 def inter_route_swap(instance, S):
     for route_one_index in range(len(S)): # Para cada rota
@@ -87,6 +83,7 @@ def inter_route_swap(instance, S):
                         if cost < 0:
                             swap(S[route_one_index], S[route_two_index], i, j)   
                             update_solution(instance, S, cost) 
+                            return inter_route_swap(instance, S)
                            
 def local_search(instance):     
     routes = deepcopy(instance.current_solution)

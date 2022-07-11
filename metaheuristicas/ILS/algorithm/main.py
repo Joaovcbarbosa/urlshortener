@@ -4,7 +4,7 @@ from iterated_local_search import ILS
 from sys import setrecursionlimit
 
 def main():
-    rounds = 10    
+    rounds = 10   
     list_of_instance = import_instances()    
     
     for instance in list_of_instance:
