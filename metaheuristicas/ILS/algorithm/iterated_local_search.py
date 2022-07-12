@@ -20,6 +20,5 @@ def ILS(instance, betta_min, betta_max, ILS_max):
             break  
         fo, S, time = instance.best_solution()
 
-    print(Tempo.tempo_decorrido)
     fo, S, time = instance.best_solution()
     return fo, time 
