@@ -48,8 +48,8 @@ def create_solution(instance):
 
         instance.current_solution_fo = round(sum(instance.current_solution_fo_per_route), 2) # Soma o FO de todas as rotas, formando o FO da solução
         instance.current_solution = S
-        instance.add_best_solution(instance.current_solution_fo, S)
+        instance.add_best_solution(instance.current_solution_fo, S, -1)
 
-    instance.current_solution_fo, instance.current_solution = instance.best_solution()
+    instance.current_solution_fo, instance.current_solution, time = instance.best_solution()
     
     

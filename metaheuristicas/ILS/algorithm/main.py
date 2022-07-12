@@ -11,9 +11,9 @@ def main():
         for j in range(rounds):            
             print('======================== ' + str(j+1) + ' ' + instance.name + ' ========================'  + '\n')
             create_solution(instance) 
-            MH = 'ILS'
-            result = ILS(instance, betta_min=1, betta_max=10, ILS_max=10) 
-            export_results(list_of_instance, MH, j, result)
+            fo, time = ILS(instance, betta_min=1, betta_max=10, ILS_max=len(instance.points)/100 * 240) 
+            export_results(list_of_instance, j, fo, False)
+            export_results(list_of_instance, j, time, True)
             instance.reset_solutions()                    
 
 setrecursionlimit(1000000000)

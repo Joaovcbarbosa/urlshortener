@@ -83,7 +83,7 @@ class Instance:
 
         return True
 
-    def add_best_solution(self, fo, S):
+    def add_best_solution(self, fo, S, time):
         if self.is_valid_solution(S) == False: return 
 
         fo = round(fo, 2)
@@ -92,16 +92,17 @@ class Instance:
             if fo < worst_value: # E o FO encontrado é melhor que o pior FO da lista
                 i = self.best_fos.index(worst_value) # Seleciona o index do pior FO
                 self.best_fos[i] = fo # Adiciona o FO novo na lista, no lugar do antigo
-                self.best_solutions[i] = S
+                self.best_solutions[i] = [S, time]
         else: # Se a lista ainda não está lotada, insere o FO na lista
             self.best_fos.append(fo)
-            self.best_solutions.append(S)
+            self.best_solutions.append([S, time])
 
     def best_solution(self):
         best_fo = min(self.best_fos)
         i = self.best_fos.index(best_fo)
-        best_solution = self.best_solutions[i]
-        return best_fo, best_solution
+        best_solution = self.best_solutions[i][0]
+        best_solution_time = self.best_solutions[i][1]
+        return best_fo, best_solution, best_solution_time
         
     def print_solution(self, fo, plot_solution = False):
         print('FO: ' + str(fo))
@@ -294,8 +295,13 @@ def import_instances():
             list_of_instance.append(Instance(name, instance_file_name, points, vehicles_quantity))
     return list_of_instance
 
-def create_result_export_file(list_of_instance, MH):    
-    file_name = os.path.dirname(os.path.abspath(__file__)) + '/results_'+ MH +'.csv'
+def create_result_export_file(list_of_instance, time = False):    
+    if time:
+        nome = '/results_time'
+    else:
+        nome = '/results_fo'
+
+    file_name = os.path.dirname(os.path.abspath(__file__)) + nome +'.csv'
     name = ''
     for instance in list_of_instance:
         name += instance.name + ', '
@@ -303,15 +309,20 @@ def create_result_export_file(list_of_instance, MH):
     with open(file_name, 'w+') as f:       
         f.write(name[:len(name)-2] + '\n')
 
-def export_results(list_of_instance, MH, i, result):  
-    file_name = os.path.dirname(os.path.abspath(__file__)) + '/results_'+ MH +'.csv'
-    if os.path.exists(file_name) == False:
-        create_result_export_file(list_of_instance, MH)
+def export_results(list_of_instance, i, result, time = False): 
+    if time:
+        nome = '/results_time'
+    else:
+        nome = '/results_fo'
+
+    fo_file = os.path.dirname(os.path.abspath(__file__)) + nome + '.csv'
+    if os.path.exists(fo_file) == False:
+        create_result_export_file(list_of_instance, time)
     
-    arquivo_original = open(file_name, 'r')
+    arquivo_original = open(fo_file, 'r')
     linhas = arquivo_original.readlines()
     arquivo_original.close()
-    arquivo_novo = open(file_name, 'w')
+    arquivo_novo = open(fo_file, 'w')
 
     try:
         linhas[i+1] = linhas[i+1].replace('\n', '')

@@ -1,7 +1,9 @@
 from copy import deepcopy
 from instances import calculate_cost_swap, calculate_cost_shift, calculate_cost_2opt
-from iterated_local_search import Tempo
 from time import time
+
+class Tempo:
+    tempo_decorrido = 0
 
 def swap(route_one, route_two, point_one_index, point_two_index):
     point_one = route_one[point_one_index]
@@ -15,10 +17,10 @@ def shift(route_one, route_two, insert_index, point_index):
     route_one.remove(point)
     route_two.insert(insert_index, point)
 
-def update_solution(instance, S, cost):
+def update_solution(instance, S, cost, time):
     instance.current_solution_fo = round(instance.current_solution_fo + cost, 2)
     instance.current_solution = S
-    instance.add_best_solution(instance.current_solution_fo, instance.current_solution)
+    instance.add_best_solution(instance.current_solution_fo, instance.current_solution, time)
 
 def two_opt(route, i, j): 
     new_route = deepcopy(route)
@@ -36,17 +38,25 @@ def intra_route_2opt(instance, S, ILS_max):
                 cost = calculate_cost_2opt(instance, S[route_index], i - 1, j - 1)
                 if cost < 0:
                     two_opt(S[route_index], i, j - 1)
-                    update_solution(instance, S, cost) 
 
                     tempo_iter = time()
                     delta = tempo_iter - tempo_inicio
-                    Tempo.tempo_decorrido += delta    
+                    Tempo.tempo_decorrido += delta 
+                    tempo_inicio = time()   
+                    update_solution(instance, S, cost,  Tempo.tempo_decorrido) 
                     if  Tempo.tempo_decorrido > ILS_max:
                         return False
-                    return intra_route_2opt(instance, S)
+                    return intra_route_2opt(instance, S, ILS_max)
+                tempo_iter = time()
+                delta = tempo_iter - tempo_inicio
+                Tempo.tempo_decorrido += delta 
+                tempo_inicio = time()   
+                if  Tempo.tempo_decorrido > ILS_max:
+                    return False
                 j += 1  
 
-def intra_route_swap(instance, S):
+def intra_route_swap(instance, S, ILS_max):
+    tempo_inicio = time()
     for route_index in range(len(S)): # Para cada rota
         lenght_route = len(S[route_index])
         for i in range(1, lenght_route): # Seleciona um ponto da rota  
@@ -55,10 +65,23 @@ def intra_route_swap(instance, S):
                     cost = calculate_cost_swap(instance, S[route_index], S[route_index], i, j)                        
                     if cost < 0:
                         swap(S[route_index], S[route_index], i, j)  
-                        update_solution(instance, S, cost)
-                        return intra_route_swap(instance, S)
+                        tempo_iter = time()
+                        delta = tempo_iter - tempo_inicio
+                        Tempo.tempo_decorrido += delta 
+                        tempo_inicio = time()   
+                        update_solution(instance, S, cost,  Tempo.tempo_decorrido) 
+                        if  Tempo.tempo_decorrido > ILS_max:
+                            return False
+                        return intra_route_swap(instance, S, ILS_max)
+                    tempo_iter = time()
+                    delta = tempo_iter - tempo_inicio
+                    Tempo.tempo_decorrido += delta 
+                    tempo_inicio = time()   
+                    if  Tempo.tempo_decorrido > ILS_max:
+                        return False
 
-def intra_route_shift(instance, S):
+def intra_route_shift(instance, S, ILS_max):
+    tempo_inicio = time()
     for route_index in range(len(S)):  # Para cada rota
         lenght_route = len(S[route_index])
         for i in range(1, lenght_route): # Seleciona um ponto da rota
@@ -67,10 +90,23 @@ def intra_route_shift(instance, S):
                     cost = calculate_cost_shift(instance, S[route_index], S[route_index], i, j)
                     if cost < 0:
                         shift(S[route_index], S[route_index], j, i)
-                        update_solution(instance, S, cost)     
-                        return intra_route_shift(instance, S)
+                        tempo_iter = time()
+                        delta = tempo_iter - tempo_inicio
+                        Tempo.tempo_decorrido += delta 
+                        tempo_inicio = time()   
+                        update_solution(instance, S, cost,  Tempo.tempo_decorrido)  
+                        if  Tempo.tempo_decorrido > ILS_max:
+                            return False  
+                        return intra_route_shift(instance, S, ILS_max)
+                    tempo_iter = time()
+                    delta = tempo_iter - tempo_inicio
+                    Tempo.tempo_decorrido += delta 
+                    tempo_inicio = time()   
+                    if  Tempo.tempo_decorrido > ILS_max:
+                        return False  
      
-def inter_route_shift(instance, S):
+def inter_route_shift(instance, S, ILS_max):
+    tempo_inicio = time()  
     for route_one_index in range(len(S)): # Para cada rota
         for i in range(1, len(S[route_one_index])): # Seleciona um ponto
             for route_two_index in range(len(S)): # Seleciona uma rota diferente da primeira selecionada
@@ -79,10 +115,23 @@ def inter_route_shift(instance, S):
                         cost = calculate_cost_shift(instance, S[route_one_index], S[route_two_index], i, j)
                         if cost < 0:           
                             shift(S[route_one_index], S[route_two_index], j, i)                               
-                            update_solution(instance, S, cost)   
-                            return inter_route_shift(instance, S)       
+                            tempo_iter = time()
+                            delta = tempo_iter - tempo_inicio
+                            Tempo.tempo_decorrido += delta 
+                            tempo_inicio = time()   
+                            update_solution(instance, S, cost, Tempo.tempo_decorrido)  
+                            if  Tempo.tempo_decorrido > ILS_max:
+                                return False 
+                            return inter_route_shift(instance, S, ILS_max)    
+                        tempo_iter = time()
+                        delta = tempo_iter - tempo_inicio
+                        Tempo.tempo_decorrido += delta 
+                        tempo_inicio = time()   
+                        if  Tempo.tempo_decorrido > ILS_max:
+                            return False   
 
-def inter_route_swap(instance, S):
+def inter_route_swap(instance, S, ILS_max):
+    tempo_inicio = time()  
     for route_one_index in range(len(S)): # Para cada rota
         for i in range(1, len(S[route_one_index])): # Seleciona um ponto
             for route_two_index in range(len(S)): # Para cada rota, diferente da primeira selecionada
@@ -91,8 +140,20 @@ def inter_route_swap(instance, S):
                         cost = calculate_cost_swap(instance, S[route_one_index], S[route_two_index], i, j)   
                         if cost < 0:
                             swap(S[route_one_index], S[route_two_index], i, j)   
-                            update_solution(instance, S, cost) 
-                            return inter_route_swap(instance, S)
+                            tempo_iter = time()
+                            delta = tempo_iter - tempo_inicio
+                            Tempo.tempo_decorrido += delta 
+                            tempo_inicio = time()   
+                            update_solution(instance, S, cost, Tempo.tempo_decorrido) 
+                            if  Tempo.tempo_decorrido > ILS_max:
+                                return False 
+                            return inter_route_swap(instance, S, ILS_max)
+                        tempo_iter = time()
+                        delta = tempo_iter - tempo_inicio
+                        Tempo.tempo_decorrido += delta 
+                        tempo_inicio = time()   
+                        if  Tempo.tempo_decorrido > ILS_max:
+                            return False 
                            
 def local_search(instance):     
     routes = deepcopy(instance.current_solution)
