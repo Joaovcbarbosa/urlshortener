@@ -12,7 +12,7 @@ def main():
             print('======================== ' + str(j+1) + ' ' + instance.name + ' ========================'  + '\n')
             create_solution(instance) 
             MH = 'ILS'
-            result = ILS(instance, betta_min=1, betta_max=10, ILS_max=5*len(instance.points)) 
+            result = ILS(instance, betta_min=1, betta_max=10, ILS_max=10) 
             export_results(list_of_instance, MH, j, result)
             instance.reset_solutions()                    
 

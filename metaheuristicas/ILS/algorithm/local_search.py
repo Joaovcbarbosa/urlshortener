@@ -1,5 +1,7 @@
 from copy import deepcopy
 from instances import calculate_cost_swap, calculate_cost_shift, calculate_cost_2opt
+from iterated_local_search import Tempo
+from time import time
 
 def swap(route_one, route_two, point_one_index, point_two_index):
     point_one = route_one[point_one_index]
@@ -24,7 +26,8 @@ def two_opt(route, i, j):
     new_route.reverse()
     route[i:j+1] = new_route 
 
-def intra_route_2opt(instance, S):
+def intra_route_2opt(instance, S, ILS_max):
+    tempo_inicio = time()
     for route_index in range(len(S)):  # Para cada rota
         lenght_route = len(S[route_index])
         for i in range(1, lenght_route - 2): # Seleciona um ponto da rota
@@ -33,7 +36,13 @@ def intra_route_2opt(instance, S):
                 cost = calculate_cost_2opt(instance, S[route_index], i - 1, j - 1)
                 if cost < 0:
                     two_opt(S[route_index], i, j - 1)
-                    update_solution(instance, S, cost)     
+                    update_solution(instance, S, cost) 
+
+                    tempo_iter = time()
+                    delta = tempo_iter - tempo_inicio
+                    Tempo.tempo_decorrido += delta    
+                    if  Tempo.tempo_decorrido > ILS_max:
+                        return False
                     return intra_route_2opt(instance, S)
                 j += 1  
 
