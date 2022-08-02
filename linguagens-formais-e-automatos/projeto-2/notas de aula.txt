@@ -1,2 +1,0 @@
-como fazer 'ou'?   -> o estado final pode ser um dos dois estados finais
-como fazer negação? -> inverter os estados finais
