@@ -16,5 +16,5 @@ def main():
             export_results(list_of_instance, j, time, True)
             instance.reset_solutions()                    
 
-setrecursionlimit(1000000000)
+setrecursionlimit(100000000)
 main()
