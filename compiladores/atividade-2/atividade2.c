@@ -40,7 +40,7 @@ int main()
     while((ch = fgetc(sourceFile)) != EOF){
 		if (ch == ')' || ch == '(' || ch == ',' || ch == ';' || isspace(ch) || ch == ' ' || ch == '\n' || ch == '\t'){
 			if(wordBufferLen > 0){
-				
+				printf("%s\n", wordBuffer);	
 				tratarCaracter(wordBuffer);	
 				wordBuffer[wordBufferLen] = '\0';
 			}
