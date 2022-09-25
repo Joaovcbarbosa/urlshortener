@@ -1,57 +1,80 @@
 // C program to illustrate the regexec() function
 #include <regex.h>
 #include <stdio.h>
-
-// Function to print the result
-void print_result(int value)
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdio.h>
+ 
+void toUpperCase(char *wordBuffer)
 {
+    int j = 0;
+ 
+    while (wordBuffer[j]) {
+        wordBuffer[j] = toupper(wordBuffer[j]);
+        j++;
+    }
+	printf("%s ", wordBuffer);
+}
 
-	// If pattern found
-	if (value == 0) {
-		printf("Pattern found.\n");
-	}
+void tratarCaracter(char *wordBuffer){
+	regex_t reegex;
+	int value, pattern;
 
-	// If pattern not found
-	else if (value == REG_NOMATCH) {
-		printf("Pattern not found.\n");
-	}
-
-	// If error occurred during Pattern
-	// matching
-	else {
-		printf("An error occurred.\n");
+	pattern = regcomp(&reegex, "if|else|void|int|return", 0); 
+	value = regexec( &reegex, wordBuffer, 0, NULL, 0);	
+	if(value == 0){
+		toUpperCase(wordBuffer);
 	}
 }
 
 // Driver Code
 int main()
 {
-
-	// Variable to store initial regex()
+	FILE *sourceFile;
+    FILE *targetFile;
 	regex_t reegex;
 
-	// Variable for return type
-	int value;
-	int value2;
+    char ch;
+    sourceFile = fopen("gcd.txt", "r");
+    targetFile = fopen("saida.txt", "w");
+	char *wordBuffer = (char*)malloc(sizeof(char));
+	int wordBufferLen = 0;
+	int result = 1;
 
-	// Creation of regEx
-	value = regcomp( &reegex, "Welcome to GfG", 0);
+    while((ch = fgetc(sourceFile)) != EOF){
+		if (ch == ')' || ch == '(' || ch == ',' || ch == ';' || isspace(ch) || ch == ' '){
+			if(wordBufferLen > 0){
+				wordBuffer[wordBufferLen] = '\0';
+				
+				result = regexec( &reegex, wordBuffer, 0, NULL, 0);	
+				printf("%i", result);
+				if(result == 0){
+					printf("%s\n", wordBuffer);
+					toUpperCase(wordBuffer);
+				}
+// tratarCaracter(wordBuffer);	
+			 	// 
 
-	// Comparing pattern "GeeksforGeeks" with
-	// string in reg
-	value = regexec( &reegex, "GeeksforGeeks",
-					0, NULL, 0);
+			}	
+			 
+			
+		
+			fputs(wordBuffer, targetFile);
+			fputc(ch, targetFile);
+			wordBuffer = NULL;
+			wordBufferLen = 0;
+		} else {
+			wordBufferLen++;
+			wordBuffer = (char*)realloc(wordBuffer, (wordBufferLen) * (sizeof(char)));
+			wordBuffer[wordBufferLen-1] = ch;
+		}
+	}
+        // fputc(ch, targetFile);
+    
+    fclose(sourceFile);
+    fclose(targetFile);
 
-	// Creation of regEx
-	value2 = regcomp( &reegex, "GeeksforGeeks", 0);
 
-	// Comparing pattern "Geeks"
-	// with string in reg
-	value2 = regexec( &reegex, "GeeksforGeeks",
-					0, NULL, 0);
 
-	// Print the results
-	print_result(value);
-	print_result(value2);
 	return 0;
 }
