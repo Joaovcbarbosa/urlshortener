@@ -1,0 +1,5 @@
+Implementar um algoritmo (dirigido por tabela)
+que reconheça todos os tokens da linguagem
+TINY, o programa deve ler o arquivo sample.tny e
+fornecer a resposta idêntica ao arquivo
+sample.tokens
