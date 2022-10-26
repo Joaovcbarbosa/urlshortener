@@ -21,7 +21,9 @@ int avanco[3][3] = {
 						{0, 0, 0}
 				   };
 
-char palavraReservada[7][255] = {{"int"}, {"while"}, {"if"}, {"return"}, {"void"}, {"input"}, {"output"}};
+char palavraReservada[8][255] = {{"if"}, {"then"}, {"else"}, {"end"}, {"repeat"}, {"until"}, {"read"}, {"write"}};
+
+char simbolosEspciais[10][255] = {{"+"}, {"-"}, {"*"}, {"/"}, {"="}, {"<"}, {"("}, {")"}, {";"}, {":="}};
 
 char avancarCaracter(FILE *arquivo)
 {
@@ -37,7 +39,7 @@ char verificarProximoCaracter(FILE *arquivo)
 
 int ehPalavraReservada(char *bufferPalavra){
 	int i;
-    for(i = 0; i < 7; i++) {
+    for(i = 0; i < 8; i++) {
         if(strcmp(bufferPalavra, palavraReservada[i]) == 0)
 			return 1;
     }
