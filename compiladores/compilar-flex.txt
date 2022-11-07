@@ -1,0 +1,2 @@
+flex exemplo.l
+gcc –o exec lex.yy.c -lfl
