@@ -1,2 +1,8 @@
+Caminho WSL:
+/home/vitormartini/compiladores/projeto-final
+
+Caminho no windows:
+\\wsl$\Ubuntu\home\vitormartini\compiladores
+
 flex exemplo.l
-gcc –o exec lex.yy.c -lfl
+gcc –o exe lex.yy.c -lfl
