@@ -1,5 +1,5 @@
 Caminho WSL:
-/home/vitormartini/compiladores/projeto-final
+/home/vitormartini/compiladores/projeto-final-linux
 
 Caminho no windows:
 \\wsl$\Ubuntu\home\vitormartini\compiladores

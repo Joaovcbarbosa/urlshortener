@@ -83,15 +83,15 @@ space [ \t]+
 
 int main(int argc, char *argv[])
 {
-  int token, i, buf[100];
-  FILE *f_in;
- 
-  for (i=0;i<=99;i++) buf[i] = 0;
- 
+  int token, i, j, len, buffer[100000], comment;
+  char lexemas[100000][60];
+  FILE *inputFile;
+  
+  comment = 0; 
+  for (i=0;i<=99999;i++) buffer[i] = 0; 
 
-  if (argc == 2)
-  {
-    if(f_in = fopen(argv[1],"r"))  yyin = f_in;
+  if (argc == 2){
+    if(inputFile = fopen(argv[1],"r"))  yyin = inputFile;
     else  perror(argv[0]);
   }
   else  yyin = stdin;
@@ -99,47 +99,62 @@ int main(int argc, char *argv[])
   i = 0;
   while ((token=yylex())!=EOF)
   {
-    buf[i] = token;
-    i++;
+    if(token == OPEN_COMMENT)
+      comment = 1;
+    
+    if(token == CLOSE_COMMENT){
+      comment = 0;
+      continue;
+    }
+
+    if(comment == 0){
+      buffer[i] = token;
+      len = strlen(yytext);
+      j = 0;
+      for(j; j < len; j++)
+        lexemas[i][j] = yytext[j];   
+
+      i++;
+    }
   }
 
   i = 0;
-  while (buf[i] != 0)
+  while (buffer[i] != 0)
   {
-    switch(buf[i])
+    switch(buffer[i])
     {
-        case OPEN_BRACKETS: printf("[ -> ABRE COLCHETES\n"); break;
-        case CLOSE_BRACKETS: printf("] -> FECHA COLCHETES\n"); break;
-        case OPEN_BRACES: printf("{ -> ABRE CHAVES\n"); break;
-        case CLOSE_BRACES: printf("} -> FECHA CHAVES\n"); break;
-        case OPEN_PARENTHESES: printf("( -> ABRE PARENTESES\n"); break;
-        case CLOSE_PARENTHESES: printf(") -> ABRE PARENTESES\n"); break;
-        case OPEN_COMMENT: printf("/* -> ABRE COMENTARIO\n"); break;
-        case CLOSE_COMMENT: printf("*/ -> FECHA COMENTARIO\n"); break;
-        case ASSIGN: printf("= -> ATRIBUICAO\n"); break;
-        case DIFFERENT: printf("!= -> DIFERENTE DE\n"); break;
-        case EQUAL: printf("== -> IGUAL A\n"); break;
-        case GREATER: printf("> -> MAIOR QUE\n"); break;
-        case GREATER_EQUAL: printf(">= -> MAIOR OU IGUAL QUE\n"); break;
-        case LESS: printf("< -> MENOR QUE\n"); break;
-        case LESS_EQUAL: printf("<= -> MENOR OU IGUAL QUE\n"); break;
-        case DIVIDED: printf("/ -> DIVIDIDO POR\n"); break;
-        case TIMES: printf("* -> VEZES\n"); break;
-        case MINUS: printf("- -> MENOS\n"); break;
-        case PLUS: printf("+ -> MAIS\n"); break;
-        case NUM: printf("NUMERO\n"); break;
-        case IF: printf("if -> SE\n"); break;
-        case ELSE: printf("else -> SENAO\n"); break;
-        case INT: printf("PALAVRA RESERVADA\n"); break;
-        case VOID: printf("PALAVRA RESERVADA\n"); break;
-        case WHILE: printf("PALAVRA RESERVADA\n"); break;
-        case RETURN: printf("PALAVRA RESERVADA\n"); break;
-        case ID: printf("IDENTIFICADOR\n"); break;
-        case COMMA: printf(", -> VIRGULA\n"); break;
-        case SEMICOLON: printf("; -> PONTO E VIRGULA\n"); break;
-        //case NEW_LINE: printf("NOVA LINHA\n"); break;
-        case SPACE: printf("ESPACO\n"); break;
-        case INVALID: printf("INVALIDO\n"); break;
+        case OPEN_BRACKETS: printf("%s -> ABRE COLCHETES\n", lexemas[i]); break;
+        case CLOSE_BRACKETS: printf("%s -> FECHA COLCHETES\n", lexemas[i]); break;
+        case OPEN_BRACES: printf("%s -> ABRE CHAVES\n", lexemas[i]); break;
+        case CLOSE_BRACES: printf("%s -> FECHA CHAVES\n", lexemas[i]); break;
+        case OPEN_PARENTHESES: printf("%s -> ABRE PARENTESES\n", lexemas[i]); break;
+        case CLOSE_PARENTHESES: printf("%s -> ABRE PARENTESES\n", lexemas[i]); break;
+        case OPEN_COMMENT: printf("%s -> ABRE comment\n", lexemas[i]); break;
+        case CLOSE_COMMENT: printf("%s -> FECHA comment\n", lexemas[i]); break;
+        case ASSIGN: printf("%s -> ATRIBUICAO\n", lexemas[i]); break;
+        case DIFFERENT: printf("%s -> DIFERENTE DE\n", lexemas[i]); break;
+        case EQUAL: printf("%s -> IGUAL A\n", lexemas[i]); break;
+        case GREATER: printf("%s -> MAIOR QUE\n", lexemas[i]); break;
+        case GREATER_EQUAL: printf("%s -> MAIOR OU IGUAL QUE\n", lexemas[i]); break;
+        case LESS: printf("%s -> MENOR QUE\n", lexemas[i]); break;
+        case LESS_EQUAL: printf("%s -> MENOR OU IGUAL QUE\n", lexemas[i]); break;
+        case DIVIDED: printf("%s -> DIVIDIDO POR\n", lexemas[i]); break;
+        case TIMES: printf("%s -> VEZES\n", lexemas[i]); break;
+        case MINUS: printf("%s -> MENOS\n", lexemas[i]); break;
+        case PLUS: printf("%s -> MAIS\n", lexemas[i]); break;
+        case NUM: printf("%s -> NUMERO\n", lexemas[i]); break;
+        case IF: printf("%s -> PALAVRA RESERVADA\n", lexemas[i]); break;
+        case ELSE: printf("%s -> PALAVRA RESERVADA\n", lexemas[i]); break;
+        case INT: printf("%s -> PALAVRA RESERVADA\n", lexemas[i]); break;
+        case VOID: printf("%s -> PALAVRA RESERVADA\n", lexemas[i]); break;
+        case WHILE: printf("%s -> PALAVRA RESERVADA\n", lexemas[i]); break;
+        case RETURN: printf("%s -> PALAVRA RESERVADA\n", lexemas[i]); break;
+        case ID: printf("%s -> IDENTIFICADOR\n", lexemas[i]); break;
+        case COMMA: printf("%s -> VIRGULA\n", lexemas[i]); break;
+        case SEMICOLON: printf("%s -> PONTO E VIRGULA\n", lexemas[i]); break;
+        case NEW_LINE: printf("NOVA LINHA\n"); break;
+        //case SPACE: printf("ESPACO\n"); break;
+        case INVALID: printf("%s -> INVALIDO\n", lexemas[i]); break;
     }
     i++;
   }
