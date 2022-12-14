@@ -1,8 +1,8 @@
 Caminho WSL:
-/home/vitormartini/compiladores/projeto-final-linux
+/home/vitor-martini/compiladores
 
 Caminho no windows:
-\\wsl$\Ubuntu\home\vitormartini\compiladores
+\\wsl$\Ubuntu\home\vitor-martini\compiladores
 
 flex exemplo.l
 gcc –o exe lex.yy.c -lfl
