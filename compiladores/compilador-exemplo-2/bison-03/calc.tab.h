@@ -34,8 +34,8 @@
 /* Undocumented macros, especially those whose name start with YY_,
    are private implementation details.  Do not rely on them.  */
 
-#ifndef YY_YY_ACUMULY_TAB_H_INCLUDED
-# define YY_YY_ACUMULY_TAB_H_INCLUDED
+#ifndef YY_YY_CALC_TAB_H_INCLUDED
+# define YY_YY_CALC_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -49,12 +49,9 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    VALOR = 258,
-    FIMLIN = 259,
-    SOMA = 260,
-    MULT = 261,
-    ABRPAR = 262,
-    FECPAR = 263
+    NUM = 258,
+    ERRO = 259,
+    FIMLIN = 260
   };
 #endif
 
@@ -70,4 +67,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_ACUMULY_TAB_H_INCLUDED  */
+#endif /* !YY_YY_CALC_TAB_H_INCLUDED  */

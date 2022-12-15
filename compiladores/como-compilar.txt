@@ -4,10 +4,17 @@ Caminho WSL:
 Caminho no windows:
 \\wsl$\Ubuntu\home\vitor-martini\compiladores
 
-Compilar Flex:
+Como compilar:
+1°: bison –d exemplo.y
+2°: flex exemplo.l
+3°: gcc -c lex.yy.c
+4°: g++ -o acc lex.yy.o acumuly.tab.c -lfl
+5°: ./acc
+
+FLEX:
 flex exemplo.l
 gcc –o exe lex.yy.c -lfl
 
-Compilar Bison:
+BISON:
 bison –d exemplo.y
 gcc -o acc lex.yy.o exemplo.tab.c -lfl
