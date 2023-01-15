@@ -1,5 +1,0 @@
-Escrever um programa (em C ou C++) que leia o arquivo
-sort.txt. Implemente o algoritmo dirigido por tabela
-para reconhecer identificadores (conforme AFD
-abaixo). Gerar um programa de saída, substituindo
-todos os identificadores pelo token "ID".
