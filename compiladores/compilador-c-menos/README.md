@@ -17,4 +17,5 @@ Dois arquivos serão gerados:
 - arquivoSaida.txt: Árvore de análise sintática e tabela de símbolos.
 
 Obs.: Caso sejam detectados erros, estes aparecerão no console e o arquivo "arquivoSaida.txt" ficará incompleto.
+
 Obs2.: As linhas referenciadas nos avisos de erros e na tabela de símbolos são de acordo com o "arquivoPreProcessado.txt".
