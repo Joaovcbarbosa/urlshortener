@@ -14,4 +14,8 @@ Para executar, execute o comando:
 
 Dois arquivos serão gerados:
 - arquivoPreProcessado.txt: Mesmo conteúdo do arquivo de entrada, porém sem comentários.
-- arquivoSaida.txt: Caso haja erros, estes aparecerão no console e o arquivo será vazio, caso contrário irá conter a árvore de análise sintática e tabela de símbolos.
+- arquivoSaida.txt: Árvore de análise sintática e tabela de símbolos.
+
+Obs.: Caso sejam detectados erros, estes aparecerão no console e o arquivo "arquivoSaida.txt" ficará incompleto.
+
+Obs2.: As linhas referenciadas nos avisos de erros e na tabela de símbolos são de acordo com o "arquivoPreProcessado.txt".
