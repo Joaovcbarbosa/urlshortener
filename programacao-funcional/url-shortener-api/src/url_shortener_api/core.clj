@@ -59,10 +59,10 @@
 (defn get-long-url [{{:keys [short-url]} :path-params}]
   (let [url (first (filter #(= short-url (:short-url %)) @urls))]
     (if url
-      {:status 200
-        :body (:long-url url)}
+      {:status 301
+       :headers {"Location" (:long-url url)}}
       {:status 404
-       :body "404 - not found"})))
+       :body "404 - Not Found. A url informada não consta no repositório de URLs"})))
 
 (def app
   (ring/ring-handler
