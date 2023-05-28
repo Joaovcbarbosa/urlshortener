@@ -2,56 +2,25 @@
   (:require [ring.adapter.jetty :as ring-jetty]
             [reitit.ring :as ring]
             [muuntaja.core :as m]
-            [reitit.ring.middleware.muuntaja :as muuntaja])
+            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [url-shortener-api.utils :as utils]) 
   (:gen-class))
 
-" * '/' Retrun string on base URL"
-" * '/urls' Return list of urls"
-" * '/urls/:id Return url for a specific id"
-" * '/urls POST a url"
-(require '[clojure.set :as set])
-
-(defn digits [n]
-  (->> n str (map (comp read-string str))))
-
-(defn reverse-str
-  [my-str]
-  (apply str (reverse my-str)))
-
-(defn hash-id
-  [n]
-  (let [symbolmap (zipmap (concat
-                           (map char (range 48 58))
-                           (map char (range 97 123))
-                           (map char (range 65 91)))
-                          (range 62))]
-    (loop [decNumber n
-           result []]
-      (if (= decNumber 0)
-        (reverse-str result)
-        (recur (quot decNumber 62)
-               (conj result ((set/map-invert symbolmap) (mod decNumber 62))))))))
-
-(defn gen-id []
-  (rand-int 350000000))
-
-
-;=====================================================
 (def urls (atom []))
 
 (defn string-handler [_]
   {:status 200
-   :body "on the code again"})
+   :body "url shortener"})
 
 (defn create-url [{body :body-params}]
-  (let [id (gen-id)
+  (let [id (utils/gen-id) 
         long-url (:long-url body)
         existing-url (some #(= long-url (:long-url %)) @urls)]
     (if existing-url
       {:status 200
        :body (deref urls)}
       (do
-        (swap! urls conj {:id id :long-url long-url :short-url (hash-id id)})
+        (swap! urls conj {:id id :long-url long-url :short-url (utils/hash-id id)}) 
         {:status 201
          :body (deref urls)}))))
 
