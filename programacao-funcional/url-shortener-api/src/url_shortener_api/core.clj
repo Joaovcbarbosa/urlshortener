@@ -68,10 +68,11 @@
   (ring/ring-handler
    (ring/router
     ["/"
+     ["" string-handler]
+     ["favicon.ico" {:get (fn [_] {:status 404 :body ""})}]
      ["urls/:short-url" get-long-url]
      ["urls" {:get get-urls
-               :post create-url}]
-     ["" string-handler]]
+              :post create-url}]]
     {:data {:muuntaja m/instance
             :middleware [muuntaja/format-middleware]}})))
 
