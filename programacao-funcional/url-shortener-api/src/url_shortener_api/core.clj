@@ -47,10 +47,13 @@
   (let [id (gen-id)
         long-url (:long-url body)
         existing-url (some #(= long-url (:long-url %)) @urls)]
-    (when-not existing-url
-      (swap! urls conj {:id id :long-url long-url :short-url (hash-id id)}))
-    {:status 201
-     :body (deref urls)}))
+    (if existing-url
+      {:status 200
+       :body (deref urls)}
+      (do
+        (swap! urls conj {:id id :long-url long-url :short-url (hash-id id)})
+        {:status 201
+         :body (deref urls)}))))
 
 (defn get-urls [_]
   {:status 200
@@ -79,7 +82,7 @@
 (defonce server (atom nil))
 
 (defn start []
-  (reset! server (ring-jetty/run-jetty app {:port 1005 :join? false})))
+  (reset! server (ring-jetty/run-jetty app {:port 3000 :join? false})))
 
 (defn stop []
   (when @server
