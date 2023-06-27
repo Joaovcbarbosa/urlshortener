@@ -1,12 +1,12 @@
-(ns url-shortener-api.utils
+(ns url-shortener.domain
   (:require [clojure.set :as set]))
-
-(defn digits [n]
-  (->> n str (map (comp read-string str))))
 
 (defn reverse-str
   [my-str]
   (apply str (reverse my-str)))
+
+(defn gen-id []
+  (rand-int 350000000))
 
 (defn hash-id
   [n]
@@ -21,6 +21,3 @@
         (reverse-str result)
         (recur (quot decNumber 62)
                (conj result ((set/map-invert symbolmap) (mod decNumber 62))))))))
-
-(defn gen-id []
-  (rand-int 350000000))

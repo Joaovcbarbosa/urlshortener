@@ -1,3 +1,3 @@
-# Introduction to url-shortener-api
+# Introduction to url-shortener
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

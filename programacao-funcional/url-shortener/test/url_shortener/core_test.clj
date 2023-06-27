@@ -1,6 +1,6 @@
-(ns url-shortener-api.core-test
+(ns url-shortener.core-test
   (:require [clojure.test :refer :all]
-            [url-shortener-api.id-functions :refer :all]))
+            [url-shortener.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
